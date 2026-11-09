@@ -25,11 +25,13 @@ Commands:
   clean         Start cleaning the whole home.
   cloud         The optional iRobot account: login, status, passwords.
   config        Where the kit keeps its files, and what's in them.
+  coverage      Where a finished mission cleaned: covered points, dirt detections...
   discover      Find iRobot robots on the local network: ID, name, SKU, firmware,...
   dock          Send the robot back to its dock.
   evac          Empty the bin into the Clean Base.
   events
   find          Play the locate sound so you can find the robot.
+  floor-plan    The robot's stored map from the iRobot cloud: its rooms with names,...
   health        Whether the service is up, and its version.
   missions
   pause         Pause the current mission.
@@ -94,10 +96,33 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
+  history   The robot's recent missions as the iRobot cloud recorded them (it keeps...
   login     Add or change the iRobot account login.
   logout    Remove the stored iRobot account login and disconnect from the cloud.
   password  Fetch a robot's local password from the iRobot account, check it by...
   status    The cloud subsystem's status: `connected`, `unavailable` (with a...
+```
+
+## `roomba-kit cloud history`
+
+```text
+Usage: roomba-kit cloud history [OPTIONS] ROBOT
+
+  The robot's recent missions as the iRobot cloud recorded them (it keeps about 30),
+  newest first. A running mission appears only minutes after the robot docks. While the
+  cloud is unavailable, the last copy fetched is returned.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `limit`: int (default: 30) — Most recent missions to return
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  --limit INTEGER  Most recent missions to return  [default: (30)]
+  -h, --help       Show this message and exit.
 ```
 
 ## `roomba-kit cloud login`
@@ -193,6 +218,28 @@ Usage: roomba-kit config show [OPTIONS]
 
   The effective configuration (files plus environment overrides), with every secret
   shown as `"***"`.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit coverage`
+
+```text
+Usage: roomba-kit coverage [OPTIONS] ROBOT MISSION_ID
+
+  Where a finished mission cleaned: covered points, dirt detections and clutter, in
+  metres from the dock. The cloud publishes it minutes after the robot docks; until then
+  this returns `cloud_unavailable` with reason `not_yet_published`. Clutter is given as
+  the vertices of each clutter area's outline.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `mission_id`: str — The kit mission ID (the robot's own mission ID) or the cloud mission ref
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
 
 Options:
   -h, --help  Show this message and exit.
@@ -348,6 +395,26 @@ Usage: roomba-kit find [OPTIONS] ROBOT
 
   Parameters:
   - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit floor-plan`
+
+```text
+Usage: roomba-kit floor-plan [OPTIONS] ROBOT
+
+  The robot's stored map from the iRobot cloud: its rooms with names, types and outlines
+  (rings of [x, y] metres, outer ring first). While the cloud is unavailable, the last
+  copy fetched is returned with its `retrieved_at`.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
 
   Supported on: braava_m6, roomba_i5
 
