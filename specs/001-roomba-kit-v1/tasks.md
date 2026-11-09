@@ -710,7 +710,7 @@ unverified capabilities.
     room IDs.
   - Results are stored in `verification_runs` and returned with a markdown report.
   - The CLI `verify --write-report` appends the report to `docs/verification/<profile>.md`.
-- [ ] T075 [P] [US5] Write `docs/settings.md`, covering each setting per model, `not_applied`
+- [x] T075 [P] [US5] Write `docs/settings.md`, covering each setting per model, `not_applied`
   semantics, schedule hold vs. app schedules, and how `verify` works.
 
 ---
