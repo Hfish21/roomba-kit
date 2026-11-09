@@ -92,6 +92,13 @@ async def statuses(c: ServiceContext) -> list[tuple[str, str | None]]:
     return [(e.data["status"], e.data.get("reason")) for e in events]
 
 
+async def until_status_event(c: ServiceContext, expected: tuple[str, str | None]) -> None:
+    """The manager flips its status before awaiting the publish, so wait for the event."""
+    async with asyncio.timeout(2.0):
+        while not (got := await statuses(c)) or got[-1] != expected:
+            await asyncio.sleep(0.005)
+
+
 async def test_not_configured_without_credentials(ctx):
     c = await ctx()
     assert isinstance(c.cloud, CloudManager)
@@ -139,7 +146,7 @@ async def test_backoff_doubles_to_the_cap_then_recovers(ctx, account):
     assert exc.value.details == {"reason": "connection_failed"}
     account.down = False
     await until(lambda: c.cloud.status().status == "connected")
-    assert (await statuses(c))[-1] == ("connected", None)
+    await until_status_event(c, ("connected", None))
 
 
 async def test_rejected_credentials_are_not_retried_until_they_change(ctx, account):
