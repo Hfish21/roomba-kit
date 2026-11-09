@@ -61,6 +61,10 @@ IDLE_SILENCE_S = 600.0
 """Any link that has delivered nothing this long is reconnected. HW-1: a docked m6's link
 stayed "connected" for 70 min while delivering nothing, and commands vanished."""
 
+DOCK_RETRY_S = 15.0
+DOCK_RETRIES = 6
+"""`dock` re-sent every 15 s, up to 6 times, while a stopped robot hasn't headed home."""
+
 REDISCOVER_AFTER = 3
 """Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
 
@@ -275,9 +279,26 @@ class RobotSession:
             cleaning = self._state is not None and self._state.activity is Activity.CLEANING
             if command == "dock" and profile.dock_needs_pause and cleaning:
                 await send("pause", None, detect=False)  # the dock's outcome decides
-            return await send(command, params)
+            result = await send(command, params)
+            # After `stop`, both V1 models ignore `dock` for 30–70 s (HW-1). While the robot
+            # sits stopped off its dock, keep asking, so `dock` reliably means "go home".
+            for _ in range(DOCK_RETRIES):
+                if command != "dock" or result.outcome == "confirmed" or not self._stopped():
+                    break
+                await asyncio.sleep(DOCK_RETRY_S)
+                result = await send(command, params)
+            return result
 
         return await self.submit(run)
+
+    def _stopped(self) -> bool:
+        """Off the dock with no mission and not moving: what `stop` leaves behind."""
+        state = self._state
+        return (
+            state is not None
+            and state.mission is None
+            and state.activity not in (Activity.DOCKED, Activity.CHARGING, Activity.RETURNING)
+        )
 
     async def request_position(self, timeout: float) -> PositionFix | None:
         self.require(Capability.LIVE_POSITION)

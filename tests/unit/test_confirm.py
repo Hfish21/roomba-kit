@@ -122,7 +122,7 @@ async def test_already_true_confirms_without_waiting():
 
 def test_profile_override_wins():
     override = replace(DEFAULT_SPECS["pause"], window_s=30)
-    profile = replace(M6, command_overrides={"pause": override})
+    profile = replace(M6, command_overrides={"pause": override}, command_windows={})
     assert spec_for("pause", profile) is override
     assert spec_for("resume", profile) is DEFAULT_SPECS["resume"]
     with pytest.raises(KeyError):

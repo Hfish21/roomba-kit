@@ -86,6 +86,10 @@ PROFILE = ModelProfile(
     id="braava_m6",
     display_name="Braava jet m6",
     sku_patterns=[r"^m6"],
+    # HW-1 (docs/verification/braava_m6.md): mid-mop the m6 ignored `dock` until paused, and
+    # acted on pause/stop/dock well after the default 10 s window (a stop landed ~13 s later).
+    dock_needs_pause=True,
+    command_windows={"pause": 30, "resume": 30, "stop": 30, "dock": 30},
     capabilities={
         **dict.fromkeys(
             (

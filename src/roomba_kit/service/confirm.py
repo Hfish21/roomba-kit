@@ -72,7 +72,11 @@ DEFAULT_SPECS: dict[str, CommandSpec] = {
 
 def spec_for(command: str, profile: ModelProfile) -> CommandSpec:
     """The profile's override for `command`, else the R9 default. KeyError for unknown commands."""
-    return profile.command_overrides.get(command) or DEFAULT_SPECS[command]
+    if (spec := profile.command_overrides.get(command)) is not None:
+        return spec
+    default = DEFAULT_SPECS[command]
+    window = profile.command_windows.get(command)
+    return default if window is None else CommandSpec(default.predicate, window)
 
 
 async def await_confirmation(
