@@ -41,7 +41,7 @@ CLEAN_HOLD_S = 30.0
 next step waits for it. HW-1: an i5 reported `cleaning` for 1 s, then aborted; and a `pause`
 sent 9 s into a clean (still leaving the dock) ended the mission instead of pausing it,
 while one sent 30 s in paused normally."""
-STOP_TO_DOCK_S = 5.0
+STOP_TO_DOCK_S = 30.0
 """Pause between `stop` and the closing `dock`. HW-1: an i5 ignored a dock sent ~3 s after
 stop, and accepted one sent later."""
 """How long to wait for the robot to be back on its dock after evac or the motion sequence."""

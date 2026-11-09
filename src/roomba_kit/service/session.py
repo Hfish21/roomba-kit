@@ -17,7 +17,14 @@ from roomba_kit.config.settings import RobotEntry
 from roomba_kit.core.capabilities import COMMAND_CAPABILITIES, Capability
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import ConnectionChangedData, EventType, StateChangedData
-from roomba_kit.core.models import CommandResult, ConnectionState, PositionFix, Robot, RobotState
+from roomba_kit.core.models import (
+    Activity,
+    CommandResult,
+    ConnectionState,
+    PositionFix,
+    Robot,
+    RobotState,
+)
 from roomba_kit.profiles.base import ModelProfile
 from roomba_kit.service.confirm import await_confirmation, spec_for
 from roomba_kit.service.eventbus import EventBus
@@ -108,6 +115,7 @@ class RobotSession:
         self._first_state_timeout = first_state_timeout_s
         self._mission_silence = mission_silence_s
         self._last_fragment = 0.0
+        self._fragment_count = 0
         self._got_state = asyncio.Event()
         self._coalesce_s = coalesce_s
 
@@ -241,12 +249,25 @@ class RobotSession:
             raise KitError(ErrorCode.INVALID_REQUEST, f"Unknown command: {command}", self.robot_id)
         profile = self.require(Capability(command))
 
-        async def run() -> CommandResult:
+        async def send(name: str, args: dict[str, Any] | None) -> CommandResult:
             transport = self.require_link()
-            spec = spec_for(command, profile)
-            before, sent_at = self._state, _now()
-            await transport.send_command(profile.protocol_command(command), params)
-            return await await_confirmation(self, command, spec, before=before, sent_at=sent_at)
+            spec = spec_for(name, profile)
+            before, sent_at, heard = self._state, _now(), self._fragment_count
+            await transport.send_command(profile.protocol_command(name), args)
+            result = await await_confirmation(self, name, spec, before=before, sent_at=sent_at)
+            if result.outcome == "unconfirmed" and self._fragment_count == heard:
+                # Not even an echo: the link is up but dead (HW-1: an i5's link kept
+                # "connected" while delivering nothing). Reconnect for a fresh one.
+                log.warning("robot %s: no reaction at all to %s; reconnecting", self.robot_id, name)
+                self._lost_reason = ErrorCode.ROBOT_OFFLINE.value
+                self._link_lost.set()
+            return result
+
+        async def run() -> CommandResult:
+            cleaning = self._state is not None and self._state.activity is Activity.CLEANING
+            if command == "dock" and profile.dock_needs_pause and cleaning:
+                await send("pause", None)
+            return await send(command, params)
 
         return await self.submit(run)
 
@@ -325,6 +346,7 @@ class RobotSession:
 
     def _on_fragment(self, fragment: dict[str, Any]) -> None:
         if fragment:
+            self._fragment_count += 1
             self._got_state.set()
             self._last_fragment = asyncio.get_running_loop().time()
         self._fragments.put_nowait(fragment)
