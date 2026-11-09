@@ -318,7 +318,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - `cleanSchedule2` → schedules
     - `lastCommand` → `CommandEcho`
   - Profile-gated fields are null when the profile lacks the capability.
-- [ ] T026 [P] Implement `src/roomba_kit/service/confirm.py`:
+- [x] T026 [P] Implement `src/roomba_kit/service/confirm.py`:
   - Default `CommandSpec`s exactly per research R9 (window in seconds):
 
     | Command | Confirmed when | Window |
@@ -410,7 +410,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 - [x] T033 [P] Unit tests in `tests/unit/test_normalize.py`. Feed fixtures plus synthetic
   phase/cycle combos covering every R8 row, including `hmPostMsn` → `returning` and `evac`.
-- [ ] T034 [P] Unit tests in `tests/unit/test_confirm.py`:
+- [x] T034 [P] Unit tests in `tests/unit/test_confirm.py`:
   - A pause that lands 5 s late → `confirmed`.
   - A pause that never lands → `unconfirmed` with state.
   - `find` echo detection.
