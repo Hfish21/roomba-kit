@@ -41,6 +41,11 @@ Rediscover = Callable[[str], Awaitable[str | None]]
 BACKOFF_MAX_S = 50.0
 """Backoff cap. Below 60 s so the worst-case reconnect (cap + connect time) meets SC-006."""
 
+FIRST_STATE_TIMEOUT_S = 20.0
+"""A connection that delivers no state this long after connecting is dropped and retried.
+Seen on an i5 right after HOME-button password retrieval: it accepted the session but sent
+nothing until a later reconnect."""
+
 REDISCOVER_AFTER = 3
 """Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
 
@@ -79,6 +84,7 @@ class RobotSession:
         on_address: Callable[[str, str], None] | None = None,
         backoff_min: float = 1.0,
         backoff_max: float = BACKOFF_MAX_S,
+        first_state_timeout_s: float = FIRST_STATE_TIMEOUT_S,
         coalesce_s: float = 1.0,
     ) -> None:
         self.robot_id = entry.id
@@ -94,6 +100,8 @@ class RobotSession:
         self._on_address = on_address
         self._backoff_min = backoff_min
         self._backoff_max = backoff_max
+        self._first_state_timeout = first_state_timeout_s
+        self._got_state = asyncio.Event()
         self._coalesce_s = coalesce_s
 
         self.connection = ConnectionState.NOT_CONFIGURED
@@ -303,10 +311,15 @@ class RobotSession:
         if self._transport is None or self._transport_key != key:
             transport = self._factory(self.robot_id, self.address, password)
             if transport is not self._transport:
-                transport.on_reported(self._fragments.put_nowait)
+                transport.on_reported(self._on_fragment)
                 transport.on_connection(self._on_link)
             self._transport, self._transport_key = transport, key
         return self._transport
+
+    def _on_fragment(self, fragment: dict[str, Any]) -> None:
+        if fragment:
+            self._got_state.set()
+        self._fragments.put_nowait(fragment)
 
     def _on_link(self, connected: bool, reason: str | None) -> None:
         if not connected:
@@ -359,6 +372,7 @@ class RobotSession:
         # arrives at any later point is seen and causes a reconnect with the new password.
         self._wake.clear()
         self._link_lost.clear()
+        self._got_state.clear()
         self._lost_reason = None
         password = self._password()
         if not password or not self.address:
@@ -396,6 +410,13 @@ class RobotSession:
             self._last_reconnect = _now()
         self._ever_connected = True
         await self._set_connection(ConnectionState.CONNECTED)
+        if not await self._first_state_arrives():
+            log.warning("robot %s: connected but sent no state; reconnecting", self.robot_id)
+            with contextlib.suppress(Exception):
+                await transport.disconnect()
+            await self._set_connection(ConnectionState.OFFLINE, "no_state")
+            await self._pause(self._backoff_min)
+            return
         await self._link_lost.wait()
         if self._stopping:
             return
@@ -412,6 +433,21 @@ class RobotSession:
         else:
             await self._set_connection(ConnectionState.OFFLINE, reason)
             await self._pause(self._bump_backoff())
+
+    async def _first_state_arrives(self) -> bool:
+        """True once the robot reports state (or the link drops); False after the timeout."""
+        state = asyncio.ensure_future(self._got_state.wait())
+        lost = asyncio.ensure_future(self._link_lost.wait())
+        try:
+            done, _ = await asyncio.wait(
+                {state, lost},
+                timeout=self._first_state_timeout,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+        finally:
+            state.cancel()
+            lost.cancel()
+        return bool(done)
 
     async def _relocate(self) -> None:
         if self._rediscover is None:

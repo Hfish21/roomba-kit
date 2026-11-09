@@ -176,7 +176,10 @@ class LocalTransport:
     async def _lost(self, client: RoombaClient) -> None:
         auth_failed = client.auth_error is not None
         await client.disconnect()
-        code = ErrorCode.AUTH_FAILED if auth_failed else (await self._unreachable())[0]
+        # A dropped session isn't evidence of another client: robots drop connections on their
+        # own (HW-1 saw an i5 do it twice, mislabelled held_elsewhere). If another client
+        # really holds it, the reconnect is refused and `connect()` classifies that.
+        code = ErrorCode.AUTH_FAILED if auth_failed else ErrorCode.ROBOT_OFFLINE
         log.info("robot %s link lost: %s", self.robot_id, code.value)
         self._notify(False, code.value)
 

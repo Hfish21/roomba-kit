@@ -25,6 +25,16 @@ from tests.integration.test_us5_settings import FIXTURES, I5, M6, build_kit, con
 I5_SETTINGS = ["passes", "edge_clean", "always_finish", "child_lock", "eco_charge", "schedule_hold"]
 
 
+@pytest.fixture(autouse=True)
+def _fast_hardware_waits(monkeypatch):
+    """HW-1 waits (not-ready, sustained clean, stop→dock) shortened for the fakes."""
+    from roomba_kit.service import verify as verify_module
+
+    monkeypatch.setattr(verify_module, "NOT_READY_WAIT_S", 1.0)
+    monkeypatch.setattr(verify_module, "CLEAN_HOLD_S", 0.05)
+    monkeypatch.setattr(verify_module, "STOP_TO_DOCK_S", 0.01)
+
+
 @pytest.fixture
 def factory() -> FakeTransportFactory:
     return FakeTransportFactory.from_fixtures(FIXTURES)
@@ -296,7 +306,8 @@ async def test_8_live_position_needs_a_fix(kit, factory):
     docked = await verify(kit, robot="Mop", capabilities=["live_position"])
     assert by_cap(docked)["live_position"][0] == "skipped"
     fix = PositionFix(robot_id=M6, at=docked.started_at, x_m=1, y_m=2, heading_rad=0)
-    fake.script_positions(None, fix)  # no fix on the dock, a fix while cleaning
+    # no fix on the dock, fixes while cleaning (the live poller also draws from these)
+    fake.script_positions(None, *[fix] * 10)
     run = await verify(kit, robot="Mop", capabilities=["live_position", "clean"], allow_motion=True)
     assert by_cap(run)["live_position"] == ("pass", "fix at (1.00, 2.00) m")
 
@@ -382,3 +393,22 @@ def test_cli_write_report_refuses_outside_the_repo(tmp_kit_home, monkeypatch):
     result = run_cli(["verify", "Vacuum", "--write-report"], service)
     assert result.exit_code == 2 and "run it from the repo root" in result.output
     assert service.requests == []
+
+
+async def test_clean_that_aborts_right_after_confirming_fails(monkeypatch):
+    """HW-1: an i5 reported cleaning for 1 s, then ended the mission; that's not a pass."""
+    from roomba_kit.core.models import Activity
+    from roomba_kit.service import verify as verify_module
+
+    class Session:
+        state = SimpleNamespace(activity=Activity.DOCKED, mission=None, not_ready=None)
+
+    v = verify_module._Run.__new__(verify_module._Run)
+    v.session = Session()
+
+    async def confirmed(cap):
+        return verify_module._ok(cap, "confirmed after 900 ms (activity cleaning)")
+
+    monkeypatch.setattr(v, "command", confirmed)
+    result = await v.sustained_clean()
+    assert result.result == "fail" and "later the robot was docked" in result.evidence

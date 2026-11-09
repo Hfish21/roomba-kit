@@ -153,11 +153,18 @@ async def test_error_codes_carry_text(ctx: ServiceContext, factory: FakeTranspor
         factory.get(I5).emit({"cleanMissionStatus": {**status, "notReady": 68}})
         await until(lambda: ctx.sessions[I5].state.not_ready is not None)
         body = (await client.get(f"/robots/{I5}/state")).json()
-        assert body["not_ready"] == {"code": 68, "text": "Robot is off the dock"}
+        assert body["not_ready"] == {
+            "code": 68,
+            "text": "Not ready yet (transient around docking and bin emptying)",
+        }
         params = {"since": since, "types": ["error.raised"]}
         page = (await client.get("/events", params=params)).json()
         assert [e["data"] for e in page["events"]] == [
-            {"kind": "not_ready", "code": 68, "text": "Robot is off the dock"}
+            {
+                "kind": "not_ready",
+                "code": 68,
+                "text": "Not ready yet (transient around docking and bin emptying)",
+            }
         ]
         assert page["next"] == page["events"][-1]["seq"]
         bad = await client.get("/events", params={"types": ["robot.exploded"]})

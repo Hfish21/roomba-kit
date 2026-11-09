@@ -100,7 +100,9 @@ def activity(phase: str | None, cycle: str | None, battery_pct: int | None) -> A
     """Research R8. `evac` wins over `run`: the i5 reports `run`/`evac` while emptying."""
     if phase == "evac" or cycle == "evac":
         return Activity.EMPTYING_BIN
-    if phase == "charge" and cycle == "none":
+    if phase == "charge":
+        # With an open cycle this is a mission waiting on the dock (HW-1: a scheduled cloud
+        # routine left an i5 like this for 20+ min); it's still physically docked.
         charging = battery_pct is not None and battery_pct < 100
         return Activity.CHARGING if charging else Activity.DOCKED
     if phase == "run":

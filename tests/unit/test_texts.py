@@ -15,7 +15,7 @@ def _codes(error, not_ready):
 
 
 def test_tables_cover_the_codes_seen_on_hardware():
-    assert NOT_READY_TEXTS[68] == "Robot is off the dock"
+    assert NOT_READY_TEXTS[68] == "Not ready yet (transient around docking and bin emptying)"
     assert "transient" in NOT_READY_TEXTS[23] and "transient" in NOT_READY_TEXTS[39]
     assert ERROR_TEXTS[17] == "Path blocked" and ERROR_TEXTS[18] == "Docking issue"
     assert all(text and text.strip() == text for text in [*ERROR_TEXTS.values()])
