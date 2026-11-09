@@ -646,7 +646,7 @@ clean/pause/resume/stop/dock/find.
   - `list_robots` → `clean_rooms(rooms=["Laundry Room"])` → `mission_wait` returns a terminal
     mission.
   - `evac` on the m6 → a tool error starting with `not_supported`.
-- [ ] T067 [P] [US4] Implement `src/roomba_kit/client.py`, a public async Python client for
+- [x] T067 [P] [US4] Implement `src/roomba_kit/client.py`, a public async Python client for
   consumers. It wraps HTTP with one typed method per registry operation, plus an `events()`
   async iterator over SSE with automatic `since` resume. Export `Client` from
   `src/roomba_kit/__init__.py`.
