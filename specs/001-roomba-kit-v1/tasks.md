@@ -397,7 +397,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - `src/roomba_kit/cli/output.py`: human tables. `--json` prints the exact HTTP response body.
   - `src/roomba_kit/cli/generate.py`: registry → Click commands per the `contracts/surfaces.md`
     command tree. Exit codes come from `CLI_EXIT`; `unconfirmed` exits 3.
-- [ ] T032 Implement `src/roomba_kit/cli/lifecycle.py` and `src/roomba_kit/lifecycle/daemon.py`:
+- [x] T032 Implement `src/roomba_kit/cli/lifecycle.py` and `src/roomba_kit/lifecycle/daemon.py`:
   - `serve`: foreground uvicorn on the configured host and port.
   - `service start`: spawn a detached `serve` and write `<state>/service.pid`. Poll
     `/v1/health` until ready (fail after 10 s, SC-009). Logs go to `<state>/service.log`.
