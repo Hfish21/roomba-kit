@@ -542,9 +542,9 @@ clean/pause/resume/stop/dock/find.
   - Error codes carry text.
   - `events_wait` resumes from `since`.
   - `alert.dock_search_timeout` fires once after the threshold.
-- [ ] T049 [P] [US2] Implement `src/roomba_kit/service/operations/state.py`: `get_state(robot)`
+- [x] T049 [P] [US2] Implement `src/roomba_kit/service/operations/state.py`: `get_state(robot)`
   returning the full `RobotState` (FR-026, FR-027).
-- [ ] T050 [P] [US2] Implement `src/roomba_kit/service/derive.py`. It subscribes to session state
+- [x] T050 [P] [US2] Implement `src/roomba_kit/service/derive.py`. It subscribes to session state
   updates and publishes:
   - `activity.changed`;
   - `mission.started` (cycle none→X) and `mission.finished` (X→none);

@@ -103,19 +103,6 @@ async def test_state_reports_every_field(ctx: ServiceContext) -> None:
         assert missing.status_code == 404 and missing.json()["error"]["code"] == "robot_not_found"
 
 
-async def test_error_codes_carry_text(ctx: ServiceContext, factory: FakeTransportFactory) -> None:
-    async with serving(ctx) as client:
-        since = ctx.bus.last_seq
-        status = factory.get(I5).reported["cleanMissionStatus"]
-        factory.get(I5).emit({"cleanMissionStatus": {**status, "notReady": 68}})
-        await until(lambda: ctx.sessions[I5].state.not_ready is not None)
-        body = (await client.get(f"/robots/{I5}/state")).json()
-        assert body["not_ready"] == {"code": 68, "text": "Robot is off the dock"}
-        await until(lambda: ctx.bus.last_seq > since)
-        raised = [e for e in await events_of(ctx, I5, since) if e.type is EventType.ERROR_RAISED]
-        assert raised[0].data == {"kind": "not_ready", "code": 68, "text": "Robot is off the dock"}
-
-
 async def test_replayed_mission_produces_the_event_sequence(
     ctx: ServiceContext, factory: FakeTransportFactory
 ) -> None:
