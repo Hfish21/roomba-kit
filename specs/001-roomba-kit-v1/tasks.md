@@ -641,7 +641,7 @@ clean/pause/resume/stop/dock/find.
 - [x] T065 [P] [US4] Implement `src/roomba_kit/mcp/stdio.py` (`roomba-kit mcp`): a stdio FastMCP
   server whose tools are generated from the same registry and proxy to the service HTTP API with
   the CLI token. When the service is down, every call returns `service_unavailable`.
-- [ ] T066 [P] [US4] Integration test `tests/integration/test_us4_mcp_agent_flow.py`, using the
+- [x] T066 [P] [US4] Integration test `tests/integration/test_us4_mcp_agent_flow.py`, using the
   fastmcp in-memory client:
   - `list_robots` → `clean_rooms(rooms=["Laundry Room"])` → `mission_wait` returns a terminal
     mission.

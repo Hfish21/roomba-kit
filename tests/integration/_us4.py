@@ -69,8 +69,11 @@ async def _nobody(*_: Any) -> DiscoveredRobot | None:
     return None
 
 
-def make_ctx(factory: FakeTransportFactory) -> ServiceContext:
-    """Call under `tmp_kit_home`: writes a two-robot config and their passwords."""
+def make_ctx(factory: FakeTransportFactory, cloud: FakeCloud | None = None) -> ServiceContext:
+    """Call under `tmp_kit_home`: writes a two-robot config and their passwords.
+
+    With `cloud`, an account login is stored too and the service connects to that fake.
+    """
     save_config(
         ConfigModel(
             robots=[
@@ -82,10 +85,12 @@ def make_ctx(factory: FakeTransportFactory) -> ServiceContext:
     creds = CredentialStore()
     creds.set_robot_password(I5, "pw1")
     creds.set_robot_password(M6, "pw2")
+    if cloud is not None:
+        creds.set_cloud("owner@example.com", "not-a-real-password")
     return ServiceContext(
         settings=load_settings(),
         transport_factory=factory,
-        cloud_factory=lambda *_: FakeCloud.from_fixtures(FIXTURES),
+        cloud_factory=lambda *_: cloud or FakeCloud.from_fixtures(FIXTURES),
         discover=_no_robots,
         probe=_nobody,
         session_options={"backoff_min": 0.01, "backoff_max": 0.02},
