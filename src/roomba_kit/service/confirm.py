@@ -57,7 +57,8 @@ DEFAULT_SPECS: dict[str, CommandSpec] = {
     "pause": CommandSpec(_activity_is(Activity.PAUSED), 10),
     "resume": CommandSpec(_activity_is(Activity.CLEANING), 10),
     "stop": CommandSpec(_stopped, 10),
-    "dock": CommandSpec(_activity_is(Activity.RETURNING, Activity.DOCKED), 10),
+    # A docked robot below 100% reports `charging`, not `docked`.
+    "dock": CommandSpec(_activity_is(Activity.RETURNING, Activity.DOCKED, Activity.CHARGING), 10),
     "find": CommandSpec(_find_echoed, 5),
     "evac": CommandSpec(_activity_is(Activity.EMPTYING_BIN), 15),
     "reboot": CommandSpec(_reconnected, 180),

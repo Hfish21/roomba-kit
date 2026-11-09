@@ -92,6 +92,8 @@ async def test_find_with_no_prior_echo():
         ("clean_rooms", Activity.CLEANING),
         ("resume", Activity.CLEANING),
         ("dock", Activity.RETURNING),
+        ("dock", Activity.DOCKED),
+        ("dock", Activity.CHARGING),
         ("evac", Activity.EMPTYING_BIN),
         ("train", Activity.MAPPING),
     ],
