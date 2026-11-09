@@ -432,7 +432,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     Tracking.
 - [x] T038 [P] Contract test `tests/contract/test_errors.py`: `ErrorCode`, `HTTP_STATUS` and
   `CLI_EXIT` equal the table parsed from `specs/001-roomba-kit-v1/contracts/errors.md`.
-- [ ] T039 [P] Implement `scripts/gen_docs.py`:
+- [x] T039 [P] Implement `scripts/gen_docs.py`:
   - Generates these files from the registry, profiles, error catalogue, event types and Click
     tree:
     - `docs/reference/operations.md`, with HTTP, MCP and CLI usage for each op

@@ -47,7 +47,10 @@ def serve() -> None:
 @click.option("--timeout", default=10.0, show_default=True, help="Seconds to wait for health.")
 @click.pass_obj
 def service_start(state: CliState, timeout: float) -> None:
-    """Start the service in the background; logs go to `<state>/service.log`."""
+    """Start the service in the background.
+
+    Waits until `/v1/health` answers. Logs go to `<state>/service.log`.
+    """
     url = local_service_url()
     data = {"url": url, "log": str(paths.log_file())}
     if (pid := daemon.running_pid(paths.pid_file())) is not None:
@@ -75,7 +78,10 @@ def service_start(state: CliState, timeout: float) -> None:
 @click.option("--timeout", default=10.0, show_default=True, help="Seconds before SIGKILL.")
 @click.pass_obj
 def service_stop(state: CliState, timeout: float) -> None:
-    """Stop the background service: SIGTERM, then SIGKILL after the timeout."""
+    """Stop the background service.
+
+    Sends SIGTERM, then SIGKILL if it is still running after the timeout.
+    """
     try:
         pid = daemon.stop(paths.pid_file(), timeout=timeout)
     except daemon.DaemonError as exc:
@@ -97,7 +103,10 @@ def _service_status(state: CliState) -> Any:
 @click.command("status")
 @click.pass_obj
 def service_status(state: CliState) -> None:
-    """Pid, health and `service_status`. Exits 69 when the service isn't answering."""
+    """Show the pid, health and `service_status`.
+
+    Exits 69 when the service isn't answering.
+    """
     url = state.url()
     healthy = daemon.health(url)
     data: dict[str, Any] = {
@@ -152,6 +161,8 @@ def register(root: click.Group) -> None:
     root.add_command(serve)
     root.add_command(version)
     group_for(root, ("config",)).add_command(config_path)
+    group_for(root, ("token",)).help = "Create, list and revoke API tokens (local file ops)."
+    group_for(root, ("config",)).help = "Where the kit keeps its files, and what's in them."
     service = group_for(root, ("service",))
     service.help = "Run the service in the background and manage it."
     for command in (service_start, service_stop, service_status, service_logs):
