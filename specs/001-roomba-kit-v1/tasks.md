@@ -846,7 +846,7 @@ unverified capabilities.
 
 **Independent Test**: quickstart V10.
 
-- [ ] T095 [P] [US10] Profile tests:
+- [x] T095 [P] [US10] Profile tests:
   - `tests/profiles/test_profiles.py`: replay `tests/fixtures/profiles/<id>/state.json` for each
     shipped profile and assert the normalized state and capability set.
   - `tests/profiles/test_fake_model.py`:
