@@ -22,7 +22,7 @@ from pydantic import Field
 from roomba_kit import __version__
 from roomba_kit.core.capabilities import Capability as C
 from roomba_kit.core.errors import ErrorCode, KitError
-from roomba_kit.core.models import Activity, CleanBaseState, KitModel
+from roomba_kit.core.models import Activity, CleanBaseState, ConnectionState, KitModel
 from roomba_kit.profiles.base import ModelProfile
 from roomba_kit.service import settings
 from roomba_kit.service.app import ServiceContext
@@ -42,6 +42,8 @@ next step waits for it. HW-1: an i5 reported `cleaning` for 1 s, then aborted; a
 sent 9 s into a clean (still leaving the dock) ended the mission instead of pausing it,
 while one sent 30 s in paused normally."""
 STOP_TO_DOCK_S = 30.0
+LINK_WAIT_S = 30.0
+"""How long the safety dock waits for a reconnecting link."""
 """Pause between `stop` and the closing `dock`. HW-1: an i5 ignored a dock sent ~3 s after
 stop, and accepted one sent later."""
 """How long to wait for the robot to be back on its dock after evac or the motion sequence."""
@@ -252,7 +254,18 @@ class _Run:
 
     async def closing_dock(self) -> CheckResult:
         """Send the robot home. Shielded, so a cancelled verify still docks the robot."""
-        task = asyncio.ensure_future(self.guarded(C.DOCK, partial(self.command, C.DOCK)))
+
+        async def dock() -> CheckResult:
+            # The link may be reconnecting (a command with no reaction drops it): wait for it.
+            loop = asyncio.get_running_loop()
+            deadline = loop.time() + LINK_WAIT_S
+            while self.session.connection is not ConnectionState.CONNECTED:
+                if (left := deadline - loop.time()) <= 0:
+                    break
+                await self.session.wait_change(self.session.change_seq, min(left, 1.0))
+            return await self.command(C.DOCK)
+
+        task = asyncio.ensure_future(self.guarded(C.DOCK, dock))
         _BACKGROUND.add(task)
         task.add_done_callback(_BACKGROUND.discard)
         return await asyncio.shield(task)

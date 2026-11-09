@@ -151,7 +151,14 @@ async def test_train_needs_explicit_name_and_motion(kit, factory, monkeypatch):
 async def test_motion_sequence_starts_from_and_returns_to_the_dock(kit, factory):
     fake = factory.get(I5)
     run = await verify(kit, robot=I5, capabilities=["resume", "find"], allow_motion=True)
-    assert [name for name, _ in fake.sent_commands] == ["find", "start", "pause", "resume", "dock"]
+    assert [name for name, _ in fake.sent_commands] == [
+        "find",
+        "start",
+        "pause",
+        "resume",
+        "pause",
+        "dock",
+    ]
     assert [(r.capability, r.result) for r in run.results] == [("find", "pass"), ("resume", "pass")]
 
 
@@ -164,7 +171,7 @@ async def test_motion_failure_skips_dependents_but_still_docks(kit, factory, mon
     assert results["pause"][0] == "fail"
     assert results["resume"] == ("skipped", "not run: pause didn't pass")
     assert results["stop"][0] == "skipped"
-    assert [name for name, _ in fake.sent_commands] == ["start", "pause", "dock"]
+    assert [name for name, _ in fake.sent_commands] == ["start", "pause", "pause", "dock"]
 
 
 async def test_motion_checks_need_the_robot_docked(kit, factory):
@@ -207,7 +214,7 @@ async def test_1_reboot_waits_for_the_robot_to_be_back_on_the_dock(kit, factory,
     fake.dock_delay = 0.2  # dock confirms on `returning`; docked 0.2 s later
     seen = record_activity_on_send(kit, fake)
     await verify(kit, robot=I5, capabilities=["clean", "reboot"], allow_motion=True)
-    assert [n for n, _ in seen] == ["start", "dock", "reboot"]
+    assert [n for n, _ in seen] == ["start", "pause", "dock", "reset"]
     assert seen[-1][1] in (Activity.DOCKED, Activity.CHARGING)
 
 
@@ -219,7 +226,7 @@ async def test_1_reboot_and_train_skipped_unless_docked(kit, factory, monkeypatc
     run = await verify(kit, robot=I5, capabilities=["clean", "reboot", "train"], allow_motion=True)
     assert by_cap(run)["reboot"][0] == "skipped" and by_cap(run)["train"][0] == "skipped"
     assert "WARNING: the robot wasn't back on its dock" in by_cap(run)["clean"][1]
-    assert [n for n, _ in fake.sent_commands] == ["start", "dock"]
+    assert [n for n, _ in fake.sent_commands] == ["start", "pause", "dock"]
 
 
 async def test_2_dock_does_not_pass_when_the_robot_never_left(kit, factory, monkeypatch):
@@ -280,7 +287,7 @@ async def test_5_motion_runs_after_evac_once_the_robot_is_docked(kit, factory):
     fake.evac_duration = 0.1  # still `emptying_bin` when evac is confirmed
     run = await verify(kit, robot=I5, capabilities=["evac", "clean"], allow_motion=True)
     assert by_cap(run)["evac"][0] == "pass" and by_cap(run)["clean"][0] == "pass"
-    assert [n for n, _ in fake.sent_commands] == ["evac", "start", "dock"]
+    assert [n for n, _ in fake.sent_commands] == ["evac", "start", "pause", "dock"]
 
 
 async def test_6_clean_base_needs_a_reported_state(kit, factory):
