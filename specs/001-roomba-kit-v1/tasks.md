@@ -517,7 +517,7 @@ clean/pause/resume/stop/dock/find.
   - remove a robot.
 
   Each option changes only its own config and credential entries.
-- [ ] T047 [P] [US1] Write `docs/getting-started.md` (install → `setup` → `service start` →
+- [x] T047 [P] [US1] Write `docs/getting-started.md` (install → `setup` → `service start` →
   `clean` in under 15 min) and `docs/setup.md`, covering:
   - password steps per model;
   - cloud credentials: what they add, optional, where they're stored;
