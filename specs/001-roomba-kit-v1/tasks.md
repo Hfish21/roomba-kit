@@ -614,10 +614,10 @@ clean/pause/resume/stop/dock/find.
     - Reject an empty room list with `invalid_request` (an empty list means whole home to the
       robot).
     - Confirm via `confirm.py`.
-- [ ] T060 [P] [US3] Implement `src/roomba_kit/cli/aliases.py`: `roomba-kit clean ROBOT [--room
+- [x] T060 [P] [US3] Implement `src/roomba_kit/cli/aliases.py`: `roomba-kit clean ROBOT [--room
   NAME_OR_ID …] [--unordered]` dispatches to `clean` with no `--room`, otherwise to
   `clean_rooms`.
-- [ ] T061 [P] [US3] Write `docs/rooms.md`: importing, local naming without the cloud, learned
+- [x] T061 [P] [US3] Write `docs/rooms.md`: importing, local naming without the cloud, learned
   rooms, ordering, and the map-changed recovery.
 
 ---
