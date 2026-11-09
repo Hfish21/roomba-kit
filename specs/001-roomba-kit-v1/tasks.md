@@ -475,7 +475,7 @@ clean/pause/resume/stop/dock/find.
     - Outcome is `stored` | `timeout` | `cloud_only`.
   - `set_robot_password(robot, password)` with `surfaces={"http","cli"}`, validated before saving.
   - `remove_robot(robot)`, which stops the session and deletes the config and credential entries.
-- [ ] T042 [P] [US1] Implement `src/roomba_kit/service/cloud.py` `CloudManager`:
+- [x] T042 [P] [US1] Implement `src/roomba_kit/service/cloud.py` `CloudManager`:
   - A single shared login.
   - Status `not_configured` | `connected` | `unavailable(reason)`.
   - Exponential backoff capped at 15 min. Rejected credentials stop retrying until they change.
@@ -487,14 +487,14 @@ clean/pause/resume/stop/dock/find.
     - `cloud_logout`.
     - `cloud_status`.
     - `cloud_retrieve_password(robot)` → `stored` | `unavailable`.
-- [ ] T043 [P] [US1] Implement `src/roomba_kit/service/operations/inventory.py`: `list_robots`,
+- [x] T043 [P] [US1] Implement `src/roomba_kit/service/operations/inventory.py`: `list_robots`,
   `get_robot` and `get_capabilities`, returning `Robot` with capabilities and verification.
   Robots without a profile are listed with `supported=false` and can't be commanded (FR-024).
-- [ ] T044 [P] [US1] Implement `src/roomba_kit/service/operations/commands.py`:
+- [x] T044 [P] [US1] Implement `src/roomba_kit/service/operations/commands.py`:
   - `clean`, `pause`, `resume`, `stop`, `dock`, `find`, `evac`, `reboot` and `train`.
   - Each calls `session.execute` and returns `CommandResult`.
   - Each declares `motion=True`, except `find`.
-- [ ] T045 [P] [US1] Implement `src/roomba_kit/service/operations/system.py`: `health` (all surfaces;
+- [x] T045 [P] [US1] Implement `src/roomba_kit/service/operations/system.py`: `health` (all surfaces;
   the HTTP route needs no auth), `service_status`, and `config_show` (all secrets rendered as `"***"`).
 - [ ] T046 [US1] Implement `src/roomba_kit/cli/setup_wizard.py` (`roomba-kit setup`). It calls
   only registry operations through the client, in this order:
