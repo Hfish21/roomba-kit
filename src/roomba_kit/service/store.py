@@ -114,8 +114,19 @@ CREATE TABLE verification_runs (
 );
 """
 
+V2 = """
+-- The last event seq that mission history has applied (service/history.py), so history catches
+-- up from the persisted event log after a restart without applying an event twice.
+CREATE TABLE history_cursor (
+    id INTEGER PRIMARY KEY CHECK (id = 1),
+    seq INTEGER NOT NULL
+);
+INSERT INTO history_cursor (id, seq) VALUES (1, 0);
+CREATE INDEX missions_by_outcome ON missions (outcome, started_at);
+"""
+
 # Append only: a migration's index + 1 is its version. Never edit one that has shipped.
-MIGRATIONS: tuple[str, ...] = (V1,)
+MIGRATIONS: tuple[str, ...] = (V1, V2)
 
 
 def format_ts(dt: datetime) -> str:
