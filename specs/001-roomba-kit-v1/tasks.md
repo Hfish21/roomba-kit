@@ -914,7 +914,7 @@ parallel. Each task:
   - file permission errors.
 - [x] T106 [P] Finalize `docs/index.md`, the `mkdocs.yml` nav and `README.md` (feature list,
   support matrix link, quickstart).
-- [ ] T107 [P] Secret-leak test `tests/integration/test_secret_leak.py` (SC-007):
+- [x] T107 [P] Secret-leak test `tests/integration/test_secret_leak.py` (SC-007):
   - Configure canary robot and cloud passwords and a token.
   - Run every operation on every surface against fakes, including the error paths.
   - Capture logs, CLI output, HTTP bodies, MCP results and persisted events.
