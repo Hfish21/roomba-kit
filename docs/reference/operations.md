@@ -66,6 +66,40 @@ Type: `CommandResult`
 | `state` | StateSummary | yes |  |
 | `waited_ms` | int | yes |  |
 
+## `clean_rooms`
+
+Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names come from an older map version, and with `room_not_found` (listing the valid rooms) when a room isn't on the current map. Confirmed when the robot reports cleaning.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: unverified, roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/clean_rooms` |
+| MCP | tool `clean_rooms` |
+| CLI | `roomba-kit rooms clean [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+| `rooms` | list[str] | yes |  | Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home). |
+| `ordered` | bool | no | true | Clean in the given order; false lets the robot choose. |
+| `room_options` | dict[str, RoomOptions] \| None | no | null | Per-room options keyed by an entry of `rooms`, e.g. {"Office": {"passes": "two"}}. On the CLI, pass it as JSON. |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
 ## `cloud_history`
 
 The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.
@@ -748,6 +782,39 @@ Wait until a robot's mission ends and return it with its outcome. Without `missi
 
 Type: `Mission | MissionWaitTimeout`
 
+
+## `name_room`
+
+Give a room on the robot's current map a local name. Works without the cloud, for imported and learned rooms alike. Names apply to one map version.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `PUT /v1/robots/{robot}/rooms/{room_id}` |
+| MCP | tool `name_room` |
+| CLI | `roomba-kit rooms name [OPTIONS] ROBOT ROOM_ID NAME` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+| `room_id` | str | yes |  | The room's ID on the robot's current map |
+| `name` | str | yes |  | The local name. Unique per map, ignoring case; it overrides the cloud name. |
+
+**Result**
+
+Type: `Room`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `map_id` | str | yes |  |
+| `map_version` | str | yes |  |
+| `room_id` | str | yes |  |
+| `cloud_name` | str \| None | no |  |
+| `local_name` | str \| None | no |  |
+| `type` | str \| None | no |  |
+| `name` | str | yes | Effective name: `local_name`, then `cloud_name`, then `Room <id>`. |
 
 ## `pause`
 
