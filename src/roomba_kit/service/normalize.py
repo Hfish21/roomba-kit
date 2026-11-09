@@ -27,6 +27,7 @@ from roomba_kit.core.models import (
     TankState,
 )
 from roomba_kit.profiles.base import ModelProfile, Reported
+from roomba_kit.profiles.texts import ERROR_TEXTS, NOT_READY_TEXTS
 
 _INITIATORS: dict[str, Initiator] = {
     "localApp": Initiator.KIT,
@@ -65,8 +66,10 @@ def normalize(robot_id: str, reported: Reported, profile: ModelProfile, at: date
         activity=activity(phase, cycle, battery),
         mission=_mission(status, cycle),
         last_command=_last_command(reported.get("lastCommand")),
-        error=_code(_int(status.get("error")), profile.error_texts, "Error"),
-        not_ready=_code(_int(status.get("notReady")), profile.not_ready_texts, "Not ready"),
+        error=_code(_int(status.get("error")), profile.error_texts, ERROR_TEXTS, "Error"),
+        not_ready=_code(
+            _int(status.get("notReady")), profile.not_ready_texts, NOT_READY_TEXTS, "Not ready"
+        ),
         signal=_signal(reported.get("signal")),
         map=_map_ref(reported.get("pmaps")),
         schedules=_schedules(reported.get("cleanSchedule2")),
@@ -108,15 +111,20 @@ def initiator(raw: object) -> Initiator:
     return _INITIATORS.get(raw, Initiator.OTHER) if isinstance(raw, str) else Initiator.OTHER
 
 
-def code_text(code: int, overrides: Mapping[int, str], label: str) -> str:
-    """Readable text for an error or not-ready code: profile override, else `"<label> <code>"`."""
-    return overrides.get(code) or f"{label} {code}"
+def code_text(
+    code: int, overrides: Mapping[int, str], shared: Mapping[int, str], label: str
+) -> str:
+    """Readable text for an error or not-ready code (T055): the profile's override, then the
+    shared table in `profiles/texts.py`, else `"<label> <code>"`."""
+    return overrides.get(code) or shared.get(code) or f"{label} {code}"
 
 
-def _code(code: int | None, overrides: Mapping[int, str], label: str) -> CodeText | None:
+def _code(
+    code: int | None, overrides: Mapping[int, str], shared: Mapping[int, str], label: str
+) -> CodeText | None:
     if not code:
         return None
-    return CodeText(code=code, text=code_text(code, overrides, label))
+    return CodeText(code=code, text=code_text(code, overrides, shared, label))
 
 
 def _mission(status: Mapping[str, Any], cycle: str | None) -> MissionRef | None:
