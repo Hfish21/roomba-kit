@@ -202,7 +202,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     dedupe by `robotid`.
   - Unicast `probe(address)` for add-by-IP.
   - Return `DiscoveredRobot` with `supported`/`profile_id` from `match_profile(sku)`.
-- [ ] T018 [P] Implement `src/roomba_kit/transport/local.py`, the roombapy 2.0.2 adapter:
+- [x] T018 [P] Implement `src/roomba_kit/transport/local.py`, the roombapy 2.0.2 adapter:
   - Connection and messages:
     - `RoombaClient(ip, blid, password)` as an async context manager.
     - `register_on_message_callback` → feed `state.reported` dicts to `on_reported`.
