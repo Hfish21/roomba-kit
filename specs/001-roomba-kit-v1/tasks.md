@@ -759,12 +759,12 @@ unverified capabilities.
 
 **Independent Test**: quickstart V7, or `tests/integration/test_us7_position.py`.
 
-- [ ] T081 [P] [US7] Integration test `tests/integration/test_us7_position.py`:
+- [x] T081 [P] [US7] Integration test `tests/integration/test_us7_position.py`:
   - m6 fixture during cleaning → `position` events at intervals of 2 s or less.
   - Docked → `no_fix`.
   - i5 → `not_supported` with no transport call.
   - A robot that never answers → polling stops after 3 timeouts.
-- [ ] T082 [US7] Implement `src/roomba_kit/service/position.py` (research R13):
+- [x] T082 [US7] Implement `src/roomba_kit/service/position.py` (research R13):
   - Poll only for profiles with `live_position`, only while activity is `cleaning` or
     `returning`.
   - Run at 0.5 Hz with a 2 s timeout.
