@@ -335,7 +335,7 @@ async def test_a_link_silent_mid_mission_is_reconnected(bus, factory):
 
 async def test_a_quiet_docked_robot_is_left_alone(bus, factory):
     fake = factory.get(I5)
-    s = _session(bus, factory, mission_silence_s=0.1)
+    s = _session(bus, factory, mission_silence_s=0.1)  # idle limit stays at its 10 min default
     await s.start()
     try:
         await _until(lambda: s.has_state and s.connection is ConnectionState.CONNECTED)
@@ -407,9 +407,26 @@ async def test_a_command_with_no_reaction_at_all_reconnects(bus, factory):
         original = confirm.DEFAULT_SPECS["find"]
         confirm.DEFAULT_SPECS["find"] = CommandSpec(original.predicate, 0.1)
         try:
+            heard = s._fragment_count
             assert (await s.execute("find")).outcome == "unconfirmed"
         finally:
             confirm.DEFAULT_SPECS["find"] = original
-        await _until(lambda: fake.connect_calls > calls)
+        # A real reconnect: the transport was torn down and the robot re-sent its state.
+        # (Regression: the kit declared the link dead but reused the open transport.)
+        await _until(lambda: fake.connect_calls > calls and s._fragment_count > heard)
+    finally:
+        await s.stop()
+
+
+async def test_a_link_silent_while_docked_is_reconnected(bus, factory):
+    """HW-1: a docked m6's link stayed "connected" 70 min while delivering nothing."""
+    fake = factory.get(I5)
+    s = _session(bus, factory, idle_silence_s=0.2, mission_silence_s=0.2)
+    await s.start()
+    try:
+        await _until(lambda: s.has_state)
+        heard = s._fragment_count
+        await _until(lambda: s._fragment_count > heard, timeout=3)  # reconnect re-sends state
+        assert fake.connected
     finally:
         await s.stop()
