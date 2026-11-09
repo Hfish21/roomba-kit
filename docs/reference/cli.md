@@ -23,6 +23,8 @@ Options:
 Commands:
   cloud
   config    Where the kit keeps its files, and what's in them.
+  events
+  missions
   position  Where the robot is now: x/y in metres from the dock and heading in...
   serve     Run the service in the foreground on `server.host`:`server.port`.
   service   Run the service in the background and manage it.
@@ -113,6 +115,101 @@ Usage: roomba-kit config path [OPTIONS]
 
 Options:
   -h, --help  Show this message and exit.
+```
+
+## `roomba-kit events`
+
+```text
+Usage: roomba-kit events [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  list  List recorded events, oldest first, after `since`.
+  wait  Wait for events after `since` and return them as soon as any arrive, or an...
+```
+
+## `roomba-kit events list`
+
+```text
+Usage: roomba-kit events list [OPTIONS]
+
+  List recorded events, oldest first, after `since`. Over HTTP, send `Accept:
+  text/event-stream` to get the same events as a live SSE stream that resumes with
+  `Last-Event-ID`.
+
+  Parameters:
+  - `since`: int | None (default: None) — Return events with a seq greater than this; omit for the oldest
+  - `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)
+  - `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types
+  - `limit`: int (default: 100) — Most events to return
+
+Options:
+  --since INTEGER                 Return events with a seq greater than this; omit for
+                                  the oldest
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --types [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types
+  --limit INTEGER                 Most events to return  [default: (100)]
+  -h, --help                      Show this message and exit.
+```
+
+## `roomba-kit events wait`
+
+```text
+Usage: roomba-kit events wait [OPTIONS]
+
+  Wait for events after `since` and return them as soon as any arrive, or an empty list
+  at the timeout. Call again with `next` to keep following.
+
+  Parameters:
+  - `since`: int — Wait for events with a seq greater than this
+  - `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)
+  - `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types
+  - `timeout_s`: float (default: 30) — Seconds to wait before returning no events
+
+Options:
+  --since INTEGER                 Wait for events with a seq greater than this
+                                  [required]
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --types [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types
+  --timeout-s FLOAT               Seconds to wait before returning no events  [default:
+                                  (30)]
+  -h, --help                      Show this message and exit.
+```
+
+## `roomba-kit missions`
+
+```text
+Usage: roomba-kit missions [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  wait  Wait until a robot's mission ends and return it with its outcome.
+```
+
+## `roomba-kit missions wait`
+
+```text
+Usage: roomba-kit missions wait [OPTIONS] ROBOT
+
+  Wait until a robot's mission ends and return it with its outcome. Without `mission_id`
+  it waits for the current mission, or the next one if none is running. Returns
+  `{timeout: true, mission}` if it hasn't ended in time.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `mission_id`: str | None (default: None) — The mission to wait for; omit for the current or next mission
+  - `timeout_s`: float (default: 1800) — Seconds to wait for the mission to end
+
+Options:
+  --mission-id TEXT  The mission to wait for; omit for the current or next mission
+  --timeout-s FLOAT  Seconds to wait for the mission to end  [default: (1800)]
+  -h, --help         Show this message and exit.
 ```
 
 ## `roomba-kit position`
