@@ -95,6 +95,12 @@ class Operation:
 
 
 _REGISTRY: dict[str, Operation] = {}
+_isolation_depth = 0
+
+
+def is_isolated() -> bool:
+    """True inside `isolated()`: real operation modules must not register into a test registry."""
+    return _isolation_depth > 0
 
 
 def operation(
@@ -186,11 +192,14 @@ async def invoke(op: Operation, ctx: OperationContext, raw: Mapping[str, Any]) -
 @contextmanager
 def isolated() -> Iterator[None]:
     """Run with an empty registry, restoring the real one afterwards. For tests only."""
+    global _isolation_depth
     saved = dict(_REGISTRY)
     _REGISTRY.clear()
+    _isolation_depth += 1
     try:
         yield
     finally:
+        _isolation_depth -= 1
         _REGISTRY.clear()
         _REGISTRY.update(saved)
 
