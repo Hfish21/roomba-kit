@@ -412,8 +412,9 @@ capabilities, and confirm undeclared actions return `not_supported`.
 **Live state**
 
 - **FR-026**: For each robot the kit MUST report on demand: battery level; activity (charging,
-  cleaning, paused, returning to dock, emptying bin, stuck, idle); current mission (ID, start time,
-  initiator: local, schedule, button, other app); last command received; error and not-ready
+  cleaning, paused, returning to dock, emptying bin, stuck, docked); current mission (ID, start time,
+  initiator: this kit, robot schedule, robot button, iRobot app, vendor team routine, other);
+  last command received; error and not-ready
   codes, each with a readable explanation; Wi-Fi signal strength; stored map identity and version;
   robot-stored schedules (read-only); lifetime counters (missions completed, failed and cancelled;
   runtime hours; times stuck). *(Origin: new — capability inventory, session b10c0fbc)*
@@ -455,8 +456,8 @@ capabilities, and confirm undeclared actions return `not_supported`.
 
 **Events & alerts**
 
-- **FR-036**: The kit MUST deliver a push stream of typed events to subscribers on the HTTP API and
-  to MCP clients. Event types: state changed, mission started, mission finished (with outcome),
+- **FR-036**: The kit MUST push a stream of typed events to HTTP API subscribers, and make the same
+  events available to MCP clients through tools that wait for new events. Event types: state changed, mission started, mission finished (with outcome),
   docked, stuck, bin full, error raised/cleared, connectivity changed, setting changed, cloud
   timeline event, position fix, alert. *(Origin: R11)*
 - **FR-037**: Every event MUST carry a schema version, event type, robot ID, timestamp and
@@ -495,7 +496,13 @@ capabilities, and confirm undeclared actions return `not_supported`.
 
 - **FR-046**: Every capability in FR-001 to FR-045 MUST be available through the CLI, the HTTP API and
   the MCP server, with the same capability names, parameters, result fields and error codes.
-  *(Origin: R13; constitution III)*
+  There are exactly two exceptions, both justified in plan.md Complexity Tracking under
+  Constitution VI:
+  - API token administration is CLI-only, because a newly created token is a secret shown once.
+  - Operations that take a password as input (cloud login, manual robot password) are not
+    offered over MCP.
+
+  *(Origin: R13; constitution III, VI)*
 - **FR-047**: The CLI MUST offer human-readable output and machine-readable structured output that
   matches the HTTP API's response for the same capability. *(Origin: R13)*
 - **FR-048**: The HTTP API MUST require authentication for every endpoint except a health check. It MUST
@@ -584,15 +591,15 @@ capabilities, and confirm undeclared actions return `not_supported`.
   behaviour is documented as observed, not guaranteed.
 - Initially `verified` (from session b10c0fbc hardware runs):
   - Both robots: discovery; local password retrieval; start, pause, resume, dock and locate;
-    state reads.
-  - Roomba i5+ only: empty bin into Clean Base; room cleaning; cloud rooms, history, coverage
-    and live timeline. The i5+ is verified to lack live position.
+    state reads; cloud rooms, mission history and coverage.
+  - Roomba i5+ only: empty bin into Clean Base; room cleaning; cloud live timeline. The i5+ is
+    verified to lack live position.
   - Braava jet m6 only: live position.
 - Initially `unverified`:
   - All setting writes.
   - Robot-stored schedule hold.
   - On the m6: room cleaning and the cloud timeline.
-  - The mapping run and soft reboot.
+  - Stop, the mapping run and soft reboot.
 - English-only user-facing text.
 
 ## Non-Goals

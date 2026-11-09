@@ -107,7 +107,8 @@ specs/001-roomba-kit-v1/
 ```text
 pyproject.toml              # uv project; console script `roomba-kit`; entry-point group roomba_kit.profiles
 src/roomba_kit/
-├── __init__.py             # public library API (Client for consumers)
+├── __init__.py             # exports Client
+├── client.py               # public async Python client for consumers (HTTP + SSE)
 ├── core/
 │   ├── errors.py           # ErrorCode enum, KitError, surface mappings (contracts/errors.md)
 │   ├── models.py           # Robot, RobotState, Activity, Mission, Room, PositionFix, … (data-model.md)
@@ -116,6 +117,7 @@ src/roomba_kit/
 │   └── registry.py         # Operation dataclass, @operation decorator, registry
 ├── profiles/
 │   ├── base.py             # ModelProfile, SettingMapping, CommandSpec
+│   ├── texts.py            # shared error/not-ready readable texts
 │   ├── loader.py           # entry-point discovery, SKU matching
 │   ├── roomba_i5.py
 │   └── braava_m6.py
@@ -133,6 +135,8 @@ src/roomba_kit/
 │   ├── settings.py         # read/write via profile mappings with read-back
 │   ├── position.py         # rrtp poller (R13)
 │   ├── alerts.py           # dock_search_timeout
+│   ├── derive.py           # state → activity/mission/bin/error events
+│   ├── cloud_data.py       # timeline watchers, floor plans, coverage, cache
 │   ├── cloud.py            # CloudManager: login, backoff, rooms import, timeline, coverage
 │   ├── rooms.py            # rooms/maps, learned rooms, name resolution
 │   ├── eventbus.py         # seq, fan-out, persistence, filters
@@ -159,6 +163,9 @@ src/roomba_kit/
 │   ├── client.py           # httpx client of the service
 │   ├── output.py           # human / --json rendering
 │   ├── setup_wizard.py
+│   ├── aliases.py          # `clean ROBOT [--room]` → clean | clean_rooms
+│   ├── events_watch.py     # SSE renderer
+│   ├── position_watch.py
 │   └── lifecycle.py        # serve, service start/stop/status/install/logs, token, config path
 └── lifecycle/
     ├── daemon.py           # detached process + pidfile
@@ -173,7 +180,7 @@ docs/
 ├── reference/ (generated: operations.md, errors.md, events.md, support-matrix.md, cli.md)
 └── verification/ (roomba_i5.md, braava_m6.md)
 deploy/ (Dockerfile, compose.yaml, launchd.plist.j2, roomba-kit.service.j2)
-scripts/gen_docs.py
+scripts/gen_docs.py, scripts/capture_fixture.py (dev tool; not a kit surface)
 .github/workflows/ci.yml
 .importlinter, ruff.toml/pyproject sections, mkdocs.yml, README.md, CLAUDE.md, LICENSE
 ```
@@ -181,12 +188,15 @@ scripts/gen_docs.py
 **Structure Decision**: a single package with a `src/` layout. The layering is enforced by
 import-linter:
 
-- `core` imports nothing internal.
+- `core` imports nothing internal. Handlers are typed against the `OperationContext`
+  protocol, so `core` never imports `service`.
 - `profiles` → `core`.
 - `transport` → `core`.
 - `service` → `core`, `profiles`, `transport`, `config`.
+  `service/operations/__init__.py:load_operations()` imports the handler modules.
 - `api`, `mcp` and `cli` → `core` and `service` (in-process), or `cli/client` (remote).
-- `cli` never imports `transport`.
+- `api`, `mcp` and `cli` never import `transport` **directly**. Indirect imports through
+  `service` are expected, and the import-linter contracts set `allow_indirect_imports`.
 
 ## Complexity Tracking
 

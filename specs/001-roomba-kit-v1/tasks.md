@@ -19,8 +19,8 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   `src/roomba_kit/transport/cloud.py` may import `roombapy_prime` (Constitution V,
   import-linter).
 - Operations self-register. Every module in `src/roomba_kit/service/operations/` is
-  auto-imported by the registry loader (T013), so story phases add **new** files and never
-  edit a shared operations index.
+  auto-imported by `load_operations()` in `service/operations/__init__.py` (T012), so story
+  phases add **new** files and never edit a shared operations index.
 - Derived behaviour (events, history, alerts, position, learned rooms) subscribes to the
   EventBus. Story phases add new subscriber modules and don't edit `session.py`.
 - Never write secrets to logs, fixtures, docs or test snapshots. Fixtures use the placeholder
@@ -61,9 +61,12 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - `core` imports no other roomba_kit package.
   - `profiles` → `core` only.
   - `transport` → `core` only.
-  - `api`, `mcp` and `cli` must not import `roomba_kit.transport`.
-  - `roombapy` is importable only from `roomba_kit.transport.local`, and `roombapy_prime` only
-    from `roomba_kit.transport.cloud`.
+  - `api`, `mcp` and `cli` must not import `roomba_kit.transport` **directly**. Set
+    `allow_indirect_imports = True`: they legitimately reach `service`, which uses transport.
+  - `roombapy` may be imported directly only by `roomba_kit.transport.local`, and
+    `roombapy_prime` only by `roomba_kit.transport.cloud`. Again set
+    `allow_indirect_imports = True`, because the rest of the package reaches them through
+    `transport`.
 - [ ] T004 [P] Create `tests/conftest.py`:
   - A `--robot` CLI option.
   - Auto-skip `hardware`-marked tests unless `--robot` is given.
@@ -137,10 +140,12 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     `result` (model), `capability` (Capability | None), `read_only`, `motion`,
     `http: (method, path)`, `cli: (group path, name, arg hints)` and `surfaces` (default `{"http", "mcp", "cli"}`).
   - An `@operation(...)` decorator that registers async handlers
-    `(ctx: ServiceContext, params) -> result`.
-  - `load_operations()`, which imports every module in `roomba_kit.service.operations` via
-    `pkgutil.walk_packages`, so new modules self-register.
+    `(ctx: OperationContext, params) -> result`. `OperationContext` is a `typing.Protocol`
+    defined in `core/registry.py`, because `core` must not import `service`.
   - `get(name)` and `all()`.
+  - Also write `src/roomba_kit/service/operations/__init__.py` with `load_operations()`. It
+    imports every module in that package via `pkgutil.walk_packages`, so new modules
+    self-register. Surfaces call it at startup.
   - Depends on T008–T011.
 - [ ] T013 Implement `src/roomba_kit/profiles/base.py` (`ModelProfile`, `SettingMapping(read, write,
   group, confirm)`, `CommandSpec(predicate, window_s)`) and `src/roomba_kit/profiles/loader.py`
@@ -356,7 +361,9 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - Exposes `cloud` (`CloudManager` interface, status `not_configured` until US1 T042).
   - `resolve_robot(ref)`, by BLID or unambiguous name, raising `robot_not_found` or
     `ambiguous_name` with candidates.
-  - Startup/shutdown lifespan. Depends on T021–T024, T027.
+  - Startup/shutdown lifespan.
+  - `ServiceContext` satisfies the `OperationContext` protocol from T012.
+  - Depends on T021–T024, T027.
 
 ### Surfaces (generated)
 
@@ -487,8 +494,8 @@ clean/pause/resume/stop/dock/find.
   - `clean`, `pause`, `resume`, `stop`, `dock`, `find`, `evac`, `reboot` and `train`.
   - Each calls `session.execute` and returns `CommandResult`.
   - Each declares `motion=True`, except `find`.
-- [ ] T045 [P] [US1] Implement `src/roomba_kit/service/operations/system.py`: `health` (http and
-  cli only, no auth), `service_status`, and `config_show` (all secrets rendered as `"***"`).
+- [ ] T045 [P] [US1] Implement `src/roomba_kit/service/operations/system.py`: `health` (all surfaces;
+  the HTTP route needs no auth), `service_status`, and `config_show` (all secrets rendered as `"***"`).
 - [ ] T046 [US1] Implement `src/roomba_kit/cli/setup_wizard.py` (`roomba-kit setup`). It calls
   only registry operations through the client, in this order:
   1. Offer `service start` if the service isn't running.
@@ -501,6 +508,15 @@ clean/pause/resume/stop/dock/find.
   6. Call `import_rooms` if that operation exists.
   7. On first run, create the `cli` token.
   8. Print next commands.
+
+  When robots are already configured, start instead with a menu (FR-007):
+  - add a robot;
+  - re-pair a robot (retrieve or set its password again);
+  - add, change or remove cloud credentials;
+  - re-import rooms;
+  - remove a robot.
+
+  Each option changes only its own config and credential entries.
 - [ ] T047 [P] [US1] Write `docs/getting-started.md` (install → `setup` → `service start` →
   `clean` in under 15 min) and `docs/setup.md`, covering:
   - password steps per model;
@@ -777,6 +793,7 @@ unverified capabilities.
   - Subscribe to `mission.started`, `mission.finished` and `activity.changed`.
   - Persist `Mission` and `ActivityTransition` rows.
   - On startup, re-attach an `in_progress` mission by robot mission ID.
+  - Append every `error.raised` code seen during a mission to `Mission.errors` (FR-044).
   - When cloud history later shows the mission, set `cloud_mission_ref`.
 - [ ] T087 [US8] Implement `src/roomba_kit/service/operations/history.py`:
   `list_missions(robot?, since?, until?, outcome?, limit=50)` and `get_mission(mission_id)`.
