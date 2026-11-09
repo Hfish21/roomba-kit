@@ -33,6 +33,19 @@ def _cell(value: Any) -> str:
     return str(value)
 
 
+def _table_cell(value: Any) -> str:
+    """Like `_cell`, but nested lists of objects are summarised so table rows stay readable
+    (`roomba-kit robots list` otherwise prints every capability as raw JSON). `--json` and
+    `robots show` keep the full detail."""
+    if isinstance(value, list) and value and all(isinstance(v, dict) for v in value):
+        verified = [v for v in value if isinstance(v.get("verification"), dict)]
+        if len(verified) == len(value):
+            ok = sum(v["verification"].get("status") == "verified" for v in verified)
+            return f"{len(value)} ({ok} verified)"
+        return f"{len(value)} items"
+    return _cell(value)
+
+
 def render(value: Any) -> str:
     """Human text for a decoded JSON result."""
     if isinstance(value, list):
@@ -40,7 +53,7 @@ def render(value: Any) -> str:
             return "(none)"
         if all(isinstance(row, dict) for row in value):
             cols = list(dict.fromkeys(k for row in value for k in row))
-            rows = [[_cell(row.get(c)) for c in cols] for row in value]
+            rows = [[_table_cell(row.get(c)) for c in cols] for row in value]
             widths = [max(len(c), *(len(r[i]) for r in rows)) for i, c in enumerate(cols)]
             lines = [cols, *rows]
             return "\n".join(

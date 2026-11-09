@@ -93,8 +93,8 @@ async def test_mcp_matches_registry():
             assert op.name not in tools, f"{op.name} must not be on MCP"
             continue
         tool = tools[op.name]
-        assert set(tool.inputSchema.get("properties", {})) == set(op.params.model_fields), op.name
-        out = tool.outputSchema or {}
+        assert set(tool.input_schema.get("properties", {})) == set(op.params.model_fields), op.name
+        out = tool.output_schema or {}
         keys = _result_keys(out, out.get("$defs", {}))
         if out.get("x-fastmcp-wrap-result"):
             res = out["properties"]["result"]
@@ -128,3 +128,26 @@ def test_cli_matches_registry():
         assert names == set(op.params.model_fields), op.name
         # Presentation extras (aliases, watchers) may replace the command but never remove it.
         assert _find(final, path) is not None, f"{op.name} missing from the final CLI tree"
+
+
+def _contract_ops() -> set[str]:
+    """Every operation name in the first column of the tables in contracts/operations.md."""
+    import re
+    from pathlib import Path
+
+    text = (
+        Path(__file__).parents[2] / "specs/001-roomba-kit-v1/contracts/operations.md"
+    ).read_text()
+    names: set[str] = set()
+    for line in text.splitlines():
+        if m := re.match(r"^\| ((?:`[a-z_]+`(?: / )?)+) \|", line):
+            names |= set(re.findall(r"`([a-z_]+)`", m.group(1)))
+    return names
+
+
+def test_registry_is_exactly_the_contract():
+    contract = _contract_ops()
+    assert len(contract) >= 40, "parser matched too little; the check would pass vacuously"
+    registered = {op.name for op in _ops()}
+    assert registered - contract == set(), "registered but not in contracts/operations.md"
+    assert contract - registered == set(), "in contracts/operations.md but not registered"

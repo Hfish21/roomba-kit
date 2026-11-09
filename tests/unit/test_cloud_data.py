@@ -61,14 +61,14 @@ def test_a_new_mission_resets_and_malformed_entries_are_skipped():
 
 def test_cloud_mission_shape():
     record = json.loads((FIXTURES / "i5_mission_history.json").read_text())[1]
-    mission = cloud_data._cloud_mission(I5, record, datetime.now(UTC))
+    mission = cloud_data.parse_cloud_mission(I5, record, datetime.now(UTC))
     assert mission is not None
     assert mission.mission_ref == "01M0J6GSQ8MB898573DF8CCQNN"
     assert mission.outcome is MissionOutcome.CANCELLED
     assert mission.initiator is Initiator.SCHEDULE
     assert mission.duration_s == 156 * 60 and mission.number == 547
     assert mission.area_m2 == pytest.approx(406 * 0.0929, abs=0.1)
-    assert cloud_data._cloud_mission(I5, {"done": "ok"}, datetime.now(UTC)) is None
+    assert cloud_data.parse_cloud_mission(I5, {"done": "ok"}, datetime.now(UTC)) is None
 
 
 def test_clutter_polygons_flatten_to_outer_ring_vertices():

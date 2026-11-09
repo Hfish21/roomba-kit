@@ -114,16 +114,20 @@ async def has_robot(store: Store, robot_id: str) -> bool:
 
 
 def cloud_ref(mission: Mission, records: list[dict[str, Any]]) -> str | None:
-    """The cloud record for this mission: same mission ID, else (kit IDs) the same start time."""
-    ids = [str(r["missionId"]) for r in records if r.get("missionId")]
-    if mission.id in ids:
+    """The cloud record for this mission: same mission ID, else (kit IDs) the same start time.
+
+    Cloud payloads are parsed by `cloud_data`, the one module that knows their shape.
+    """
+    from roomba_kit.service.cloud_data import parse_cloud_mission
+
+    now = datetime.now(UTC)
+    parsed = [m for r in records if (m := parse_cloud_mission(mission.robot_id, r, now))]
+    if any(m.mission_ref == mission.id for m in parsed):
         return mission.id
-    for record in records:
-        start, ref = record.get("startTime"), record.get("missionId")
-        if not ref or not isinstance(start, int | float) or isinstance(start, bool):
-            continue
-        if abs(datetime.fromtimestamp(start, UTC) - mission.started_at) <= CLOUD_START_SLACK:
-            return str(ref)
+    for cloud in parsed:
+        start = cloud.started_at
+        if start is not None and abs(start - mission.started_at) <= CLOUD_START_SLACK:
+            return cloud.mission_ref
     return None
 
 

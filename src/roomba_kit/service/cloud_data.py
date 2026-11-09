@@ -466,7 +466,9 @@ def _refs(record: dict[str, Any]) -> set[str]:
     return {r for r in refs if isinstance(r, str) and r}
 
 
-def _cloud_mission(robot_id: str, record: dict[str, Any], now: datetime) -> CloudMission | None:
+def parse_cloud_mission(
+    robot_id: str, record: dict[str, Any], now: datetime
+) -> CloudMission | None:
     refs = sorted(_refs(record))
     if not refs:
         return None
@@ -500,7 +502,7 @@ async def _fetch_history(robot_id: str, transport: CloudTransport) -> _History:
     missions = [
         m
         for r in await transport.mission_history(robot_id)
-        if (m := _cloud_mission(robot_id, r, now)) is not None
+        if (m := parse_cloud_mission(robot_id, r, now)) is not None
     ]
     floor = datetime.min.replace(tzinfo=UTC)
     missions.sort(key=lambda m: m.started_at or m.ended_at or floor, reverse=True)

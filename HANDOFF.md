@@ -1,8 +1,30 @@
 # Handoff: start here
 
-**State (2026-11-08):** discovery is done, and the spec, plan and tasks are complete, analysed and
-pushed. **No product code exists yet.** The next step is implementing
-`specs/001-roomba-kit-v1/tasks.md` (110 tasks).
+**State (2026-11-09):** V1 is implemented. All operations in `contracts/operations.md` are on
+`main` (a contract test pins the registry to it), across the HTTP API, MCP server and CLI, with
+~680 mocked-transport tests, contract snapshots and CI on Python 3.13/3.14. Hardware session 1
+(HW-1) ran on the real robots and drove ~15 fixes, each logged in
+`specs/001-roomba-kit-v1/decisions.md` (#63 onward) with a regression test. What remains:
+the rest of Phase 13 (verification docs, profile `Verification` updates), the official
+quickstart V1–V10 run (`checklists/quickstart-run.md`) and the `train` run (owner's OK only).
+
+Run it: `uv run roomba-kit setup` (or `robots add` + `robots password`), then
+`uv run roomba-kit service start`. Reports from `roomba-kit verify … --write-report` land in
+`docs/verification/<profile>.md`.
+
+**Robot behaviour learned on hardware (HW-1)** — the kit handles these; know them when
+debugging:
+
+| Behaviour | Seen on | What the kit does |
+|---|---|---|
+| `dock` while cleaning is echoed but ignored | i5, m6 | Pauses first (`dock_needs_pause`) |
+| `dock` soon after `stop` is ignored for 30–70 s | i5, m6 | Re-sends every 15 s while stopped off-dock |
+| A `pause` seconds after leaving the dock ends the mission | i5 | `verify` cleans 30 s before pausing |
+| Reboot is the firmware command `reset` | i5 | Profile protocol mapping |
+| Links stay "connected" but go silent | i5, m6 | Reconnects on no reaction to a command, 2 min silence mid-mission, 10 min idle |
+| Not-ready 68 for ~1.5 min after a bin evacuation; refuses to start | i5 | `verify` waits; neutral text |
+| A robot-stored schedule opens a cycle that sits on the dock (cloud team routine) | i5 | Reported as docked with a mission pending |
+| m6 acts on pause/stop/dock up to ~15 s late mid-mop | m6 | 30 s windows for the m6 |
 
 ## What this project is, and why
 
