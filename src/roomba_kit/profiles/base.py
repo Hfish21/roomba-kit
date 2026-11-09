@@ -9,6 +9,9 @@ from typing import Any
 from roomba_kit.core.capabilities import Capability, CapabilityStatus, Verification
 from roomba_kit.core.models import RobotState
 
+DEFAULT_PROTOCOL_COMMANDS: dict[str, str] = {"clean": "start", "clean_rooms": "start"}
+"""Kit command name -> protocol command, where they differ. Everything else is sent as-is."""
+
 Reported = Mapping[str, Any]
 """A merged raw `state.reported` dict. Only profiles and transport adapters read its keys."""
 
@@ -55,6 +58,7 @@ class ModelProfile:
     command_overrides: dict[str, CommandSpec] = field(default_factory=dict)
     error_texts: dict[int, str] = field(default_factory=dict)
     not_ready_texts: dict[int, str] = field(default_factory=dict)
+    protocol_commands: dict[str, str] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[a-z][a-z0-9_]*", self.id):
@@ -66,6 +70,12 @@ class ModelProfile:
 
     def supports(self, capability: Capability) -> bool:
         return capability in self.capabilities
+
+    def protocol_command(self, command: str) -> str:
+        """The command name this model's firmware expects for a kit command."""
+        return self.protocol_commands.get(command) or DEFAULT_PROTOCOL_COMMANDS.get(
+            command, command
+        )
 
     def matches(self, sku: str) -> bool:
         return any(re.search(p, sku) for p in self.sku_patterns)

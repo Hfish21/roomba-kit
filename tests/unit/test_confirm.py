@@ -150,3 +150,9 @@ def test_default_windows_match_r9():
         "reboot": 180,
         "train": 20,
     }
+
+
+async def test_find_after_another_command_in_the_same_second():
+    before = _state(Activity.CLEANING, last_command=_echo("resume", 1))
+    src = FakeSource(before, [(0.5, _state(Activity.CLEANING, last_command=_echo("find", 1)))])
+    assert (await _confirm(src, "find", before=before)).outcome == "confirmed"

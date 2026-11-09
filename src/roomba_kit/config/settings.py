@@ -58,6 +58,16 @@ class RobotEntry(_Section):
     name: str = ""
     address: str | None = Field(default=None, description="Last known IP; a hint")
     profile: str | None = None
+    sku: str | None = Field(default=None, description="From discovery; refreshed from the robot")
+    firmware: str | None = None
+
+
+class DiscoveryConfig(_Section):
+    broadcast: str = Field(
+        default="255.255.255.255",
+        description="Broadcast address for rediscovery; use the subnet's (e.g. 192.0.2.255) "
+        "when a VPN owns the default route",
+    )
 
 
 class ConfigModel(BaseModel):
@@ -67,6 +77,7 @@ class ConfigModel(BaseModel):
     alerts: AlertsConfig = Field(default_factory=AlertsConfig)
     history: HistoryConfig = Field(default_factory=HistoryConfig)
     events: EventsConfig = Field(default_factory=EventsConfig)
+    discovery: DiscoveryConfig = Field(default_factory=DiscoveryConfig)
     cloud: CloudConfig = Field(default_factory=CloudConfig)
     robots: list[RobotEntry] = Field(default_factory=list)
 

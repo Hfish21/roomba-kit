@@ -22,11 +22,16 @@ dock_search_minutes = 5
 [history]
 event_retention_days = 30   # missions are kept indefinitely
 
+[discovery]
+broadcast = "255.255.255.255"   # rediscovery address; use the subnet's (e.g. 192.0.2.255) under a VPN
+
 [[robots]]
 id = "<blid>"
 name = "Kitchen vacuum"
 address = "192.0.2.10"      # hint; refreshed by rediscovery
 profile = "roomba_i5"
+sku = "i5G5020"             # from discovery; informational
+firmware = "daredevil+2.6.0+…"
 
 [cloud]
 enabled = true

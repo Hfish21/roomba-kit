@@ -44,7 +44,11 @@ def _find_echoed(v: ConfirmView) -> bool:
     if now is None or now.command != "find" or now.at is None:
         return False
     prior = v.before.last_command if v.before else None
-    return prior is None or prior.at is None or now.at > prior.at
+    # Echo times are whole seconds, so a `find` right after another command can share its
+    # timestamp. Only a prior `find` echo needs a strictly newer time to count as fresh.
+    if prior is None or prior.command != "find" or prior.at is None:
+        return True
+    return now.at > prior.at
 
 
 def _reconnected(v: ConfirmView) -> bool:
