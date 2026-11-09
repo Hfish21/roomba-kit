@@ -46,6 +46,10 @@ FIRST_STATE_TIMEOUT_S = 20.0
 Seen on an i5 right after HOME-button password retrieval: it accepted the session but sent
 nothing until a later reconnect."""
 
+MISSION_SILENCE_S = 120.0
+"""During a mission, a link that has delivered no state this long is reconnected to fetch a
+fresh snapshot. HW-1: an i5's link stayed up but carried nothing for 30 min of cleaning."""
+
 REDISCOVER_AFTER = 3
 """Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
 
@@ -85,6 +89,7 @@ class RobotSession:
         backoff_min: float = 1.0,
         backoff_max: float = BACKOFF_MAX_S,
         first_state_timeout_s: float = FIRST_STATE_TIMEOUT_S,
+        mission_silence_s: float = MISSION_SILENCE_S,
         coalesce_s: float = 1.0,
     ) -> None:
         self.robot_id = entry.id
@@ -101,6 +106,8 @@ class RobotSession:
         self._backoff_min = backoff_min
         self._backoff_max = backoff_max
         self._first_state_timeout = first_state_timeout_s
+        self._mission_silence = mission_silence_s
+        self._last_fragment = 0.0
         self._got_state = asyncio.Event()
         self._coalesce_s = coalesce_s
 
@@ -319,6 +326,7 @@ class RobotSession:
     def _on_fragment(self, fragment: dict[str, Any]) -> None:
         if fragment:
             self._got_state.set()
+            self._last_fragment = asyncio.get_running_loop().time()
         self._fragments.put_nowait(fragment)
 
     def _on_link(self, connected: bool, reason: str | None) -> None:
@@ -417,7 +425,16 @@ class RobotSession:
             await self._set_connection(ConnectionState.OFFLINE, "no_state")
             await self._pause(self._backoff_min)
             return
-        await self._link_lost.wait()
+        if not await self._hold_link():
+            log.warning(
+                "robot %s: no state for %gs mid-mission; reconnecting",
+                self.robot_id,
+                self._mission_silence,
+            )
+            with contextlib.suppress(Exception):
+                await transport.disconnect()
+            await self._set_connection(ConnectionState.OFFLINE, "silent")
+            return
         if self._stopping:
             return
         reason = self._lost_reason
@@ -433,6 +450,19 @@ class RobotSession:
         else:
             await self._set_connection(ConnectionState.OFFLINE, reason)
             await self._pause(self._bump_backoff())
+
+    async def _hold_link(self) -> bool:
+        """Wait while the link is up. False if it went silent during a mission."""
+        loop = asyncio.get_running_loop()
+        while True:
+            try:
+                await asyncio.wait_for(self._link_lost.wait(), self._mission_silence / 4)
+                return True
+            except TimeoutError:
+                pass
+            mission = self._state is not None and self._state.mission is not None
+            if mission and loop.time() - self._last_fragment > self._mission_silence:
+                return False
 
     async def _first_state_arrives(self) -> bool:
         """True once the robot reports state (or the link drops); False after the timeout."""
