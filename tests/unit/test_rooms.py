@@ -123,7 +123,7 @@ async def test_learned_rooms_come_only_from_new_room_clean_echoes(store):
     clean = base.model_copy(
         update={
             "last_command": CommandEcho(
-                command="start", initiator=Initiator.APP, room_ids=["7", "3"], map_id="m"
+                command="clean_rooms", initiator=Initiator.APP, room_ids=["7", "3"], map_id="m"
             )
         }
     )
@@ -150,7 +150,7 @@ async def test_an_echo_replayed_at_startup_counts_only_if_it_names_the_current_v
     state = Session().state
     for room_id, version in (("4", "v1"), ("5", "v2")):
         echo = CommandEcho(
-            command="start",
+            command="clean_rooms",
             initiator=Initiator.APP,
             room_ids=[room_id],
             map_id="m",
@@ -194,7 +194,7 @@ async def test_clean_params_dedupe_and_pick_the_user_map_version(store):
         ],
     }
     session.state.last_command = CommandEcho(
-        command="start", initiator=Initiator.APP, map_id="m", map_version="u1"
+        command="clean", initiator=Initiator.APP, map_id="m", map_version="u1"
     )
     assert (await rooms.clean_params(store, session, [room("7")], ordered=True))[
         "user_pmapv_id"

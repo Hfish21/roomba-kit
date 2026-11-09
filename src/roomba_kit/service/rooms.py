@@ -405,10 +405,8 @@ class LearnedRooms:
             return
         if before is not None and before.last_command == echo:
             return
-        if session.profile is not None and echo.command != session.profile.protocol_command(
-            "clean_rooms"
-        ):
-            return  # a later command echo merged over a room clean's fields
+        if echo.command != "clean_rooms":
+            return  # only room cleans tell us which room IDs exist
         current = after.map
         map_id = echo.map_id or (current.map_id if current else None)
         if map_id is None:
