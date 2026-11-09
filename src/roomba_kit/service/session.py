@@ -14,7 +14,7 @@ from datetime import UTC, datetime
 from typing import Any, TypeVar
 
 from roomba_kit.config.settings import RobotEntry
-from roomba_kit.core.capabilities import Capability
+from roomba_kit.core.capabilities import COMMAND_CAPABILITIES, Capability
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import ConnectionChangedData, EventType, StateChangedData
 from roomba_kit.core.models import CommandResult, ConnectionState, PositionFix, Robot, RobotState
@@ -28,7 +28,12 @@ log = logging.getLogger(__name__)
 T = TypeVar("T")
 
 StateListener = Callable[["RobotSession", RobotState | None, RobotState], Awaitable[None]]
-"""Called on every normalized update (uncoalesced), in order, with `(session, before, after)`."""
+"""Called on every normalized update (uncoalesced), in order, with `(session, before, after)`.
+
+Listeners run inline on the state path, so they must be quick and must never await
+`execute()`/`submit()` (that would stall state processing for a whole confirmation window).
+To act on a change, publish an event or spawn a task.
+"""
 
 Rediscover = Callable[[str], Awaitable[str | None]]
 """BLID -> the robot's current address, or None when it can't be found."""
@@ -104,6 +109,8 @@ class RobotSession:
         self._lost_reason: str | None = None
         self._wake = asyncio.Event()
         self._stopping = False
+        self._backoff = backoff_min
+        self._offline_attempts = 0
         self._fragments: asyncio.Queue[dict[str, Any]] = asyncio.Queue()
         self._jobs: asyncio.Queue[tuple[Callable[[], Awaitable[Any]], asyncio.Future[Any]]] = (
             asyncio.Queue()
@@ -127,6 +134,9 @@ class RobotSession:
             loop.create_task(self._work(), name=f"session:{self.robot_id}:commands"),
         ]
 
+    def _stopping_error(self) -> KitError:
+        return KitError(ErrorCode.ROBOT_OFFLINE, "The service is stopping.", self.robot_id)
+
     async def stop(self) -> None:
         self._stopping = True
         self._wake.set()
@@ -134,15 +144,13 @@ class RobotSession:
         for task in [*self._tasks, *([self._flush_task] if self._flush_task else [])]:
             task.cancel()
         for task in self._tasks:
-            with contextlib.suppress(asyncio.CancelledError):
+            with contextlib.suppress(asyncio.CancelledError, Exception):
                 await task
         self._tasks = []
         while not self._jobs.empty():
             _, future = self._jobs.get_nowait()
             if not future.done():
-                future.set_exception(
-                    KitError(ErrorCode.ROBOT_OFFLINE, "The service is stopping.", self.robot_id)
-                )
+                future.set_exception(self._stopping_error())
         if self._transport is not None:
             with contextlib.suppress(Exception):
                 await self._transport.disconnect()
@@ -203,12 +211,16 @@ class RobotSession:
 
     async def submit(self, job: Callable[[], Awaitable[T]]) -> T:
         """Run `job` in this robot's FIFO queue, after every earlier command or setting write."""
+        if self._stopping:
+            raise self._stopping_error()
         future: asyncio.Future[T] = asyncio.get_running_loop().create_future()
-        await self._jobs.put((job, future))
+        self._jobs.put_nowait((job, future))
         return await future
 
     async def execute(self, command: str, params: dict[str, Any] | None = None) -> CommandResult:
         """Send a command and confirm it took effect (FR-029). Capability is checked first."""
+        if command not in {c.value for c in COMMAND_CAPABILITIES}:
+            raise KitError(ErrorCode.INVALID_REQUEST, f"Unknown command: {command}", self.robot_id)
         profile = self.require(Capability(command))
 
         async def run() -> CommandResult:
@@ -229,17 +241,27 @@ class RobotSession:
         await self.require_link().publish_settings(values)
 
     async def _work(self) -> None:
+        """Run queued jobs one at a time. A caller that gave up never stops the worker."""
         while True:
             job, future = await self._jobs.get()
-            if future.done():
+            if future.done():  # the caller was cancelled while queued
                 continue
             try:
-                future.set_result(await job())
+                result = await job()
             except asyncio.CancelledError:
-                future.cancel()
-                raise
+                task = asyncio.current_task()
+                if self._stopping or (task is not None and task.cancelling()):
+                    if not future.done():
+                        future.set_exception(self._stopping_error())
+                    raise
+                if not future.done():  # the job cancelled itself; the worker carries on
+                    future.cancel()
             except Exception as exc:
-                future.set_exception(exc)
+                if not future.done():
+                    future.set_exception(exc)
+            else:
+                if not future.done():
+                    future.set_result(result)
 
     # -- ConfirmSource ---------------------------------------------------------------------------
 
@@ -310,60 +332,74 @@ class RobotSession:
         await self._wake.wait()
 
     async def _supervise(self) -> None:
-        backoff = self._backoff_min
-        offline_attempts = 0
+        """Keep the link up. One failure (a config write, a publish) never ends supervision."""
         while not self._stopping:
-            self._wake.clear()
-            password = self._password()
-            if not password or not self.address:
-                await self._set_connection(ConnectionState.NOT_CONFIGURED)
-                await self._wait_for_credentials()
-                continue
-            await self._set_connection(ConnectionState.CONNECTING)
-            transport = self._transport_for(password)
-            self._link_lost.clear()
-            self._lost_reason = None
             try:
-                await transport.connect()
-            except KitError as exc:
-                if exc.code is ErrorCode.AUTH_FAILED:
-                    await self._set_connection(ConnectionState.AUTH_FAILED, exc.code.value)
-                    await self._wait_for_credentials()
-                    backoff = self._backoff_min
-                    continue
-                held = exc.code is ErrorCode.CONNECTION_HELD_ELSEWHERE
-                state = ConnectionState.HELD_ELSEWHERE if held else ConnectionState.OFFLINE
-                await self._set_connection(state, exc.code.value)
-                if not held:
-                    offline_attempts += 1
-                    if offline_attempts % REDISCOVER_AFTER == 0:
-                        await self._relocate()
-                await self._pause(backoff)
-                backoff = min(backoff * 2, self._backoff_max)
-                continue
+                await self._attempt()
+            except asyncio.CancelledError:
+                raise
+            except Exception:
+                log.exception("robot %s: connection supervisor error; retrying", self.robot_id)
+                await self._pause(self._backoff_max)
 
-            offline_attempts = 0
-            backoff = self._backoff_min
-            if self._ever_connected:
-                self._last_reconnect = _now()
-            self._ever_connected = True
-            await self._set_connection(ConnectionState.CONNECTED)
-            await self._link_lost.wait()
-            if self._stopping:
-                return
-            reason = self._lost_reason
-            if reason == ErrorCode.AUTH_FAILED.value:
-                await self._set_connection(ConnectionState.AUTH_FAILED, reason)
+    def _bump_backoff(self) -> float:
+        delay = self._backoff
+        self._backoff = min(self._backoff * 2, self._backoff_max)
+        return delay
+
+    async def _attempt(self) -> None:
+        # Clear both signals *before* reading the password, so a credentials change that
+        # arrives at any later point is seen and causes a reconnect with the new password.
+        self._wake.clear()
+        self._link_lost.clear()
+        self._lost_reason = None
+        password = self._password()
+        if not password or not self.address:
+            await self._set_connection(ConnectionState.NOT_CONFIGURED)
+            await self._wait_for_credentials()
+            return
+        await self._set_connection(ConnectionState.CONNECTING)
+        transport = self._transport_for(password)
+        try:
+            await transport.connect()
+        except KitError as exc:
+            if exc.code is ErrorCode.AUTH_FAILED:
+                await self._set_connection(ConnectionState.AUTH_FAILED, exc.code.value)
                 await self._wait_for_credentials()
-            elif reason == ErrorCode.CONNECTION_HELD_ELSEWHERE.value:
-                await self._set_connection(ConnectionState.HELD_ELSEWHERE, reason)
-                await self._pause(backoff)
-            elif reason is None:  # credentials changed while connected: reconnect with them
-                with contextlib.suppress(Exception):
-                    await transport.disconnect()
-            else:
-                await self._set_connection(ConnectionState.OFFLINE, reason)
-                await self._pause(backoff)
+                self._backoff = self._backoff_min
+                return
+            held = exc.code is ErrorCode.CONNECTION_HELD_ELSEWHERE
+            state = ConnectionState.HELD_ELSEWHERE if held else ConnectionState.OFFLINE
+            await self._set_connection(state, exc.code.value)
+            if not held:
+                self._offline_attempts += 1
+                if self._offline_attempts % REDISCOVER_AFTER == 0:
+                    await self._relocate()
+            await self._pause(self._bump_backoff())
+            return
+
+        self._offline_attempts = 0
+        self._backoff = self._backoff_min
+        if self._ever_connected:
+            self._last_reconnect = _now()
+        self._ever_connected = True
+        await self._set_connection(ConnectionState.CONNECTED)
+        await self._link_lost.wait()
+        if self._stopping:
+            return
+        reason = self._lost_reason
+        if reason == ErrorCode.AUTH_FAILED.value:
+            await self._set_connection(ConnectionState.AUTH_FAILED, reason)
+            await self._wait_for_credentials()
+        elif reason == ErrorCode.CONNECTION_HELD_ELSEWHERE.value:
+            await self._set_connection(ConnectionState.HELD_ELSEWHERE, reason)
+            await self._pause(self._bump_backoff())
+        elif reason is None:  # credentials changed while connected: reconnect with them
+            with contextlib.suppress(Exception):
+                await transport.disconnect()
+        else:
+            await self._set_connection(ConnectionState.OFFLINE, reason)
+            await self._pause(self._bump_backoff())
 
     async def _relocate(self) -> None:
         if self._rediscover is None:
@@ -377,7 +413,10 @@ class RobotSession:
             log.info("robot %s: found at a new address", self.robot_id)
             self.address = address
             if self._on_address is not None:
-                self._on_address(self.robot_id, address)
+                try:
+                    self._on_address(self.robot_id, address)
+                except Exception:
+                    log.warning("robot %s: couldn't save the new address", self.robot_id)
 
     # -- state -----------------------------------------------------------------------------------
 
@@ -411,13 +450,19 @@ class RobotSession:
             self._flush_task = loop.create_task(self._flush(delay))
 
     async def _flush(self, delay: float) -> None:
-        if delay:
-            await asyncio.sleep(delay)
-        fields, self._pending_fields = sorted(self._pending_fields), set()
-        self._last_state_event = asyncio.get_running_loop().time()
-        if fields and self._state is not None:
-            await self._bus.publish(
-                EventType.STATE_CHANGED,
-                self.robot_id,
-                StateChangedData(changed=fields, state=self._state),
-            )
+        # Loop until nothing is pending: fields can arrive while a publish is in flight, and
+        # `_note_changes` won't schedule another flush while this task is still running.
+        while True:
+            if delay:
+                await asyncio.sleep(delay)
+            fields, self._pending_fields = sorted(self._pending_fields), set()
+            self._last_state_event = asyncio.get_running_loop().time()
+            if fields and self._state is not None:
+                await self._bus.publish(
+                    EventType.STATE_CHANGED,
+                    self.robot_id,
+                    StateChangedData(changed=fields, state=self._state),
+                )
+            if not self._pending_fields:
+                return
+            delay = self._coalesce_s

@@ -24,7 +24,9 @@ Transitions:
 - `not_configured` → `connecting` when credentials are saved.
 - `connecting` → `connected`, or to `held_elsewhere`, `auth_failed` or `offline` on the
   corresponding error.
-- `connected` → `offline` on drop.
+- `connected` → `offline` on drop; → `held_elsewhere` when another client takes the robot's
+  connection; → `auth_failed` when the robot rejects the password; → `connecting` when the
+  robot's credentials change (reconnect with the new ones).
 - `offline` / `held_elsewhere` → `connecting` on the backoff tick.
 - `auth_failed` is terminal until credentials change.
 
