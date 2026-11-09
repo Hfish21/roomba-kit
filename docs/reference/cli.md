@@ -33,6 +33,7 @@ Commands:
   find          Play the locate sound so you can find the robot.
   floor-plan    The robot's stored map from the iRobot cloud: its rooms with names,...
   health        Whether the service is up, and its version.
+  mcp           Run an MCP server on stdin/stdout for local agent clients.
   missions
   pause         Pause the current mission.
   position      Where the robot is now: x/y in metres from the dock and heading in...
@@ -438,6 +439,21 @@ Options:
 Usage: roomba-kit health [OPTIONS]
 
   Whether the service is up, and its version. Needs no API token over HTTP.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit mcp`
+
+```text
+Usage: roomba-kit mcp [OPTIONS]
+
+  Run an MCP server on stdin/stdout for local agent clients.
+
+  Every tool is proxied to the running service with the CLI's token (`roomba-kit token
+  create cli`), so the service must be running. While it isn't, every tool call fails
+  with `service_unavailable`. Point your MCP client's stdio command at `roomba-kit mcp`.
 
 Options:
   -h, --help  Show this message and exit.
