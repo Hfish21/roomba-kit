@@ -22,11 +22,12 @@ Options:
 
 Commands:
   cloud
-  config   Where the kit keeps its files, and what's in them.
-  serve    Run the service in the foreground on `server.host`:`server.port`.
-  service  Run the service in the background and manage it.
-  token    Create, list and revoke API tokens (local file ops).
-  version  Print the kit version.
+  config    Where the kit keeps its files, and what's in them.
+  position  Where the robot is now: x/y in metres from the dock and heading in...
+  serve     Run the service in the foreground on `server.host`:`server.port`.
+  service   Run the service in the background and manage it.
+  token     Create, list and revoke API tokens (local file ops).
+  version   Print the kit version.
 ```
 
 ## `roomba-kit cloud`
@@ -107,6 +108,26 @@ Commands:
 Usage: roomba-kit config path [OPTIONS]
 
   Print the config and state directories.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit position`
+
+```text
+Usage: roomba-kit position [OPTIONS] ROBOT
+
+  Where the robot is now: x/y in metres from the dock and heading in radians, with the
+  map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is
+  not an error. During missions the same fixes stream as `position` events.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+
+  Supported on: braava_m6
+
+  Verification: braava_m6: verified
 
 Options:
   -h, --help  Show this message and exit.
