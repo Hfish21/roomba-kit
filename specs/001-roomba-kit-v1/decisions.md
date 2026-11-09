@@ -4,7 +4,6 @@ Non-obvious calls made during implementation, within the spec and constitution. 
 
 | # | Decision | Why | Alternative rejected |
 |---|---|---|---|
-||||||| parent of 2857c61 (Add ServiceContext composition root and service components (T028))
 | 1 | `pr-gate`'s diff-size cap counts hand-written lines only. Generated files (`uv.lock`, `docs/reference/*`, `tests/contract/snapshots/*`) are excluded, and each PR body states both counts. | Owner-approved standing override (execution plan D1). Without it, every PR that adds an operation BLOCKs on regenerated reference docs no one reviews by hand. | Separate "regen" PRs: doubles the PR count for no review value. |
 | 2 | CI (T005) ships without the `gen_docs.py --check` step; the step is added in the PR that lands T039. | The script doesn't exist until T039, and a red CI on `main` would block every lane. | A stub `gen_docs.py`: a placeholder that passes is a false green. |
 | 3 | Ruff excludes `.specify/` (vendored SpecKit scripts). | They're third-party tooling, patched locally, not kit code. | Reformatting them: makes re-applying upstream SpecKit updates harder. |
