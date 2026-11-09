@@ -642,6 +642,33 @@ Type: `Health`
 | `status` | "ok" | no |  |
 | `version` | str | yes |  |
 
+## `import_rooms`
+
+Import the robot's room IDs and names from its stored map in the iRobot cloud. Replaces rooms stored for older map versions; local names on the same map version are kept. The result is cached, so rooms stay usable while the cloud is down.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/rooms/import` |
+| MCP | tool `import_rooms` |
+| CLI | `roomba-kit rooms import [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `ImportResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `imported` | int | yes | Rooms on the imported map |
+| `map` | MapRef | yes |  |
+
 ## `list_robots`
 
 List every configured robot: ID, name, model, SKU, firmware, address, connection state and capabilities with their verification status. Robots without a model profile are listed with `supported=false` (see docs/guides/adding-a-model.md).
@@ -671,6 +698,33 @@ Type: `list[Robot]`
 | `address` | str | yes |  |
 | `connection` | ConnectionState | yes |  |
 | `capabilities` | list[CapabilityStatus] | yes |  |
+
+## `list_rooms`
+
+List the robot's rooms: imported from the cloud, named locally, or learned from room cleans the robot reported (including ones started by other apps). Works without the cloud. Unnamed rooms are shown as `Room <id>`.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/rooms` |
+| MCP | tool `list_rooms` |
+| CLI | `roomba-kit rooms list [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `RoomList`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `map` | MapRef \| None | yes | The robot's current map (the newest stored one while it hasn't reported state); null when nothing is known about its map. |
+| `rooms` | list[Room] | yes | Rooms on that map: imported, locally named and learned. Rooms stored for an older map version are included with their own `map_version`. |
+| `stale` | bool | yes | True when some rooms are for an older map: using them fails with `map_changed` until rooms are re-imported or named again. |
+| `retrieved_at` | datetime \| None | no | When this map's rooms were last imported from the cloud. |
 
 ## `mission_wait`
 
