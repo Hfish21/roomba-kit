@@ -35,7 +35,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-- [ ] T001 Initialize the uv project in `pyproject.toml`:
+- [x] T001 Initialize the uv project in `pyproject.toml`:
   - Package and Python:
     - name `roomba-kit`, `requires-python = ">=3.13"`, src layout, `.python-version` = `3.13`
   - Runtime deps:
@@ -53,11 +53,11 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - `[tool.mypy]` (strict for `roomba_kit.core`, `roomba_kit.service`, `roomba_kit.profiles`)
     - `[tool.pytest.ini_options]` (`asyncio_mode = "auto"`, markers `hardware`, `slow`)
   - Run `uv lock`.
-- [ ] T002 Create the package skeleton with an empty `__init__.py` in every directory listed under
+- [x] T002 Create the package skeleton with an empty `__init__.py` in every directory listed under
   "Source Code" in `specs/001-roomba-kit-v1/plan.md` (`src/roomba_kit/{core,profiles,transport,service,service/operations,config,api,mcp,cli,lifecycle}`),
   plus `tests/{unit,profiles,contract,integration,hardware,fixtures}`. Put `__version__ = "0.1.0"`
   in `src/roomba_kit/__init__.py`.
-- [ ] T003 [P] Add layering contracts in `.importlinter`:
+- [x] T003 [P] Add layering contracts in `.importlinter`:
   - `core` imports no other roomba_kit package.
   - `profiles` → `core` only.
   - `transport` → `core` only.
@@ -67,12 +67,12 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     `roombapy_prime` only by `roomba_kit.transport.cloud`. Again set
     `allow_indirect_imports = True`, because the rest of the package reaches them through
     `transport`.
-- [ ] T004 [P] Create `tests/conftest.py`:
+- [x] T004 [P] Create `tests/conftest.py`:
   - A `--robot` CLI option.
   - Auto-skip `hardware`-marked tests unless `--robot` is given.
   - A `tmp_kit_home` fixture that sets `ROOMBA_KIT_CONFIG_DIR` and `ROOMBA_KIT_STATE_DIR` to
     temp dirs.
-- [ ] T005 [P] Create `.github/workflows/ci.yml`. On push/PR, with a matrix of Python 3.13 and
+- [x] T005 [P] Create `.github/workflows/ci.yml`. On push/PR, with a matrix of Python 3.13 and
   3.14, run:
   - `uv sync --frozen`
   - `uv run ruff check`
@@ -81,10 +81,10 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - `uv run lint-imports`
   - `uv run pytest -m "not hardware"`
   - `uv run python scripts/gen_docs.py --check`
-- [ ] T006 [P] Create `mkdocs.yml` (Material theme; nav: Home, Getting started, Setup, Guides,
+- [x] T006 [P] Create `mkdocs.yml` (Material theme; nav: Home, Getting started, Setup, Guides,
   Reference, Deployment, Troubleshooting, Verification) and placeholder pages for every file listed
   under `docs/` in plan.md.
-- [ ] T007 [P] Create the repo-root files:
+- [x] T007 [P] Create the repo-root files:
   - `.gitignore`: Python, `.venv`, `site/`, `*.env`, `*.token`, `state.db`
   - `LICENSE`: MIT, copyright Hayden Salmon 2026
   - `README.md`: one-paragraph purpose, install, link to the getting-started guide
