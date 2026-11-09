@@ -270,7 +270,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - The `cli` token plaintext lives at `<state>/cli.token`, mode 0600.
   - `src/roomba_kit/config/redact.py`: a `logging.Filter` that replaces every currently-known
     secret value and the patterns `password=…`, `Bearer …` and `"password": "…"` with `***`.
-- [ ] T023 [P] Implement `src/roomba_kit/service/store.py`:
+- [x] T023 [P] Implement `src/roomba_kit/service/store.py`:
   - An aiosqlite connection to `<state>/state.db` with a numbered-migration runner.
   - The v1 schema:
     - `missions`
