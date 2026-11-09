@@ -367,7 +367,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Surfaces (generated)
 
-- [ ] T029 Implement `src/roomba_kit/api/app.py` and `src/roomba_kit/api/generate.py`:
+- [x] T029 Implement `src/roomba_kit/api/app.py` and `src/roomba_kit/api/generate.py`:
   - FastAPI factory, with the `ServiceContext` in the lifespan.
   - Bearer-token dependency (config/tokens) on every route except `GET /v1/health`.
   - `KitError` handler → `{"error":{"code","message","robot_id","details"}}` with
@@ -376,7 +376,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - OpenAPI at `/v1/openapi.json`, docs at `/v1/docs`.
   - A `stream_presenters` hook dict, so US2 can attach SSE to `events_list`.
   - Mount the MCP app from T030 at `/mcp` behind the same auth.
-- [ ] T030 [P] Implement `src/roomba_kit/mcp/server.py`:
+- [x] T030 [P] Implement `src/roomba_kit/mcp/server.py`:
   - Build a `FastMCP("roomba-kit")` with one tool per registry operation whose `surfaces`
     include `mcp`.
   - Each generated description contains:
