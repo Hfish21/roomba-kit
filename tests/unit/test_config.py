@@ -1,9 +1,15 @@
+import logging
+import os
+import stat
 import tomllib
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 import pytest
 
 from roomba_kit.config import paths
+from roomba_kit.config.credentials import CredentialStore
+from roomba_kit.config.redact import RedactFilter, install_redaction
 from roomba_kit.config.settings import (
     ConfigModel,
     RobotEntry,
@@ -14,10 +20,16 @@ from roomba_kit.config.settings import (
     save_config,
     upsert_robot,
 )
+from roomba_kit.config.tokens import TokenStore, read_cli_token
+from roomba_kit.core.errors import ErrorCode, KitError
 
 BLID = "00000000000000000000000000000001"
 CANARY = "CANARY-robot-pw-7f3a"
 CLOUD_CANARY = "CANARY-cloud-pw-91bd"
+
+
+def mode(path: Path) -> int:
+    return stat.S_IMODE(path.stat().st_mode)
 
 
 # Paths
@@ -98,3 +110,148 @@ def test_toml_writer_round_trips_kit_shapes() -> None:
     }
     assert tomllib.loads(dumps_toml(data)) == data
     assert ConfigModel.model_validate(tomllib.loads(dumps_toml({}))) == ConfigModel()
+
+
+# Credentials
+
+
+def test_credentials_created_0600_and_env_layered(
+    tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    creds = CredentialStore()
+    creds.set_robot_password(BLID, CANARY)
+    assert mode(creds.path) == 0o600
+    assert creds.robot_password(BLID) == CANARY
+    monkeypatch.setenv(f"ROOMBA_KIT_ROBOTS__{BLID}__PASSWORD", "CANARY-env-pw")
+    assert creds.robot_password(BLID) == "CANARY-env-pw"
+    monkeypatch.setenv("ROOMBA_KIT_CLOUD__USERNAME", "canary@example.invalid")
+    monkeypatch.setenv("ROOMBA_KIT_CLOUD__PASSWORD", CLOUD_CANARY)
+    cloud = creds.cloud()
+    assert cloud is not None and cloud.password == CLOUD_CANARY
+    assert CLOUD_CANARY not in repr(cloud)
+    creds.set_cloud("file@example.invalid", "CANARY-file-cloud")
+    text = creds.path.read_text()
+    assert "CANARY-env-pw" not in text and CLOUD_CANARY not in text
+    assert {CANARY, "CANARY-env-pw", CLOUD_CANARY} <= set(creds.secrets())
+
+
+def test_broad_mode_is_refused_with_chmod_hint(tmp_kit_home: Path) -> None:
+    creds = CredentialStore()
+    creds.set_robot_password(BLID, CANARY)
+    os.chmod(creds.path, 0o644)
+    with pytest.raises(KitError) as err:
+        CredentialStore().robot_password(BLID)
+    assert err.value.code is ErrorCode.INVALID_REQUEST
+    assert f"chmod 600 {creds.path}" in err.value.message
+    assert CANARY not in err.value.message
+    with pytest.raises(KitError):  # an already-open store notices the chmod too
+        creds.robot_password(BLID)
+
+
+def test_reload_on_change_from_another_writer(tmp_kit_home: Path) -> None:
+    service, cli = CredentialStore(), CredentialStore()
+    assert service.robot_password(BLID) is None
+    cli.set_robot_password(BLID, CANARY)
+    assert service.robot_password(BLID) == CANARY
+
+
+# Tokens
+
+
+def test_tokens_are_stored_hashed(tmp_kit_home: Path) -> None:
+    tokens = TokenStore(CredentialStore())
+    plain = tokens.create("hermes")
+    stored = paths.credentials_file().read_text()
+    assert plain not in stored and "sha256" in stored
+    assert tokens.verify(plain) == "hermes"
+    assert tokens.verify(plain + "x") is None
+    with pytest.raises(KitError):
+        tokens.create("hermes")
+    [info] = tokens.list()
+    assert info.name == "hermes" and info.last_used_at is not None
+    assert set(vars(info)) == {"name", "created_at", "last_used_at"}
+
+
+def test_cli_token_file_is_0600(tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    tokens = TokenStore(CredentialStore())
+    plain = tokens.create("cli")
+    assert mode(paths.cli_token_file()) == 0o600
+    assert read_cli_token() == plain
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "CANARY-env-token")
+    assert read_cli_token() == "CANARY-env-token"
+    assert tokens.create("cli", replace=True) != plain
+    assert tokens.verify(plain) is None
+    assert tokens.revoke("cli") and not paths.cli_token_file().exists()
+
+
+def test_revoke_in_another_process_takes_effect(tmp_kit_home: Path) -> None:
+    service = TokenStore(CredentialStore())
+    plain = TokenStore(CredentialStore()).create("phone")
+    assert service.verify(plain) == "phone"
+    assert TokenStore(CredentialStore()).revoke("phone")
+    assert service.verify(plain) is None
+
+
+def test_last_used_persistence_is_throttled(tmp_kit_home: Path) -> None:
+    now = [datetime(2026, 11, 8, 20, 0, tzinfo=UTC)]
+    tokens = TokenStore(CredentialStore(), persist_every_s=60, clock=lambda: now[0])
+    plain = tokens.create("phone")
+    tokens.verify(plain)  # first use persists
+    before = paths.credentials_file().stat().st_mtime_ns
+    now[0] += timedelta(seconds=10)
+    tokens.verify(plain)
+    assert paths.credentials_file().stat().st_mtime_ns == before
+    assert tokens.list()[0].last_used_at == now[0]
+    tokens.flush()
+    assert "2026-11-08T20:00:10Z" in paths.credentials_file().read_text()
+
+
+# Redaction
+
+
+def test_redact_masks_known_values_and_patterns() -> None:
+    secrets = [CANARY]
+    f = RedactFilter(lambda: secrets)
+    record = logging.LogRecord("t", logging.INFO, __file__, 1, f"pw {CANARY} and %s", ("x",), None)
+    f.filter(record)
+    assert CANARY not in record.getMessage()
+    record = logging.LogRecord("t", logging.INFO, __file__, 1, "connect %s", (CANARY,), None)
+    f.filter(record)
+    assert CANARY not in record.getMessage() and "***" in record.getMessage()
+    secrets.append("CANARY-late")  # picked up without rebuilding the filter
+    assert "CANARY-late" not in f.redact("now CANARY-late")
+    for line in (
+        "password=hunter2-canary",
+        'payload {"password": "two words canary"}',
+        "Authorization: Bearer abc.def-canary",
+        "api_token: tok-canary",
+        "minted rk_abcdefghijklmnopqrstuvwxyz",
+    ):
+        out = f.redact(line)
+        assert "canary" not in out and "abcdefghijklmnop" not in out and "***" in out, out
+
+
+def test_redact_leaves_clean_records_alone_and_masks_tracebacks() -> None:
+    f = RedactFilter(lambda: [CANARY])
+    record = logging.LogRecord("t", logging.INFO, __file__, 1, "%s %s", ("a", 1), None)
+    f.filter(record)
+    assert record.args == ("a", 1)
+    try:
+        raise RuntimeError(f"boom {CANARY}")
+    except RuntimeError:
+        import sys
+
+        record = logging.LogRecord("t", logging.ERROR, __file__, 1, "x", None, sys.exc_info())
+    f.filter(record)
+    assert record.exc_text and CANARY not in record.exc_text
+
+
+def test_install_redaction_covers_every_logger(caplog: pytest.LogCaptureFixture) -> None:
+    previous = logging.getLogRecordFactory()
+    try:
+        install_redaction(lambda: [CANARY])
+        with caplog.at_level(logging.INFO):
+            logging.getLogger("roomba_kit.some.module").info("robot pw %s", CANARY)
+        assert caplog.records and CANARY not in caplog.text
+    finally:
+        logging.setLogRecordFactory(previous)
