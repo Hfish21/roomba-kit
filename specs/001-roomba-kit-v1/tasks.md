@@ -336,7 +336,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - Profile `command_overrides` win.
   - `await_confirmation(session, spec)` returns `CommandResult` with `confirmed`, or
     `unconfirmed` plus the current state at window end.
-- [ ] T027 Implement `src/roomba_kit/service/session.py` `RobotSession`:
+- [x] T027 Implement `src/roomba_kit/service/session.py` `RobotSession`:
   - **Connection supervision**:
     - Owns exactly one `RobotTransport`.
     - Supervisor with exponential backoff (1 s doubling to a 60 s cap).
@@ -419,7 +419,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - A mode-0644 credentials file is refused with the chmod hint.
   - The redact filter masks canary values.
   - Tokens are stored hashed.
-- [ ] T036 [P] Unit tests in `tests/unit/test_session.py` with FakeTransport:
+- [x] T036 [P] Unit tests in `tests/unit/test_session.py` with FakeTransport:
   - Backoff timing.
   - `held_elsewhere` detection.
   - `not_supported` raised without a transport call.
