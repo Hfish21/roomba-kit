@@ -380,14 +380,15 @@ async def test_i5_dock_while_cleaning_pauses_first(bus, factory):
         await s.stop()
 
 
-async def test_m6_dock_while_cleaning_does_not_pause(bus, factory):
+async def test_m6_dock_while_cleaning_pauses_first_too(bus, factory):
+    """HW-1: the m6 also kept mopping after an echoed `dock`; it needs a pause first."""
     s = _session(bus, factory, robot_id=M6, profile="braava_m6")
     await s.start()
     try:
         await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
         await s.execute("clean")
         await s.execute("dock")
-        assert [c for c, _ in factory.get(M6).sent_commands] == ["start", "dock"]
+        assert [c for c, _ in factory.get(M6).sent_commands] == ["start", "pause", "dock"]
     finally:
         await s.stop()
 
@@ -430,3 +431,59 @@ async def test_a_link_silent_while_docked_is_reconnected(bus, factory):
         assert fake.connected
     finally:
         await s.stop()
+
+
+async def test_dock_after_stop_is_retried_until_the_robot_heads_home(bus, factory, monkeypatch):
+    """HW-1: after `stop`, both models ignored `dock` for 30-70 s, then accepted it."""
+    from roomba_kit.service import session as session_module
+
+    monkeypatch.setattr(session_module, "DOCK_RETRY_S", 0.01)
+    fake = factory.get(I5)
+    real_send = fake.send_command
+    docks = []
+
+    async def send(name, params=None):
+        if name == "dock":
+            docks.append(name)
+            if len(docks) < 3:  # ignored (but echoed) twice, then accepted
+                fake.sent_commands.append((name, params))
+                fake.emit(
+                    {
+                        "lastCommand": {
+                            "command": "dock",
+                            "time": len(docks),
+                            "initiator": "localApp",
+                        }
+                    }
+                )
+                return
+        await real_send(name, params)
+
+    monkeypatch.setattr(fake, "send_command", send)
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        await s.execute("clean")
+        await s.execute("stop")
+        from roomba_kit.profiles.base import CommandSpec
+        from roomba_kit.service import confirm
+
+        original = confirm.DEFAULT_SPECS["dock"]
+        confirm.DEFAULT_SPECS["dock"] = CommandSpec(original.predicate, 0.05)
+        try:
+            result = await s.execute("dock")
+        finally:
+            confirm.DEFAULT_SPECS["dock"] = original
+        assert result.outcome == "confirmed" and len(docks) == 3
+    finally:
+        await s.stop()
+
+
+def test_m6_uses_longer_confirmation_windows():
+    from roomba_kit.profiles.loader import get_profile
+    from roomba_kit.service.confirm import spec_for
+
+    m6, i5 = get_profile("braava_m6"), get_profile("roomba_i5")
+    assert spec_for("stop", m6).window_s == 30 and spec_for("stop", i5).window_s == 10
+    assert spec_for("clean", m6).window_s == 20  # untouched commands keep the default

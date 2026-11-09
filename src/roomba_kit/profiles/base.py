@@ -66,6 +66,8 @@ class ModelProfile:
     not_ready_texts: dict[int, str] = field(default_factory=dict)
     protocol_commands: dict[str, str] = field(default_factory=dict)
     dock_needs_pause: bool = False
+    command_windows: dict[str, float] = field(default_factory=dict)
+    """Per-command confirmation windows (seconds), keeping the default predicate."""
     """The firmware ignores `dock` while actively cleaning; the kit pauses first."""
 
     def __post_init__(self) -> None:
