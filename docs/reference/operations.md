@@ -66,6 +66,45 @@ Type: `CommandResult`
 | `state` | StateSummary | yes |  |
 | `waited_ms` | int | yes |  |
 
+## `cloud_history`
+
+The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/cloud-history` |
+| MCP | tool `cloud_history` |
+| CLI | `roomba-kit cloud history [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+| `limit` | int | no | 30 | Most recent missions to return |
+
+**Result**
+
+Type: `list[CloudMission]`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `mission_ref` | str | yes | Cloud mission ID; equals the robot's mission ID |
+| `robot_id` | str | yes |  |
+| `number` | int \| None | no | The robot's mission counter |
+| `started_at` | datetime \| None | no |  |
+| `ended_at` | datetime \| None | no |  |
+| `duration_s` | int \| None | no |  |
+| `outcome` | MissionOutcome | yes |  |
+| `initiator` | Initiator | yes |  |
+| `area_m2` | float \| None | no |  |
+| `rooms_requested` | list[str] | no | Empty = whole home |
+| `evacs` | int \| None | no | Clean Base bin emptyings during the mission |
+| `map` | MapRef \| None | no | The mission's map, used to fetch its coverage |
+| `retrieved_at` | datetime | yes |  |
+
 ## `cloud_login`
 
 Add or change the iRobot account login. It's checked by logging in and saved only if that works. Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and password retrieval; local control never needs it.
@@ -399,6 +438,69 @@ Type: `list[CapabilityStatus]`
 |---|---|---|---|
 | `capability` | Capability | yes |  |
 | `verification` | Verification | yes |  |
+
+## `get_coverage`
+
+Where a finished mission cleaned: covered points, dirt detections and clutter, in metres from the dock. The cloud publishes it minutes after the robot docks; until then this returns `cloud_unavailable` with reason `not_yet_published`. Clutter is given as the vertices of each clutter area's outline.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/missions/{mission_id}/coverage` |
+| MCP | tool `get_coverage` |
+| CLI | `roomba-kit coverage [OPTIONS] ROBOT MISSION_ID` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+| `mission_id` | str | yes |  | The kit mission ID (the robot's own mission ID) or the cloud mission ref |
+
+**Result**
+
+Type: `CoverageRecord`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `mission_ref` | str | yes |  |
+| `map_id` | str | yes |  |
+| `map_version` | str | yes |  |
+| `points` | list[list[any]] | yes |  |
+| `point_area_m2` | float \| None | no |  |
+| `dirt` | list[list[any]] | no |  |
+| `clutter` | list[list[any]] | no |  |
+| `retrieved_at` | datetime | yes |  |
+
+## `get_floor_plan`
+
+The robot's stored map from the iRobot cloud: its rooms with names, types and outlines (rings of [x, y] metres, outer ring first). While the cloud is unavailable, the last copy fetched is returned with its `retrieved_at`.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/floor-plan` |
+| MCP | tool `get_floor_plan` |
+| CLI | `roomba-kit floor-plan [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+
+**Result**
+
+Type: `FloorPlan`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `map` | MapRef | yes |  |
+| `rooms` | list[FloorPlanRoom] | yes |  |
+| `retrieved_at` | datetime | yes | When this was fetched from the cloud |
 
 ## `get_position`
 
