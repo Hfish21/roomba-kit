@@ -1,0 +1,5439 @@
+{
+  "components": {
+    "schemas": {
+      "Activity": {
+        "enum": [
+          "docked",
+          "charging",
+          "cleaning",
+          "mapping",
+          "paused",
+          "returning",
+          "emptying_bin",
+          "stuck",
+          "unknown"
+        ],
+        "title": "Activity",
+        "type": "string"
+      },
+      "Address": {
+        "properties": {
+          "address": {
+            "description": "The robot's IP address",
+            "title": "Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "title": "Address",
+        "type": "object"
+      },
+      "AlertsConfig": {
+        "properties": {
+          "dock_search_minutes": {
+            "default": 5,
+            "minimum": 1,
+            "title": "Dock Search Minutes",
+            "type": "integer"
+          }
+        },
+        "title": "AlertsConfig",
+        "type": "object"
+      },
+      "BinState": {
+        "properties": {
+          "full": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Full"
+          },
+          "present": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Present"
+          }
+        },
+        "title": "BinState",
+        "type": "object"
+      },
+      "Capability": {
+        "enum": [
+          "clean",
+          "clean_rooms",
+          "pause",
+          "resume",
+          "stop",
+          "dock",
+          "find",
+          "evac",
+          "reboot",
+          "train",
+          "setting.passes",
+          "setting.edge_clean",
+          "setting.always_finish",
+          "setting.child_lock",
+          "setting.eco_charge",
+          "setting.schedule_hold",
+          "setting.pad_wetness",
+          "setting.spray_overlap",
+          "setting.carpet_boost",
+          "state.bin",
+          "state.clean_base",
+          "state.pad",
+          "state.tank",
+          "state.lid",
+          "live_position",
+          "cloud.rooms",
+          "cloud.history",
+          "cloud.coverage",
+          "cloud.timeline"
+        ],
+        "title": "Capability",
+        "type": "string"
+      },
+      "CapabilityStatus": {
+        "properties": {
+          "capability": {
+            "$ref": "#/components/schemas/Capability"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/Verification"
+          }
+        },
+        "required": [
+          "capability",
+          "verification"
+        ],
+        "title": "CapabilityStatus",
+        "type": "object"
+      },
+      "CheckResult": {
+        "properties": {
+          "capability": {
+            "title": "Capability",
+            "type": "string"
+          },
+          "evidence": {
+            "title": "Evidence",
+            "type": "string"
+          },
+          "result": {
+            "enum": [
+              "pass",
+              "fail",
+              "skipped"
+            ],
+            "title": "Result",
+            "type": "string"
+          }
+        },
+        "required": [
+          "capability",
+          "result",
+          "evidence"
+        ],
+        "title": "CheckResult",
+        "type": "object"
+      },
+      "CleanBaseState": {
+        "properties": {
+          "present": {
+            "title": "Present",
+            "type": "boolean"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "State"
+          }
+        },
+        "required": [
+          "present"
+        ],
+        "title": "CleanBaseState",
+        "type": "object"
+      },
+      "CleanRoomsParams": {
+        "properties": {
+          "ordered": {
+            "default": true,
+            "description": "Clean in the given order; false lets the robot choose.",
+            "title": "Ordered",
+            "type": "boolean"
+          },
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          },
+          "room_options": {
+            "anyOf": [
+              {
+                "additionalProperties": {
+                  "$ref": "#/components/schemas/RoomOptions"
+                },
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Per-room options keyed by an entry of `rooms`, e.g. {\"Office\": {\"passes\": \"two\"}}. On the CLI, pass it as JSON.",
+            "title": "Room Options"
+          },
+          "rooms": {
+            "description": "Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rooms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "robot",
+          "rooms"
+        ],
+        "title": "CleanRoomsParams",
+        "type": "object"
+      },
+      "CloudHistoryParams": {
+        "properties": {
+          "limit": {
+            "default": 30,
+            "description": "Most recent missions to return",
+            "maximum": 100,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "CloudHistoryParams",
+        "type": "object"
+      },
+      "CloudLogin": {
+        "properties": {
+          "country": {
+            "default": "US",
+            "description": "The account's country code, e.g. US, GB, DE",
+            "pattern": "^[A-Za-z]{2}$",
+            "title": "Country",
+            "type": "string"
+          },
+          "password": {
+            "description": "iRobot account password. The CLI prompts for it; it is never echoed, returned or logged.",
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "username": {
+            "description": "iRobot account email",
+            "minLength": 1,
+            "title": "Username",
+            "type": "string"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ],
+        "title": "CloudLogin",
+        "type": "object"
+      },
+      "CloudLoginResult": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Why it failed: `auth_failed`, `timeout`, `connection_failed`, …",
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "connected",
+              "failed"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CloudLoginResult",
+        "type": "object"
+      },
+      "CloudMission": {
+        "properties": {
+          "area_m2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Area M2"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duration S"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ended At"
+          },
+          "evacs": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Clean Base bin emptyings during the mission",
+            "title": "Evacs"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/Initiator"
+          },
+          "map": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "The mission's map, used to fetch its coverage"
+          },
+          "mission_ref": {
+            "description": "Cloud mission ID; equals the robot's mission ID",
+            "title": "Mission Ref",
+            "type": "string"
+          },
+          "number": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "The robot's mission counter",
+            "title": "Number"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/MissionOutcome"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "rooms_requested": {
+            "description": "Empty = whole home",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rooms Requested",
+            "type": "array"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started At"
+          }
+        },
+        "required": [
+          "mission_ref",
+          "robot_id",
+          "outcome",
+          "initiator",
+          "retrieved_at"
+        ],
+        "title": "CloudMission",
+        "type": "object"
+      },
+      "CloudPasswordResult": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "stored",
+              "unavailable"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Why not: a cloud status reason, `not_in_account`, or `auth_failed` when the robot rejected the password the account gave",
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "CloudPasswordResult",
+        "type": "object"
+      },
+      "CloudStatus": {
+        "properties": {
+          "last_ok": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Last Ok"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reason"
+          },
+          "status": {
+            "enum": [
+              "connected",
+              "unavailable",
+              "not_configured"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "CloudStatus",
+        "type": "object"
+      },
+      "CloudView": {
+        "properties": {
+          "country": {
+            "title": "Country",
+            "type": "string"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "const": "***",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Password"
+          },
+          "username": {
+            "anyOf": [
+              {
+                "const": "***",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Username"
+          }
+        },
+        "required": [
+          "enabled",
+          "country"
+        ],
+        "title": "CloudView",
+        "type": "object"
+      },
+      "CodeText": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "text"
+        ],
+        "title": "CodeText",
+        "type": "object"
+      },
+      "CommandEcho": {
+        "description": "The robot's echo of the last command it accepted, from any client.",
+        "properties": {
+          "at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "At"
+          },
+          "command": {
+            "title": "Command",
+            "type": "string"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/Initiator"
+          },
+          "map_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Map Id"
+          },
+          "map_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Map Version"
+          },
+          "room_ids": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Room Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "command",
+          "initiator"
+        ],
+        "title": "CommandEcho",
+        "type": "object"
+      },
+      "CommandParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "CommandParams",
+        "type": "object"
+      },
+      "CommandResult": {
+        "properties": {
+          "command": {
+            "title": "Command",
+            "type": "string"
+          },
+          "outcome": {
+            "enum": [
+              "confirmed",
+              "unconfirmed"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "state": {
+            "$ref": "#/components/schemas/StateSummary"
+          },
+          "waited_ms": {
+            "title": "Waited Ms",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "robot_id",
+          "command",
+          "outcome",
+          "state",
+          "waited_ms"
+        ],
+        "title": "CommandResult",
+        "type": "object"
+      },
+      "ConfigView": {
+        "properties": {
+          "alerts": {
+            "$ref": "#/components/schemas/AlertsConfig"
+          },
+          "cloud": {
+            "$ref": "#/components/schemas/CloudView"
+          },
+          "discovery": {
+            "$ref": "#/components/schemas/DiscoveryConfig"
+          },
+          "events": {
+            "$ref": "#/components/schemas/EventsConfig"
+          },
+          "history": {
+            "$ref": "#/components/schemas/HistoryConfig"
+          },
+          "robots": {
+            "items": {
+              "$ref": "#/components/schemas/RobotView"
+            },
+            "title": "Robots",
+            "type": "array"
+          },
+          "server": {
+            "$ref": "#/components/schemas/ServerConfig"
+          },
+          "tokens": {
+            "description": "Names only; token values are never shown",
+            "items": {
+              "$ref": "#/components/schemas/TokenView"
+            },
+            "title": "Tokens",
+            "type": "array"
+          }
+        },
+        "required": [
+          "server",
+          "alerts",
+          "history",
+          "events",
+          "discovery",
+          "cloud",
+          "robots",
+          "tokens"
+        ],
+        "title": "ConfigView",
+        "type": "object"
+      },
+      "ConnectionState": {
+        "enum": [
+          "connected",
+          "connecting",
+          "offline",
+          "held_elsewhere",
+          "auth_failed",
+          "not_configured"
+        ],
+        "title": "ConnectionState",
+        "type": "string"
+      },
+      "Counters": {
+        "properties": {
+          "missions_cancelled": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missions Cancelled"
+          },
+          "missions_failed": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missions Failed"
+          },
+          "missions_ok": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missions Ok"
+          },
+          "runtime_hours": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Runtime Hours"
+          },
+          "stuck_count": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Stuck Count"
+          }
+        },
+        "title": "Counters",
+        "type": "object"
+      },
+      "CoverageParams": {
+        "properties": {
+          "mission_id": {
+            "description": "The kit mission ID (the robot's own mission ID) or the cloud mission ref",
+            "title": "Mission Id",
+            "type": "string"
+          },
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot",
+          "mission_id"
+        ],
+        "title": "CoverageParams",
+        "type": "object"
+      },
+      "CoverageRecord": {
+        "properties": {
+          "clutter": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Clutter",
+            "type": "array"
+          },
+          "dirt": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Dirt",
+            "type": "array"
+          },
+          "map_id": {
+            "title": "Map Id",
+            "type": "string"
+          },
+          "map_version": {
+            "title": "Map Version",
+            "type": "string"
+          },
+          "mission_ref": {
+            "title": "Mission Ref",
+            "type": "string"
+          },
+          "point_area_m2": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Point Area M2"
+          },
+          "points": {
+            "items": {
+              "maxItems": 2,
+              "minItems": 2,
+              "prefixItems": [
+                {
+                  "type": "number"
+                },
+                {
+                  "type": "number"
+                }
+              ],
+              "type": "array"
+            },
+            "title": "Points",
+            "type": "array"
+          },
+          "retrieved_at": {
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot_id",
+          "mission_ref",
+          "map_id",
+          "map_version",
+          "points",
+          "retrieved_at"
+        ],
+        "title": "CoverageRecord",
+        "type": "object"
+      },
+      "Discover": {
+        "properties": {
+          "broadcast": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml",
+            "title": "Broadcast"
+          },
+          "timeout_s": {
+            "default": 8.0,
+            "description": "How long to listen",
+            "exclusiveMinimum": 0,
+            "maximum": 60,
+            "title": "Timeout S",
+            "type": "number"
+          }
+        },
+        "title": "Discover",
+        "type": "object"
+      },
+      "DiscoveredRobot": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "configured": {
+            "default": false,
+            "title": "Configured",
+            "type": "boolean"
+          },
+          "firmware": {
+            "title": "Firmware",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Profile Id"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "supported": {
+            "title": "Supported",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "sku",
+          "firmware",
+          "address",
+          "supported"
+        ],
+        "title": "DiscoveredRobot",
+        "type": "object"
+      },
+      "DiscoveryConfig": {
+        "properties": {
+          "broadcast": {
+            "default": "255.255.255.255",
+            "description": "Broadcast address for rediscovery; use the subnet's (e.g. 192.0.2.255) when a VPN owns the default route",
+            "title": "Broadcast",
+            "type": "string"
+          }
+        },
+        "title": "DiscoveryConfig",
+        "type": "object"
+      },
+      "ErrorBody": {
+        "properties": {
+          "code": {
+            "$ref": "#/components/schemas/ErrorCode"
+          },
+          "details": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Details"
+          },
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "robot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Robot Id"
+          }
+        },
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "ErrorBody",
+        "type": "object"
+      },
+      "ErrorCode": {
+        "enum": [
+          "invalid_request",
+          "unauthorized",
+          "robot_not_found",
+          "ambiguous_name",
+          "room_not_found",
+          "not_supported",
+          "unsupported_model",
+          "robot_offline",
+          "connection_held_elsewhere",
+          "auth_failed",
+          "unconfirmed",
+          "not_applied",
+          "map_changed",
+          "no_map",
+          "cloud_unavailable",
+          "password_unavailable",
+          "timeout",
+          "service_unavailable",
+          "internal"
+        ],
+        "title": "ErrorCode",
+        "type": "string"
+      },
+      "ErrorEnvelope": {
+        "properties": {
+          "error": {
+            "$ref": "#/components/schemas/ErrorBody"
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "title": "ErrorEnvelope",
+        "type": "object"
+      },
+      "Event": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "data": {
+            "additionalProperties": true,
+            "title": "Data",
+            "type": "object"
+          },
+          "robot_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Robot Id"
+          },
+          "schema": {
+            "const": "roomba-kit.event/v1",
+            "default": "roomba-kit.event/v1",
+            "title": "Schema",
+            "type": "string"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "type": {
+            "$ref": "#/components/schemas/EventType"
+          }
+        },
+        "required": [
+          "seq",
+          "type",
+          "at"
+        ],
+        "title": "Event",
+        "type": "object"
+      },
+      "EventPage": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/Event"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "next": {
+            "description": "Pass as `since` to continue after these events",
+            "title": "Next",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "events",
+          "next"
+        ],
+        "title": "EventPage",
+        "type": "object"
+      },
+      "EventType": {
+        "enum": [
+          "state.changed",
+          "activity.changed",
+          "mission.started",
+          "mission.finished",
+          "robot.docked",
+          "robot.stuck",
+          "bin.full",
+          "error.raised",
+          "error.cleared",
+          "connection.changed",
+          "setting.changed",
+          "cloud.status",
+          "cloud.timeline",
+          "position",
+          "alert.dock_search_timeout"
+        ],
+        "title": "EventType",
+        "type": "string"
+      },
+      "EventsConfig": {
+        "properties": {
+          "persist_position": {
+            "default": false,
+            "title": "Persist Position",
+            "type": "boolean"
+          }
+        },
+        "title": "EventsConfig",
+        "type": "object"
+      },
+      "EventsListParams": {
+        "properties": {
+          "limit": {
+            "default": 100,
+            "description": "Most events to return",
+            "maximum": 1000,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "robot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only this robot (ID or unambiguous name)",
+            "title": "Robot"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Return events with a seq greater than this; omit for the oldest",
+            "title": "Since"
+          },
+          "types": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/EventType"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only these event types",
+            "title": "Types"
+          }
+        },
+        "title": "EventsListParams",
+        "type": "object"
+      },
+      "EventsWaitParams": {
+        "properties": {
+          "robot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only this robot (ID or unambiguous name)",
+            "title": "Robot"
+          },
+          "since": {
+            "description": "Wait for events with a seq greater than this",
+            "minimum": 0,
+            "title": "Since",
+            "type": "integer"
+          },
+          "timeout_s": {
+            "default": 30,
+            "description": "Seconds to wait before returning no events",
+            "exclusiveMinimum": 0,
+            "maximum": 300,
+            "title": "Timeout S",
+            "type": "number"
+          },
+          "types": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/EventType"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only these event types",
+            "title": "Types"
+          }
+        },
+        "required": [
+          "since"
+        ],
+        "title": "EventsWaitParams",
+        "type": "object"
+      },
+      "FloorPlan": {
+        "properties": {
+          "map": {
+            "$ref": "#/components/schemas/MapRef"
+          },
+          "retrieved_at": {
+            "description": "When this was fetched from the cloud",
+            "format": "date-time",
+            "title": "Retrieved At",
+            "type": "string"
+          },
+          "rooms": {
+            "items": {
+              "$ref": "#/components/schemas/FloorPlanRoom"
+            },
+            "title": "Rooms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "map",
+          "rooms",
+          "retrieved_at"
+        ],
+        "title": "FloorPlan",
+        "type": "object"
+      },
+      "FloorPlanRoom": {
+        "properties": {
+          "id": {
+            "description": "Room (region) ID on this map",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "description": "Kit name, else the cloud name, else `Room <id>`",
+            "title": "Name",
+            "type": "string"
+          },
+          "polygon": {
+            "description": "Outline as rings of [x, y] metres from the dock, the outer ring first",
+            "items": {
+              "items": {
+                "maxItems": 2,
+                "minItems": 2,
+                "prefixItems": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ],
+                "type": "array"
+              },
+              "type": "array"
+            },
+            "title": "Polygon",
+            "type": "array"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Room type from the cloud, e.g. `kitchen`",
+            "title": "Type"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "polygon"
+        ],
+        "title": "FloorPlanRoom",
+        "type": "object"
+      },
+      "GetMissionParams": {
+        "properties": {
+          "mission_id": {
+            "description": "Mission ID, as listed by `list_missions`",
+            "title": "Mission Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mission_id"
+        ],
+        "title": "GetMissionParams",
+        "type": "object"
+      },
+      "Health": {
+        "properties": {
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version"
+        ],
+        "title": "Health",
+        "type": "object"
+      },
+      "HistoryConfig": {
+        "properties": {
+          "event_retention_days": {
+            "default": 30,
+            "minimum": 1,
+            "title": "Event Retention Days",
+            "type": "integer"
+          }
+        },
+        "title": "HistoryConfig",
+        "type": "object"
+      },
+      "ImportResult": {
+        "properties": {
+          "imported": {
+            "description": "Rooms on the imported map",
+            "title": "Imported",
+            "type": "integer"
+          },
+          "map": {
+            "$ref": "#/components/schemas/MapRef"
+          }
+        },
+        "required": [
+          "imported",
+          "map"
+        ],
+        "title": "ImportResult",
+        "type": "object"
+      },
+      "Initiator": {
+        "enum": [
+          "kit",
+          "schedule",
+          "button",
+          "app",
+          "team",
+          "other"
+        ],
+        "title": "Initiator",
+        "type": "string"
+      },
+      "ListMissionsParams": {
+        "properties": {
+          "limit": {
+            "default": 50,
+            "description": "Most missions to return",
+            "maximum": 1000,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MissionOutcome"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only missions with this outcome"
+          },
+          "robot": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.",
+            "title": "Robot"
+          },
+          "since": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only missions started at or after this time (ISO 8601; UTC if no offset)",
+            "title": "Since"
+          },
+          "until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Only missions started before this time (ISO 8601; UTC if no offset)",
+            "title": "Until"
+          }
+        },
+        "title": "ListMissionsParams",
+        "type": "object"
+      },
+      "MapRef": {
+        "properties": {
+          "map_id": {
+            "title": "Map Id",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "map_id",
+          "version"
+        ],
+        "title": "MapRef",
+        "type": "object"
+      },
+      "Mission": {
+        "properties": {
+          "cloud_mission_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cloud Mission Ref"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duration S"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ended At"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/CodeText"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/Initiator"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/MissionOutcome",
+            "default": "in_progress"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "rooms_requested": {
+            "description": "Empty = whole home",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rooms Requested",
+            "type": "array"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "robot_id",
+          "started_at",
+          "initiator"
+        ],
+        "title": "Mission",
+        "type": "object"
+      },
+      "MissionOutcome": {
+        "enum": [
+          "in_progress",
+          "completed",
+          "cancelled",
+          "stuck",
+          "failed",
+          "manually_docked",
+          "unknown"
+        ],
+        "title": "MissionOutcome",
+        "type": "string"
+      },
+      "MissionRef": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/Initiator"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started At"
+          }
+        },
+        "required": [
+          "id",
+          "initiator"
+        ],
+        "title": "MissionRef",
+        "type": "object"
+      },
+      "MissionWaitParams": {
+        "properties": {
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "The mission to wait for; omit for the current or next mission",
+            "title": "Mission Id"
+          },
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          },
+          "timeout_s": {
+            "default": 1800,
+            "description": "Seconds to wait for the mission to end",
+            "exclusiveMinimum": 0,
+            "maximum": 21600,
+            "title": "Timeout S",
+            "type": "number"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "MissionWaitParams",
+        "type": "object"
+      },
+      "MissionWaitTimeout": {
+        "properties": {
+          "mission": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Mission"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The mission still in progress, if any"
+          },
+          "timeout": {
+            "const": true,
+            "default": true,
+            "title": "Timeout",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "mission"
+        ],
+        "title": "MissionWaitTimeout",
+        "type": "object"
+      },
+      "NameRoomParams": {
+        "properties": {
+          "name": {
+            "description": "The local name. Unique per map, ignoring case; it overrides the cloud name.",
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          },
+          "room_id": {
+            "description": "The room's ID on the robot's current map",
+            "title": "Room Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot",
+          "room_id",
+          "name"
+        ],
+        "title": "NameRoomParams",
+        "type": "object"
+      },
+      "NoFix": {
+        "properties": {
+          "no_fix": {
+            "const": true,
+            "default": true,
+            "title": "No Fix",
+            "type": "boolean"
+          }
+        },
+        "title": "NoFix",
+        "type": "object"
+      },
+      "NoParams": {
+        "description": "Params model for operations that take none.",
+        "properties": {},
+        "title": "NoParams",
+        "type": "object"
+      },
+      "PadState": {
+        "properties": {
+          "detected": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Detected"
+          }
+        },
+        "title": "PadState",
+        "type": "object"
+      },
+      "PasswordRetrieval": {
+        "properties": {
+          "outcome": {
+            "description": "`stored`: retrieved, verified and saved. `timeout`: the robot never answered. `cloud_only`: it answered but didn't release a password; retry with HOME held, or use `cloud_retrieve_password`.",
+            "enum": [
+              "stored",
+              "timeout",
+              "cloud_only"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "steps": {
+            "description": "What to do at the robot",
+            "items": {
+              "type": "string"
+            },
+            "title": "Steps",
+            "type": "array"
+          }
+        },
+        "required": [
+          "outcome",
+          "steps"
+        ],
+        "title": "PasswordRetrieval",
+        "type": "object"
+      },
+      "PasswordStored": {
+        "properties": {
+          "outcome": {
+            "enum": [
+              "stored",
+              "auth_failed"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome"
+        ],
+        "title": "PasswordStored",
+        "type": "object"
+      },
+      "PositionFix": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "heading_rad": {
+            "title": "Heading Rad",
+            "type": "number"
+          },
+          "map_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Map Id"
+          },
+          "map_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Map Version"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "x_m": {
+            "title": "X M",
+            "type": "number"
+          },
+          "y_m": {
+            "title": "Y M",
+            "type": "number"
+          }
+        },
+        "required": [
+          "robot_id",
+          "at",
+          "x_m",
+          "y_m",
+          "heading_rad"
+        ],
+        "title": "PositionFix",
+        "type": "object"
+      },
+      "PositionParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "PositionParams",
+        "type": "object"
+      },
+      "Removed": {
+        "properties": {
+          "removed": {
+            "title": "Removed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "removed"
+        ],
+        "title": "Removed",
+        "type": "object"
+      },
+      "RetrieveParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          },
+          "timeout_s": {
+            "default": 60.0,
+            "description": "How long to keep retrying (every 2 s)",
+            "exclusiveMinimum": 0,
+            "maximum": 600,
+            "title": "Timeout S",
+            "type": "number"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RetrieveParams",
+        "type": "object"
+      },
+      "Robot": {
+        "properties": {
+          "address": {
+            "title": "Address",
+            "type": "string"
+          },
+          "capabilities": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityStatus"
+            },
+            "title": "Capabilities",
+            "type": "array"
+          },
+          "connection": {
+            "$ref": "#/components/schemas/ConnectionState"
+          },
+          "firmware": {
+            "title": "Firmware",
+            "type": "string"
+          },
+          "id": {
+            "description": "The robot's permanent ID (BLID); the only identifier.",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "profile_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Profile Id"
+          },
+          "sku": {
+            "title": "Sku",
+            "type": "string"
+          },
+          "supported": {
+            "title": "Supported",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "profile_id",
+          "supported",
+          "sku",
+          "firmware",
+          "address",
+          "connection",
+          "capabilities"
+        ],
+        "title": "Robot",
+        "type": "object"
+      },
+      "RobotConnection": {
+        "properties": {
+          "connection": {
+            "$ref": "#/components/schemas/ConnectionState"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "connection"
+        ],
+        "title": "RobotConnection",
+        "type": "object"
+      },
+      "RobotPassword": {
+        "properties": {
+          "password": {
+            "description": "The robot's local password. The CLI prompts for it; it is never echoed, returned or logged.",
+            "minLength": 1,
+            "title": "Password",
+            "type": "string"
+          },
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot",
+          "password"
+        ],
+        "title": "RobotPassword",
+        "type": "object"
+      },
+      "RobotSchedule": {
+        "description": "A schedule stored on the robot. Read-only in V1.",
+        "properties": {
+          "command": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Command"
+          },
+          "days": {
+            "description": "0 = Sunday … 6 = Saturday",
+            "items": {
+              "type": "integer"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "hour": {
+            "title": "Hour",
+            "type": "integer"
+          },
+          "minute": {
+            "title": "Minute",
+            "type": "integer"
+          },
+          "team": {
+            "default": false,
+            "description": "True when the entry triggers a vendor team routine",
+            "title": "Team",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled",
+          "days",
+          "hour",
+          "minute"
+        ],
+        "title": "RobotSchedule",
+        "type": "object"
+      },
+      "RobotState": {
+        "properties": {
+          "activity": {
+            "$ref": "#/components/schemas/Activity",
+            "default": "unknown"
+          },
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "battery_pct": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Battery Pct"
+          },
+          "bin": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BinState"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "clean_base": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CleanBaseState"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "counters": {
+            "$ref": "#/components/schemas/Counters"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeText"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "last_command": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CommandEcho"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lid_open": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lid Open"
+          },
+          "map": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "mission": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MissionRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "not_ready": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CodeText"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "pad": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PadState"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "schedules": {
+            "items": {
+              "$ref": "#/components/schemas/RobotSchedule"
+            },
+            "title": "Schedules",
+            "type": "array"
+          },
+          "settings": {
+            "additionalProperties": true,
+            "title": "Settings",
+            "type": "object"
+          },
+          "signal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Signal"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "tank": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TankState"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "robot_id",
+          "at"
+        ],
+        "title": "RobotState",
+        "type": "object"
+      },
+      "RobotView": {
+        "properties": {
+          "address": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Last known IP; a hint",
+            "title": "Address"
+          },
+          "firmware": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Firmware"
+          },
+          "id": {
+            "description": "BLID; the only identifier",
+            "minLength": 1,
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "default": "",
+            "title": "Name",
+            "type": "string"
+          },
+          "password": {
+            "anyOf": [
+              {
+                "const": "***",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "`\"***\"` when a password is stored, else null",
+            "title": "Password"
+          },
+          "profile": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Profile"
+          },
+          "sku": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "From discovery; refreshed from the robot",
+            "title": "Sku"
+          }
+        },
+        "required": [
+          "id",
+          "password"
+        ],
+        "title": "RobotView",
+        "type": "object"
+      },
+      "Room": {
+        "properties": {
+          "cloud_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cloud Name"
+          },
+          "local_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Local Name"
+          },
+          "map_id": {
+            "title": "Map Id",
+            "type": "string"
+          },
+          "map_version": {
+            "title": "Map Version",
+            "type": "string"
+          },
+          "name": {
+            "description": "Effective name: `local_name`, then `cloud_name`, then `Room <id>`.",
+            "readOnly": true,
+            "title": "Name",
+            "type": "string"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "room_id": {
+            "title": "Room Id",
+            "type": "string"
+          },
+          "type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Type"
+          }
+        },
+        "required": [
+          "robot_id",
+          "map_id",
+          "map_version",
+          "room_id",
+          "name"
+        ],
+        "title": "Room",
+        "type": "object"
+      },
+      "RoomList": {
+        "properties": {
+          "map": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MapRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "The robot's current map (the newest stored one while it hasn't reported state); null when nothing is known about its map."
+          },
+          "retrieved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "When this map's rooms were last imported from the cloud.",
+            "title": "Retrieved At"
+          },
+          "rooms": {
+            "description": "Rooms on that map: imported, locally named and learned. Rooms stored for an older map version are included with their own `map_version`.",
+            "items": {
+              "$ref": "#/components/schemas/Room"
+            },
+            "title": "Rooms",
+            "type": "array"
+          },
+          "stale": {
+            "description": "True when some rooms are for an older map: using them fails with `map_changed` until rooms are re-imported or named again.",
+            "title": "Stale",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "map",
+          "rooms",
+          "stale"
+        ],
+        "title": "RoomList",
+        "type": "object"
+      },
+      "RoomOptions": {
+        "properties": {
+          "passes": {
+            "anyOf": [
+              {
+                "enum": [
+                  "auto",
+                  "one",
+                  "two"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Cleaning passes in this room: auto, one or two (vacuums).",
+            "title": "Passes"
+          }
+        },
+        "title": "RoomOptions",
+        "type": "object"
+      },
+      "ServerConfig": {
+        "properties": {
+          "host": {
+            "default": "127.0.0.1",
+            "title": "Host",
+            "type": "string"
+          },
+          "port": {
+            "default": 8765,
+            "maximum": 65535,
+            "minimum": 1,
+            "title": "Port",
+            "type": "integer"
+          }
+        },
+        "title": "ServerConfig",
+        "type": "object"
+      },
+      "ServiceStatus": {
+        "properties": {
+          "cloud": {
+            "$ref": "#/components/schemas/CloudStatus"
+          },
+          "robots": {
+            "items": {
+              "$ref": "#/components/schemas/RobotConnection"
+            },
+            "title": "Robots",
+            "type": "array"
+          },
+          "uptime_s": {
+            "title": "Uptime S",
+            "type": "integer"
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version",
+          "uptime_s",
+          "robots",
+          "cloud"
+        ],
+        "title": "ServiceStatus",
+        "type": "object"
+      },
+      "SetSettingParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          },
+          "setting": {
+            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+            "title": "Setting",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+            "title": "Value"
+          }
+        },
+        "required": [
+          "robot",
+          "setting",
+          "value"
+        ],
+        "title": "SetSettingParams",
+        "type": "object"
+      },
+      "SettingChange": {
+        "properties": {
+          "actual": {
+            "title": "Actual"
+          },
+          "outcome": {
+            "enum": [
+              "applied",
+              "not_applied"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "requested": {
+            "title": "Requested"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "setting": {
+            "title": "Setting",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot_id",
+          "setting",
+          "requested",
+          "outcome",
+          "actual"
+        ],
+        "title": "SettingChange",
+        "type": "object"
+      },
+      "Signal": {
+        "properties": {
+          "rssi": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rssi"
+          },
+          "snr": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Snr"
+          }
+        },
+        "title": "Signal",
+        "type": "object"
+      },
+      "StateSummary": {
+        "properties": {
+          "activity": {
+            "$ref": "#/components/schemas/Activity"
+          },
+          "mission": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/MissionRef"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "activity"
+        ],
+        "title": "StateSummary",
+        "type": "object"
+      },
+      "TankState": {
+        "properties": {
+          "level_pct": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Level Pct"
+          },
+          "present": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Present"
+          }
+        },
+        "title": "TankState",
+        "type": "object"
+      },
+      "TokenView": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "created_at"
+        ],
+        "title": "TokenView",
+        "type": "object"
+      },
+      "Verification": {
+        "description": "Whether a capability has been exercised on real hardware (Constitution VIII).",
+        "properties": {
+          "run": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run"
+          },
+          "status": {
+            "enum": [
+              "verified",
+              "unverified"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "title": "Verification",
+        "type": "object"
+      },
+      "VerificationRun": {
+        "properties": {
+          "allow_motion": {
+            "title": "Allow Motion",
+            "type": "boolean"
+          },
+          "anchor": {
+            "description": "Stable anchor of this run in `docs/verification/<profile_id>.md`. A profile cites it as `verified(run='docs/verification/<profile_id>.md#<anchor>')`",
+            "title": "Anchor",
+            "type": "string"
+          },
+          "ended_at": {
+            "format": "date-time",
+            "title": "Ended At",
+            "type": "string"
+          },
+          "id": {
+            "title": "Id",
+            "type": "integer"
+          },
+          "profile_id": {
+            "title": "Profile Id",
+            "type": "string"
+          },
+          "report": {
+            "description": "The run as markdown, for `docs/verification/<profile_id>.md`",
+            "title": "Report",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CheckResult"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "robot_id",
+          "profile_id",
+          "anchor",
+          "started_at",
+          "ended_at",
+          "allow_motion",
+          "results",
+          "report"
+        ],
+        "title": "VerificationRun",
+        "type": "object"
+      },
+      "VerifyParams": {
+        "properties": {
+          "allow_motion": {
+            "default": false,
+            "description": "Run checks that act on the robot (every command except `find`). Without it they are skipped",
+            "title": "Allow Motion",
+            "type": "boolean"
+          },
+          "capabilities": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "description": "Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)",
+            "title": "Capabilities"
+          },
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "VerifyParams",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__cloud_account__RobotRef": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotRef",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__cloud_data__RobotParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotParams",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__inventory__RobotRef": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotRef",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__rooms__RobotParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotParams",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__settings__RobotRef": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotRef",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__setup__RobotRef": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotRef",
+        "type": "object"
+      },
+      "roomba_kit__service__operations__state__RobotParams": {
+        "properties": {
+          "robot": {
+            "description": "Robot ID or unambiguous name",
+            "title": "Robot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "robot"
+        ],
+        "title": "RobotParams",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "title": "Roomba Kit",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/v1/cloud_login": {
+      "post": {
+        "description": "Add or change the iRobot account login. It's checked by logging in and saved only if that works. Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and password retrieval; local control never needs it.\n\nParameters:\n- `username`: str — iRobot account email\n- `password`: str — iRobot account password. The CLI prompts for it; it is never echoed, returned or logged.\n- `country`: str (default: 'US') — The account's country code, e.g. US, GB, DE",
+        "operationId": "cloud_login",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "country": {
+                    "default": "US",
+                    "description": "The account's country code, e.g. US, GB, DE",
+                    "pattern": "^[A-Za-z]{2}$",
+                    "title": "Country",
+                    "type": "string"
+                  },
+                  "password": {
+                    "description": "iRobot account password. The CLI prompts for it; it is never echoed, returned or logged.",
+                    "minLength": 1,
+                    "title": "Password",
+                    "type": "string"
+                  },
+                  "username": {
+                    "description": "iRobot account email",
+                    "minLength": 1,
+                    "title": "Username",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudLoginResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add or change the iRobot account login. It's checked by logging in and saved only if that works. Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and password retrieval; local control never needs it."
+      }
+    },
+    "/v1/cloud_logout": {
+      "post": {
+        "description": "Remove the stored iRobot account login and disconnect from the cloud. Credentials supplied by environment variables still apply.",
+        "operationId": "cloud_logout",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudStatus"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove the stored iRobot account login and disconnect from the cloud. Credentials supplied by environment variables still apply."
+      }
+    },
+    "/v1/cloud_status": {
+      "get": {
+        "description": "The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and when it last worked.",
+        "operationId": "cloud_status",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudStatus"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and when it last worked."
+      }
+    },
+    "/v1/config_show": {
+      "get": {
+        "description": "The effective configuration (files plus environment overrides), with every secret shown as `\"***\"`.",
+        "operationId": "config_show",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConfigView"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The effective configuration (files plus environment overrides), with every secret shown as `\"***\"`."
+      }
+    },
+    "/v1/discover_robots": {
+      "get": {
+        "description": "Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the model is supported, and whether it's already configured.\n\nParameters:\n- `broadcast`: str | None (default: None) — Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml\n- `timeout_s`: float (default: 8.0) — How long to listen",
+        "operationId": "discover_robots",
+        "parameters": [
+          {
+            "description": "Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml",
+            "in": "query",
+            "name": "broadcast",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml",
+              "title": "Broadcast"
+            }
+          },
+          {
+            "description": "How long to listen",
+            "in": "query",
+            "name": "timeout_s",
+            "required": false,
+            "schema": {
+              "default": 8.0,
+              "description": "How long to listen",
+              "exclusiveMinimum": 0,
+              "maximum": 60,
+              "title": "Timeout S",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DiscoveredRobot"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the model is supported, and whether it's already configured."
+      }
+    },
+    "/v1/events": {
+      "get": {
+        "description": "List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text/event-stream` to get the same events as a live SSE stream that resumes with `Last-Event-ID`.\n\nParameters:\n- `since`: int | None (default: None) — Return events with a seq greater than this; omit for the oldest\n- `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)\n- `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types\n- `limit`: int (default: 100) — Most events to return",
+        "operationId": "events_list",
+        "parameters": [
+          {
+            "description": "Return events with a seq greater than this; omit for the oldest",
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "minimum": 0,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Return events with a seq greater than this; omit for the oldest",
+              "title": "Since"
+            }
+          },
+          {
+            "description": "Only this robot (ID or unambiguous name)",
+            "in": "query",
+            "name": "robot",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this robot (ID or unambiguous name)",
+              "title": "Robot"
+            }
+          },
+          {
+            "description": "Only these event types",
+            "in": "query",
+            "name": "types",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/EventType"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only these event types",
+              "title": "Types"
+            }
+          },
+          {
+            "description": "Most events to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 100,
+              "description": "Most events to return",
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text/event-stream` to get the same events as a live SSE stream that resumes with `Last-Event-ID`."
+      }
+    },
+    "/v1/events/wait": {
+      "get": {
+        "description": "Wait for events after `since` and return them as soon as any arrive, or an empty list at the timeout. Call again with `next` to keep following.\n\nParameters:\n- `since`: int — Wait for events with a seq greater than this\n- `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)\n- `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types\n- `timeout_s`: float (default: 30) — Seconds to wait before returning no events",
+        "operationId": "events_wait",
+        "parameters": [
+          {
+            "description": "Wait for events with a seq greater than this",
+            "in": "query",
+            "name": "since",
+            "required": true,
+            "schema": {
+              "description": "Wait for events with a seq greater than this",
+              "minimum": 0,
+              "title": "Since",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Only this robot (ID or unambiguous name)",
+            "in": "query",
+            "name": "robot",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this robot (ID or unambiguous name)",
+              "title": "Robot"
+            }
+          },
+          {
+            "description": "Only these event types",
+            "in": "query",
+            "name": "types",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "items": {
+                    "$ref": "#/components/schemas/EventType"
+                  },
+                  "type": "array"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only these event types",
+              "title": "Types"
+            }
+          },
+          {
+            "description": "Seconds to wait before returning no events",
+            "in": "query",
+            "name": "timeout_s",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "description": "Seconds to wait before returning no events",
+              "exclusiveMinimum": 0,
+              "maximum": 300,
+              "title": "Timeout S",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventPage"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Wait for events after `since` and return them as soon as any arrive, or an empty list at the timeout. Call again with `next` to keep following."
+      }
+    },
+    "/v1/health": {
+      "get": {
+        "description": "Whether the service is up, and its version. Needs no API token over HTTP.",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "summary": "Whether the service is up, and its version. Needs no API token over HTTP."
+      }
+    },
+    "/v1/missions": {
+      "get": {
+        "description": "List the missions recorded in local history, newest first: robot, start and end, outcome, rooms requested (empty means the whole home), who started it, duration and errors. History is kept indefinitely and includes the mission in progress.\n\nParameters:\n- `robot`: str | None (default: None) — Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.\n- `since`: datetime.datetime | None (default: None) — Only missions started at or after this time (ISO 8601; UTC if no offset)\n- `until`: datetime.datetime | None (default: None) — Only missions started before this time (ISO 8601; UTC if no offset)\n- `outcome`: roomba_kit.core.models.MissionOutcome | None (default: None) — Only missions with this outcome\n- `limit`: int (default: 50) — Most missions to return",
+        "operationId": "list_missions",
+        "parameters": [
+          {
+            "description": "Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.",
+            "in": "query",
+            "name": "robot",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.",
+              "title": "Robot"
+            }
+          },
+          {
+            "description": "Only missions started at or after this time (ISO 8601; UTC if no offset)",
+            "in": "query",
+            "name": "since",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only missions started at or after this time (ISO 8601; UTC if no offset)",
+              "title": "Since"
+            }
+          },
+          {
+            "description": "Only missions started before this time (ISO 8601; UTC if no offset)",
+            "in": "query",
+            "name": "until",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only missions started before this time (ISO 8601; UTC if no offset)",
+              "title": "Until"
+            }
+          },
+          {
+            "description": "Only missions with this outcome",
+            "in": "query",
+            "name": "outcome",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/MissionOutcome"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Only missions with this outcome"
+            }
+          },
+          {
+            "description": "Most missions to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "description": "Most missions to return",
+              "maximum": 1000,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Mission"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the missions recorded in local history, newest first: robot, start and end, outcome, rooms requested (empty means the whole home), who started it, duration and errors. History is kept indefinitely and includes the mission in progress."
+      }
+    },
+    "/v1/missions/{mission_id}": {
+      "get": {
+        "description": "Get one mission from local history by its ID.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
+        "operationId": "get_mission",
+        "parameters": [
+          {
+            "description": "Mission ID, as listed by `list_missions`",
+            "in": "path",
+            "name": "mission_id",
+            "required": true,
+            "schema": {
+              "description": "Mission ID, as listed by `list_missions`",
+              "title": "Mission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Mission"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get one mission from local history by its ID."
+      }
+    },
+    "/v1/robots": {
+      "get": {
+        "description": "List every configured robot: ID, name, model, SKU, firmware, address, connection state and capabilities with their verification status. Robots without a model profile are listed with `supported=false` (see docs/guides/adding-a-model.md).",
+        "operationId": "list_robots",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/Robot"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List every configured robot: ID, name, model, SKU, firmware, address, connection state and capabilities with their verification status. Robots without a model profile are listed with `supported=false` (see docs/guides/adding-a-model.md)."
+      },
+      "post": {
+        "description": "Add the robot at an IP address, for when discovery can't reach it. The robot must answer there. Next, give it a password with `retrieve_password`.\n\nParameters:\n- `address`: str — The robot's IP address",
+        "operationId": "add_robot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "address": {
+                    "description": "The robot's IP address",
+                    "title": "Address",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "address"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiscoveredRobot"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add the robot at an IP address, for when discovery can't reach it. The robot must answer there. Next, give it a password with `retrieve_password`."
+      }
+    },
+    "/v1/robots/{robot}": {
+      "delete": {
+        "description": "Remove a robot: stop its connection and delete its config and password. Other robots and the cloud login are untouched.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "remove_robot",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Removed"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove a robot: stop its connection and delete its config and password. Other robots and the cloud login are untouched."
+      },
+      "get": {
+        "description": "One robot's details: ID, name, model, SKU, firmware, address, connection state and capabilities.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "get_robot",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Robot"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "One robot's details: ID, name, model, SKU, firmware, address, connection state and capabilities."
+      }
+    },
+    "/v1/robots/{robot}/capabilities": {
+      "get": {
+        "description": "What the robot's model supports, each with `verified` (exercised on real hardware) or `unverified`. Empty for a model without a profile.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "get_capabilities",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CapabilityStatus"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "What the robot's model supports, each with `verified` (exercised on real hardware) or `unverified`. Empty for a model without a profile."
+      }
+    },
+    "/v1/robots/{robot}/cloud-history": {
+      "get": {
+        "description": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `limit`: int (default: 30) — Most recent missions to return\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "operationId": "cloud_history",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Most recent missions to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "description": "Most recent missions to return",
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CloudMission"
+                  },
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned."
+      }
+    },
+    "/v1/robots/{robot}/commands/clean": {
+      "post": {
+        "description": "Start cleaning the whole home. Confirmed when the robot reports cleaning.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "clean",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start cleaning the whole home. Confirmed when the robot reports cleaning."
+      }
+    },
+    "/v1/robots/{robot}/commands/clean_rooms": {
+      "post": {
+        "description": "Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names come from an older map version, and with `room_not_found` (listing the valid rooms) when a room isn't on the current map. Confirmed when the robot reports cleaning.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `rooms`: list[str] — Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).\n- `ordered`: bool (default: True) — Clean in the given order; false lets the robot choose.\n- `room_options`: dict[str, roomba_kit.service.operations.rooms.RoomOptions] | None (default: None) — Per-room options keyed by an entry of `rooms`, e.g. {\"Office\": {\"passes\": \"two\"}}. On the CLI, pass it as JSON.\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "clean_rooms",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "ordered": {
+                    "default": true,
+                    "description": "Clean in the given order; false lets the robot choose.",
+                    "title": "Ordered",
+                    "type": "boolean"
+                  },
+                  "room_options": {
+                    "anyOf": [
+                      {
+                        "additionalProperties": {
+                          "$ref": "#/components/schemas/RoomOptions"
+                        },
+                        "type": "object"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Per-room options keyed by an entry of `rooms`, e.g. {\"Office\": {\"passes\": \"two\"}}. On the CLI, pass it as JSON.",
+                    "title": "Room Options"
+                  },
+                  "rooms": {
+                    "description": "Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).",
+                    "items": {
+                      "type": "string"
+                    },
+                    "title": "Rooms",
+                    "type": "array"
+                  }
+                },
+                "required": [
+                  "rooms"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names come from an older map version, and with `room_not_found` (listing the valid rooms) when a room isn't on the current map. Confirmed when the robot reports cleaning."
+      }
+    },
+    "/v1/robots/{robot}/commands/dock": {
+      "post": {
+        "description": "Send the robot back to its dock. Confirmed when it reports returning, docked or charging.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "dock",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send the robot back to its dock. Confirmed when it reports returning, docked or charging."
+      }
+    },
+    "/v1/robots/{robot}/commands/evac": {
+      "post": {
+        "description": "Empty the bin into the Clean Base. Confirmed when the robot reports emptying.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: roomba_i5\n\nVerification: roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "evac",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Empty the bin into the Clean Base. Confirmed when the robot reports emptying."
+      }
+    },
+    "/v1/robots/{robot}/commands/find": {
+      "post": {
+        "description": "Play the locate sound so you can find the robot. It doesn't move. Confirmed when the robot echoes the command.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "operationId": "find",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Play the locate sound so you can find the robot. It doesn't move. Confirmed when the robot echoes the command."
+      }
+    },
+    "/v1/robots/{robot}/commands/pause": {
+      "post": {
+        "description": "Pause the current mission. Confirmed when the robot reports paused.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "pause",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pause the current mission. Confirmed when the robot reports paused."
+      }
+    },
+    "/v1/robots/{robot}/commands/reboot": {
+      "post": {
+        "description": "Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "reboot",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes)."
+      }
+    },
+    "/v1/robots/{robot}/commands/resume": {
+      "post": {
+        "description": "Resume a paused mission. Confirmed when the robot reports cleaning again.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "resume",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resume a paused mission. Confirmed when the robot reports cleaning again."
+      }
+    },
+    "/v1/robots/{robot}/commands/stop": {
+      "post": {
+        "description": "End the current mission where the robot is. Confirmed when no mission is active.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "stop",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "End the current mission where the robot is. Confirmed when no mission is active."
+      }
+    },
+    "/v1/robots/{robot}/commands/train": {
+      "post": {
+        "description": "Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This can re-create the stored map and change room IDs, which breaks room names and room-clean requests that use the old IDs.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "train",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "202": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandResult"
+                }
+              }
+            },
+            "description": "Sent, but the state change wasn't observed (outcome=unconfirmed)"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This can re-create the stored map and change room IDs, which breaks room names and room-clean requests that use the old IDs."
+      }
+    },
+    "/v1/robots/{robot}/floor-plan": {
+      "get": {
+        "description": "The robot's stored map from the iRobot cloud: its rooms with names, types and outlines (rings of [x, y] metres, outer ring first). While the cloud is unavailable, the last copy fetched is returned with its `retrieved_at`.\n\nParameters:\n- `robot`: str — Robot ID or name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "operationId": "get_floor_plan",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FloorPlan"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The robot's stored map from the iRobot cloud: its rooms with names, types and outlines (rings of [x, y] metres, outer ring first). While the cloud is unavailable, the last copy fetched is returned with its `retrieved_at`."
+      }
+    },
+    "/v1/robots/{robot}/missions/wait": {
+      "get": {
+        "description": "Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if it hasn't ended in time.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `mission_id`: str | None (default: None) — The mission to wait for; omit for the current or next mission\n- `timeout_s`: float (default: 1800) — Seconds to wait for the mission to end",
+        "operationId": "mission_wait",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The mission to wait for; omit for the current or next mission",
+            "in": "query",
+            "name": "mission_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "The mission to wait for; omit for the current or next mission",
+              "title": "Mission Id"
+            }
+          },
+          {
+            "description": "Seconds to wait for the mission to end",
+            "in": "query",
+            "name": "timeout_s",
+            "required": false,
+            "schema": {
+              "default": 1800,
+              "description": "Seconds to wait for the mission to end",
+              "exclusiveMinimum": 0,
+              "maximum": 21600,
+              "title": "Timeout S",
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/Mission"
+                    },
+                    {
+                      "$ref": "#/components/schemas/MissionWaitTimeout"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if it hasn't ended in time."
+      }
+    },
+    "/v1/robots/{robot}/missions/{mission_id}/coverage": {
+      "get": {
+        "description": "Where a finished mission cleaned: covered points, dirt detections and clutter, in metres from the dock. The cloud publishes it minutes after the robot docks; until then this returns `cloud_unavailable` with reason `not_yet_published`. Clutter is given as the vertices of each clutter area's outline.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `mission_id`: str — The kit mission ID (the robot's own mission ID) or the cloud mission ref\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "operationId": "get_coverage",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The kit mission ID (the robot's own mission ID) or the cloud mission ref",
+            "in": "path",
+            "name": "mission_id",
+            "required": true,
+            "schema": {
+              "description": "The kit mission ID (the robot's own mission ID) or the cloud mission ref",
+              "title": "Mission Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageRecord"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Where a finished mission cleaned: covered points, dirt detections and clutter, in metres from the dock. The cloud publishes it minutes after the robot docks; until then this returns `cloud_unavailable` with reason `not_yet_published`. Clutter is given as the vertices of each clutter area's outline."
+      }
+    },
+    "/v1/robots/{robot}/password": {
+      "post": {
+        "description": "Store a robot's local password you already know, after checking that the robot accepts it. Nothing is saved if the robot rejects it or can't be reached.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `password`: str — The robot's local password. The CLI prompts for it; it is never echoed, returned or logged.",
+        "operationId": "set_robot_password",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "password": {
+                    "description": "The robot's local password. The CLI prompts for it; it is never echoed, returned or logged.",
+                    "minLength": 1,
+                    "title": "Password",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "password"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordStored"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Store a robot's local password you already know, after checking that the robot accepts it. Nothing is saved if the robot rejects it or can't be reached."
+      }
+    },
+    "/v1/robots/{robot}/password/cloud": {
+      "post": {
+        "description": "Fetch a robot's local password from the iRobot account, check it by connecting, and store it. For models or robots that won't release it locally. The password is never returned.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "cloud_retrieve_password",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CloudPasswordResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Fetch a robot's local password from the iRobot account, check it by connecting, and store it. For models or robots that won't release it locally. The password is never returned."
+      }
+    },
+    "/v1/robots/{robot}/password/retrieve": {
+      "post": {
+        "description": "Retrieve the robot's local password over the network while you hold HOME on the docked robot, verify it by connecting, and store it. The password is never returned.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `timeout_s`: float (default: 60.0) — How long to keep retrying (every 2 s)",
+        "operationId": "retrieve_password",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "timeout_s": {
+                    "default": 60.0,
+                    "description": "How long to keep retrying (every 2 s)",
+                    "exclusiveMinimum": 0,
+                    "maximum": 600,
+                    "title": "Timeout S",
+                    "type": "number"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PasswordRetrieval"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Retrieve the robot's local password over the network while you hold HOME on the docked robot, verify it by connecting, and store it. The password is never returned."
+      }
+    },
+    "/v1/robots/{robot}/position": {
+      "get": {
+        "description": "Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.\n\nParameters:\n- `robot`: str — Robot ID or name\n\nSupported on: braava_m6\n\nVerification: braava_m6: verified",
+        "operationId": "get_position",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PositionFix"
+                    },
+                    {
+                      "$ref": "#/components/schemas/NoFix"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events."
+      }
+    },
+    "/v1/robots/{robot}/rooms": {
+      "get": {
+        "description": "List the robot's rooms: imported from the cloud, named locally, or learned from room cleans the robot reported (including ones started by other apps). Works without the cloud. Unnamed rooms are shown as `Room <id>`.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "list_rooms",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoomList"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the robot's rooms: imported from the cloud, named locally, or learned from room cleans the robot reported (including ones started by other apps). Works without the cloud. Unnamed rooms are shown as `Room <id>`."
+      }
+    },
+    "/v1/robots/{robot}/rooms/import": {
+      "post": {
+        "description": "Import the robot's room IDs and names from its stored map in the iRobot cloud. Replaces rooms stored for older map versions; local names on the same map version are kept. The result is cached, so rooms stay usable while the cloud is down.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "operationId": "import_rooms",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResult"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Import the robot's room IDs and names from its stored map in the iRobot cloud. Replaces rooms stored for older map versions; local names on the same map version are kept. The result is cached, so rooms stay usable while the cloud is down."
+      }
+    },
+    "/v1/robots/{robot}/rooms/{room_id}": {
+      "put": {
+        "description": "Give a room on the robot's current map a local name. Works without the cloud, for imported and learned rooms alike. Names apply to one map version.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `room_id`: str — The room's ID on the robot's current map\n- `name`: str — The local name. Unique per map, ignoring case; it overrides the cloud name.",
+        "operationId": "name_room",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          },
+          {
+            "description": "The room's ID on the robot's current map",
+            "in": "path",
+            "name": "room_id",
+            "required": true,
+            "schema": {
+              "description": "The room's ID on the robot's current map",
+              "title": "Room Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "name": {
+                    "description": "The local name. Unique per map, ignoring case; it overrides the cloud name.",
+                    "minLength": 1,
+                    "title": "Name",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "name"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Room"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Give a room on the robot's current map a local name. Works without the cloud, for imported and learned rooms alike. Names apply to one map version."
+      }
+    },
+    "/v1/robots/{robot}/settings": {
+      "get": {
+        "description": "Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.\n\nParameters:\n- `robot`: str — Robot ID or name",
+        "operationId": "get_settings",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Read the robot's settings: every setting its model supports, null when the robot hasn't reported it."
+      }
+    },
+    "/v1/robots/{robot}/settings/{setting}": {
+      "put": {
+        "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+        "operationId": "set_setting",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+            "in": "path",
+            "name": "setting",
+            "required": true,
+            "schema": {
+              "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+              "title": "Setting",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "value": {
+                    "anyOf": [
+                      {
+                        "type": "boolean"
+                      },
+                      {
+                        "type": "integer"
+                      },
+                      {
+                        "type": "string"
+                      }
+                    ],
+                    "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+                    "title": "Value"
+                  }
+                },
+                "required": [
+                  "value"
+                ],
+                "type": "object"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SettingChange"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds."
+      }
+    },
+    "/v1/robots/{robot}/state": {
+      "get": {
+        "description": "Get a robot's full live state: battery, activity, current mission, last command, error and not-ready codes with readable text, Wi-Fi signal, stored map, robot schedules, lifetime counters, settings, and the bin, Clean Base, pad, tank and lid where the model has them. `at` is when the robot last reported; while it's offline this is the last state it reported.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+        "operationId": "get_state",
+        "parameters": [
+          {
+            "description": "Robot ID or unambiguous name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or unambiguous name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RobotState"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get a robot's full live state: battery, activity, current mission, last command, error and not-ready codes with readable text, Wi-Fi signal, stored map, robot schedules, lifetime counters, settings, and the bin, Clean Base, pad, tank and lid where the model has them. `at` is when the robot last reported; while it's offline this is the last state it reported."
+      }
+    },
+    "/v1/robots/{robot}/verify": {
+      "post": {
+        "description": "Check capabilities against the real robot and record the run: settings are written, read back and restored; commands are issued and confirmed (only `find` without allow_motion). Returns each result with evidence, plus a markdown report for `docs/verification/<profile>.md`.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `capabilities`: list[str] | None (default: None) — Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)\n- `allow_motion`: bool (default: False) — Run checks that act on the robot (every command except `find`). Without it they are skipped\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+        "operationId": "verify",
+        "parameters": [
+          {
+            "description": "Robot ID or name",
+            "in": "path",
+            "name": "robot",
+            "required": true,
+            "schema": {
+              "description": "Robot ID or name",
+              "title": "Robot",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "allow_motion": {
+                    "default": false,
+                    "description": "Run checks that act on the robot (every command except `find`). Without it they are skipped",
+                    "title": "Allow Motion",
+                    "type": "boolean"
+                  },
+                  "capabilities": {
+                    "anyOf": [
+                      {
+                        "items": {
+                          "type": "string"
+                        },
+                        "type": "array"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "description": "Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)",
+                    "title": "Capabilities"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          },
+          "required": false
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationRun"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check capabilities against the real robot and record the run: settings are written, read back and restored; commands are issued and confirmed (only `find` without allow_motion). Returns each result with evidence, plus a markdown report for `docs/verification/<profile>.md`."
+      }
+    },
+    "/v1/service_status": {
+      "get": {
+        "description": "The service's version and uptime, each robot's connection state, and the cloud subsystem's status.",
+        "operationId": "service_status",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceStatus"
+                }
+              }
+            },
+            "description": "Success"
+          },
+          "default": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorEnvelope"
+                }
+              }
+            },
+            "description": "Error"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The service's version and uptime, each robot's connection state, and the cloud subsystem's status."
+      }
+    }
+  }
+}
