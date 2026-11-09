@@ -53,6 +53,8 @@ extend-exclude = [".specify"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]
+# Timeouts are part of the operation contracts (`timeout_s`, `request_position(timeout)`).
+ignore = ["ASYNC109"]
 
 [tool.ruff.lint.per-file-ignores]
 # Tests assert, use fixed fake secrets and temp paths by design.
