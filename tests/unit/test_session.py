@@ -210,3 +210,96 @@ async def test_state_changed_is_coalesced(bus, factory):
         assert events[-1].data["state"]["battery_pct"] == 93
     finally:
         await s.stop()
+
+
+# -- regressions from the PR #15 review ------------------------------------------------------
+
+
+async def test_caller_timeout_does_not_kill_the_command_worker(bus, factory):
+    factory.get(I5).reaction_delay = 0.2
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        with pytest.raises(TimeoutError):
+            await asyncio.wait_for(s.execute("clean"), 0.05)
+        result = await asyncio.wait_for(s.execute("find"), 2)
+        assert result.outcome == "confirmed"
+    finally:
+        await s.stop()
+
+
+async def test_stop_fails_in_flight_and_later_jobs_with_kit_errors(bus, factory):
+    factory.get(I5).reaction_delay = 5
+    s = _session(bus, factory)
+    await s.start()
+    await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+    in_flight = asyncio.create_task(s.execute("clean"))
+    await _until(lambda: factory.get(I5).sent_commands)
+    await s.stop()
+    with pytest.raises(KitError) as exc:
+        await in_flight
+    assert exc.value.code is ErrorCode.ROBOT_OFFLINE
+    with pytest.raises(KitError):
+        await asyncio.wait_for(s.execute("find"), 1)
+
+
+async def test_state_change_during_a_publish_is_not_lost(bus, factory, monkeypatch):
+    s = _session(bus, factory, coalesce_s=0.01)
+    published = []
+    real_publish = bus.publish
+
+    async def slow_publish(type_, robot_id, data, at=None):
+        if type_ is EventType.STATE_CHANGED:
+            await asyncio.sleep(0.05)
+            published.append(data.state.battery_pct)
+        return await real_publish(type_, robot_id, data, at)
+
+    monkeypatch.setattr(bus, "publish", slow_publish)
+    await s.start()
+    try:
+        await _until(lambda: s.has_state)
+        fake = factory.get(I5)
+        fake.emit({"batPct": 41})
+        await asyncio.sleep(0.02)  # first flush is mid-publish
+        fake.emit({"batPct": 42})
+        await _until(lambda: published and published[-1] == 42)
+    finally:
+        await s.stop()
+
+
+async def test_credentials_change_while_connecting_reconnects_with_new_password(bus, factory):
+    password = {"value": "old"}
+    entry = RobotEntry(id=I5, name="Vacuum", address="192.0.2.10", profile="roomba_i5")
+    s = RobotSession(
+        entry,
+        get_profile("roomba_i5"),
+        factory,
+        lambda: password["value"],
+        bus,
+        backoff_min=0.01,
+        backoff_max=0.02,
+    )
+    real_set = s._set_connection
+
+    async def change_during_connecting(to, reason=None):
+        await real_set(to, reason)
+        if to is ConnectionState.CONNECTING and password["value"] == "old":
+            password["value"] = "new"
+            s.credentials_changed()
+
+    s._set_connection = change_during_connecting
+    await s.start()
+    try:
+        await _until(
+            lambda: factory.get(I5).password == "new" and s.connection is ConnectionState.CONNECTED
+        )
+    finally:
+        await s.stop()
+
+
+async def test_unknown_command_is_invalid_request(bus, factory):
+    s = _session(bus, factory)
+    with pytest.raises(KitError) as exc:
+        await s.execute("state.bin")
+    assert exc.value.code is ErrorCode.INVALID_REQUEST
