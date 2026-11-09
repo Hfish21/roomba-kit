@@ -41,12 +41,13 @@ Commands:
   robots        Add, list, pair and remove robots.
   serve         Run the service in the foreground on `server.host`:`server.port`.
   service       Run the service in the background and manage it.
-  settings
+  settings      Read and change robot settings (read back).
   setup         Guided setup: find robots, pair them, and optionally add an iRobot...
   state         Get a robot's full live state: battery, activity, current mission,...
   stop          End the current mission where the robot is.
   token         Create, list and revoke API tokens (local file ops).
   train         Start a mapping run with no cleaning.
+  verify        Check capabilities against the real robot and record the run:...
   version       Print the kit version.
 ```
 
@@ -778,6 +779,8 @@ Options:
 ```text
 Usage: roomba-kit settings [OPTIONS] COMMAND [ARGS]...
 
+  Read and change robot settings (read back).
+
 Options:
   -h, --help  Show this message and exit.
 
@@ -945,6 +948,36 @@ Usage: roomba-kit train [OPTIONS] ROBOT
 
 Options:
   -h, --help  Show this message and exit.
+```
+
+## `roomba-kit verify`
+
+```text
+Usage: roomba-kit verify [OPTIONS] ROBOT [CAPABILITIES]...
+
+  Check capabilities against the real robot and record the run: settings are written,
+  read back and restored; commands are issued and confirmed (only `find` without
+  allow_motion). Returns each result with evidence, plus a markdown report for
+  `docs/verification/<profile>.md`.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `capabilities`: list[str] | None (default: None) — Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)
+  - `allow_motion`: bool (default: False) — Run checks that act on the robot (every command except `find`). Without it they are skipped
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+  With --allow-motion the command asks before moving the robot (skip with --yes).
+
+Options:
+  --allow-motion / --no-allow-motion
+                                  Run checks that act on the robot (every command except
+                                  `find`). Without it they are skipped  [default:
+                                  (False)]
+  --write-report                  Append the report to docs/verification/<profile>.md
+                                  (run from the repo).
+  -y, --yes                       Don't prompt before motion checks.
+  -h, --help                      Show this message and exit.
 ```
 
 ## `roomba-kit version`
