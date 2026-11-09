@@ -92,9 +92,8 @@ async def test_held_elsewhere_is_detected(bus, factory):
     bus.subscribe(record, types=[EventType.CONNECTION_CHANGED])
     await s.start()
     try:
-        await _until(lambda: s.connection is ConnectionState.CONNECTED)
-        await bus.drain()
-        assert "held_elsewhere" in seen and seen[-1] == "connected"
+        await _until(lambda: seen and seen[-1] == "connected")
+        assert "held_elsewhere" in seen
     finally:
         await s.stop()
 
