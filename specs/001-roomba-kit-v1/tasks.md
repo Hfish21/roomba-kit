@@ -217,7 +217,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - `RoombaPassword(ip).get_password(timeout)`. A `None` result after the unsupported magic
       `f005efcc3b2903` maps to `password_unavailable`.
   - Never log payloads containing `password` or `passwordHash`.
-- [ ] T019 [P] Implement `src/roomba_kit/transport/cloud.py`, the roombapy-prime 0.8.3 adapter:
+- [x] T019 [P] Implement `src/roomba_kit/transport/cloud.py`, the roombapy-prime 0.8.3 adapter:
   - Login and REST:
     - `CloudAccount.login(session, username, password, country, app_id=f"IOS-{uuid4()}")`.
     - `account.classic_rest()` for `get_pmaps(blid)`, `get_pmap_umf(blid, pmap_id, version)`
