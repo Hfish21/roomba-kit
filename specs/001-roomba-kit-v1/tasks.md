@@ -700,7 +700,7 @@ unverified capabilities.
   - Route through the session's command queue for ordering.
 - [x] T073 [US5] Implement `src/roomba_kit/service/operations/settings.py`: `get_settings(robot)`
   and `set_setting(robot, setting, value)`, validating values per `contracts/operations.md`.
-- [ ] T074 [US5] Implement the `verify` operation in `src/roomba_kit/service/verify.py` and
+- [x] T074 [US5] Implement the `verify` operation in `src/roomba_kit/service/verify.py` and
   `src/roomba_kit/service/operations/verify.py`:
   - Signature: `verify(robot, capabilities?, allow_motion=false)`.
   - Settings checks: write an alternate value, read it back, restore the original, and report
