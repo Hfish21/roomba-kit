@@ -785,19 +785,19 @@ unverified capabilities.
 
 **Independent Test**: quickstart V8, or `tests/integration/test_us8_history.py`.
 
-- [ ] T085 [P] [US8] Integration test `tests/integration/test_us8_history.py`:
+- [x] T085 [P] [US8] Integration test `tests/integration/test_us8_history.py`:
   - Two missions are persisted with outcome, rooms and initiator.
   - Filters work.
   - A service restart mid-mission continues the same mission ID, with no duplicates.
-- [ ] T086 [US8] Implement `src/roomba_kit/service/history.py`:
+- [x] T086 [US8] Implement `src/roomba_kit/service/history.py`:
   - Subscribe to `mission.started`, `mission.finished` and `activity.changed`.
   - Persist `Mission` and `ActivityTransition` rows.
   - On startup, re-attach an `in_progress` mission by robot mission ID.
   - Append every `error.raised` code seen during a mission to `Mission.errors` (FR-044).
   - When cloud history later shows the mission, set `cloud_mission_ref`.
-- [ ] T087 [US8] Implement `src/roomba_kit/service/operations/history.py`:
+- [x] T087 [US8] Implement `src/roomba_kit/service/operations/history.py`:
   `list_missions(robot?, since?, until?, outcome?, limit=50)` and `get_mission(mission_id)`.
-- [ ] T088 [P] [US8] Write `docs/history.md`.
+- [x] T088 [P] [US8] Write `docs/history.md`.
 
 ---
 
