@@ -250,7 +250,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Config & storage
 
-- [ ] T021 [P] Implement `src/roomba_kit/config/paths.py` and `src/roomba_kit/config/settings.py`
+- [x] T021 [P] Implement `src/roomba_kit/config/paths.py` and `src/roomba_kit/config/settings.py`
   per `contracts/config.md`:
   - XDG defaults plus `ROOMBA_KIT_CONFIG_DIR` / `ROOMBA_KIT_STATE_DIR`.
   - `config.toml` load and atomic save.
