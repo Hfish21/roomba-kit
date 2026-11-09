@@ -79,6 +79,62 @@ Type: `CloudStatus`
 | `reason` | str \| None | no |  |
 | `last_ok` | datetime \| None | no |  |
 
+## `events_list`
+
+List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text/event-stream` to get the same events as a live SSE stream that resumes with `Last-Event-ID`.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/events` |
+| MCP | tool `events_list` |
+| CLI | `roomba-kit events list [OPTIONS]` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `since` | int \| None | no | null | Return events with a seq greater than this; omit for the oldest |
+| `robot` | str \| None | no | null | Only this robot (ID or unambiguous name) |
+| `types` | list[EventType] \| None | no | null | Only these event types |
+| `limit` | int | no | 100 | Most events to return |
+
+**Result**
+
+Type: `EventPage`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `events` | list[Event] | yes |  |
+| `next` | int | yes | Pass as `since` to continue after these events |
+
+## `events_wait`
+
+Wait for events after `since` and return them as soon as any arrive, or an empty list at the timeout. Call again with `next` to keep following.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/events/wait` |
+| MCP | tool `events_wait` |
+| CLI | `roomba-kit events wait [OPTIONS]` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `since` | int | yes |  | Wait for events with a seq greater than this |
+| `robot` | str \| None | no | null | Only this robot (ID or unambiguous name) |
+| `types` | list[EventType] \| None | no | null | Only these event types |
+| `timeout_s` | float | no | 30 | Seconds to wait before returning no events |
+
+**Result**
+
+Type: `EventPage`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `events` | list[Event] | yes |  |
+| `next` | int | yes | Pass as `since` to continue after these events |
+
 ## `get_position`
 
 Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.
@@ -163,6 +219,29 @@ Type: `RobotState`
 | `tank` | TankState \| None | no |  |
 | `lid_open` | bool \| None | no |  |
 | `settings` | object | no |  |
+
+## `mission_wait`
+
+Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if it hasn't ended in time.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/missions/wait` |
+| MCP | tool `mission_wait` |
+| CLI | `roomba-kit missions wait [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+| `mission_id` | str \| None | no | null | The mission to wait for; omit for the current or next mission |
+| `timeout_s` | float | no | 1800 | Seconds to wait for the mission to end |
+
+**Result**
+
+Type: `Mission | MissionWaitTimeout`
+
 
 ## `set_setting`
 
