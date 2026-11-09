@@ -231,7 +231,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - **Never publish to `.../req`**: AWS policy drops the session.
   - Helper: parse UMF `maps[].layers[]` by `layer_type` (`coverage`, `dirt`, `clutter`,
     `coverage_poly`) into coordinate lists.
-- [ ] T020 [P] Implement `src/roomba_kit/transport/fake.py`:
+- [x] T020 [P] Implement `src/roomba_kit/transport/fake.py`:
   - `FakeTransport`: scripted reported-state replay plus command reactions:
     - `start` → `phase:run, cycle:clean`; `pause` → `stop`; `resume` → `run`;
     - `dock` → `hmUsrDock` then `charge/none`;

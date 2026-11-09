@@ -1,0 +1,407 @@
+{
+ "batPct": 100,
+ "batteryType": "F12432832R",
+ "batAuthEnable": true,
+ "bbchg": {
+  "nChatters": 29,
+  "nKnockoffs": 144,
+  "nLithF": 7,
+  "nChgOk": 431,
+  "aborts": [
+   0,
+   26,
+   26
+  ],
+  "chgErr": [
+   0,
+   0,
+   0,
+   0,
+   0
+  ],
+  "smberr": 57344,
+  "nChgErr": 0
+ },
+ "bbchg3": {
+  "estCap": 1650,
+  "nAvail": 5642,
+  "hOnDock": 13030,
+  "avgMin": 126
+ },
+ "bbmssn": {
+  "aCycleM": 100,
+  "nMssnF": 186,
+  "nMssnC": 100,
+  "nMssnOk": 264,
+  "aMssnM": 271,
+  "nMssn": 550
+ },
+ "bbnav": {
+  "aMtrack": 99,
+  "nGoodLmrks": 0,
+  "aGain": 0,
+  "aExpo": 0
+ },
+ "bbpause": {
+  "pauses": [
+   46,
+   46,
+   46,
+   46,
+   46,
+   18,
+   46,
+   18,
+   46,
+   2
+  ]
+ },
+ "bbrstinfo": {
+  "nNavRst": 154,
+  "nMapLoadRst": 0,
+  "nMobRst": 152,
+  "nSafRst": 3,
+  "safCauses": [
+   18,
+   18,
+   18,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "bbrun": {
+  "nOvertemps": 0,
+  "nCBump": 3,
+  "nWStll": 1,
+  "nMBStll": 8090,
+  "nPanics": 253,
+  "nEvacs": 758,
+  "nPicks": 274,
+  "nOpticalDD": 41,
+  "nPiezoDD": 0,
+  "nStuck": 172,
+  "sqft": 2286,
+  "nScrubs": 45,
+  "min": 24,
+  "hr": 680,
+  "nCliffsF": 13312,
+  "nCliffsR": 0
+ },
+ "bbswitch": {
+  "nBumper": 833052,
+  "nDrops": 6503,
+  "nDock": 15,
+  "nSpot": 30,
+  "nClean": 541
+ },
+ "bbsys": {
+  "min": 17,
+  "hr": 14857
+ },
+ "behaviorFwk": true,
+ "bin": {
+  "present": true,
+  "full": false,
+  "type": "std"
+ },
+ "binPause": true,
+ "binTypeDetect": 2,
+ "cap": {
+  "binFullDetect": 2,
+  "addOnHw": 3,
+  "oMode": 2,
+  "dockComm": 1,
+  "edge": 0,
+  "maps": 3,
+  "pmaps": 6,
+  "mc": 0,
+  "tLine": 2,
+  "area": 1,
+  "eco": 1,
+  "multiPass": 3,
+  "team": 1,
+  "pp": 0,
+  "lang": 2,
+  "5ghz": 0,
+  "prov": 3,
+  "sched": 1,
+  "svcConf": 1,
+  "ota": 2,
+  "log": 2,
+  "langOta": 2
+ },
+ "carpetBoost": false,
+ "childLock": false,
+ "cleanMissionStatus": {
+  "cycle": "none",
+  "phase": "charge",
+  "expireM": 0,
+  "rechrgM": 0,
+  "error": 0,
+  "notReady": 0,
+  "condNotReady": [],
+  "mssnM": 0,
+  "expireTm": 0,
+  "rechrgTm": 0,
+  "mssnStrtTm": 1794173732,
+  "operatingMode": 0,
+  "initiator": "localApp",
+  "nMssn": 550,
+  "missionId": "01M6YHD150QS77BXHGBKRTWEFK"
+ },
+ "cleanSchedule2": [
+  {
+   "enabled": true,
+   "type": 0,
+   "start": {
+    "day": [
+     5
+    ],
+    "hour": 9,
+    "min": 0
+   },
+   "cmd": {
+    "command": "start",
+    "params": {
+     "team": {
+      "team_id": "v/ZK_J/,"
+     }
+    }
+   }
+  },
+  {
+   "enabled": true,
+   "type": 0,
+   "start": {
+    "day": [
+     2
+    ],
+    "hour": 9,
+    "min": 0
+   },
+   "cmd": {
+    "command": "start",
+    "params": {
+     "team": {
+      "team_id": "Z_1N4n8Y"
+     }
+    }
+   }
+  },
+  {
+   "enabled": true,
+   "type": 0,
+   "start": {
+    "day": [
+     1
+    ],
+    "hour": 9,
+    "min": 0
+   },
+   "cmd": {
+    "command": "start",
+    "params": {
+     "team": {
+      "team_id": "T2qof+Ra"
+     }
+    }
+   }
+  },
+  {
+   "enabled": true,
+   "type": 0,
+   "start": {
+    "day": [
+     3
+    ],
+    "hour": 9,
+    "min": 0
+   },
+   "cmd": {
+    "command": "start",
+    "params": {
+     "team": {
+      "team_id": "LJbczwIi"
+     }
+    }
+   }
+  },
+  {
+   "enabled": true,
+   "type": 0,
+   "start": {
+    "day": [
+     4
+    ],
+    "hour": 9,
+    "min": 0
+   },
+   "cmd": {
+    "command": "start",
+    "params": {
+     "team": {
+      "team_id": "J35/EuGB"
+     }
+    }
+   }
+  }
+ ],
+ "connected": true,
+ "deploymentState": 0,
+ "dock": {
+  "known": true,
+  "pn": "4737723",
+  "state": 301,
+  "id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0001",
+  "fwVer": "4.8.6",
+  "hwRev": 1,
+  "varID": 9
+ },
+ "evacAllowed": true,
+ "ecoCharge": false,
+ "featureFlags": {
+  "childLockEnable": 1,
+  "hibLed": 0,
+  "covPlan": 0,
+  "ros2SptLvl": true,
+  "clearHaz": true,
+  "umcsIfNotDrc": 1,
+  "quietNav": true
+ },
+ "hwPartsRev": {
+  "csscID": 0,
+  "mobBrd": 4,
+  "imuPartNo": "BMI088",
+  "NavBrd": 2
+ },
+ "lastCommand": {
+  "command": "start",
+  "time": 1794173731,
+  "initiator": "localApp",
+  "pmap_id": "FbKwAujERSazAALZRD_rEg",
+  "user_pmapv_id": "231231T204559",
+  "ordered": 1,
+  "regions": [
+   {
+    "region_id": "7",
+    "type": "rid"
+   }
+  ]
+ },
+ "lastDisconnect": 4,
+ "mapUploadAllowed": true,
+ "missionTelemetry": {
+  "aux_comms": 1,
+  "backup_counts": 1,
+  "bat_stats": 1,
+  "behaviors_report": 1,
+  "camera_settings": 1,
+  "coverage_report": 1,
+  "map_hypotheses": 1,
+  "map_load": 1,
+  "map_save": 1,
+  "mboe_landmark_stats": 1,
+  "mboe_reloc": 1,
+  "mission_stats": 1,
+  "pmap_navigability": 0,
+  "sensor_stats": 1,
+  "tumor_classifier_report": 1,
+  "vital_stats": 1,
+  "vslam_report": 1
+ },
+ "mssnNavStats": {
+  "nMssn": 550,
+  "missionId": "01M6YHD150QS77BXHGBKRTWEFK",
+  "gLmk": 0,
+  "lmk": 2,
+  "reLc": 2,
+  "plnErr": "none",
+  "mTrk": 99,
+  "kdp": 0,
+  "sfkdp": 0,
+  "nmc": 1,
+  "nmmc": 1,
+  "nrmc": 0,
+  "mpSt": "idle",
+  "l_drift": 0,
+  "h_drift": 0,
+  "l_squal": 0,
+  "h_squal": 26
+ },
+ "name": "Vacuum",
+ "noAutoPasses": true,
+ "noPP": false,
+ "openOnly": false,
+ "pmapLearningAllowed": true,
+ "pmaps": [
+  {
+   "FbKwAujERSazAALZRD_rEg": "231231T204559"
+  }
+ ],
+ "pmapShare": {
+  "copy": [
+   5
+  ]
+ },
+ "rankOverlap": 15,
+ "reflexSettings": {
+  "rlWheelDrop": {
+   "enabled": 0
+  }
+ },
+ "sceneRecog": 1,
+ "schedHold": false,
+ "secureBoot": {
+  "flip": -1,
+  "lastRst": "unknown",
+  "recov": "linux+4.0.4.5+daredevil-release+150",
+  "idSwitch": 0,
+  "TSK": "PRODUCTION",
+  "permReq": 0,
+  "perm": "none"
+ },
+ "sku": "i5G5020",
+ "softwareVer": "daredevil+2.6.0+daredevil-release+163",
+ "subModSwVer": {
+  "nav": "daredevil-nav+2.6.0+ubuntu-HEAD-ec14f84ed0e+163",
+  "mob": "2.6.0+ubuntu-HEAD-ec14f84ed0e+163",
+  "pwr": "0.6.3+ubuntu-HEAD-ec14f84ed0e+163",
+  "sft": "1.1.0+Daredevil-Builds/Daredevil-Certified-Safety/daredevil-safety-71fa0661da6+6",
+  "mobBtl": "4.2",
+  "linux": "linux+4.0.4.8+daredevil-release+163",
+  "con": "3.13.0.6-tags/release-3.13.0.7@e9e317d7/"
+ },
+ "tls": {
+  "tzbChk": 1,
+  "privKType": 2,
+  "lcCiphers": [
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   0,
+   50336514,
+   50336513
+  ]
+ },
+ "twoPass": false,
+ "vacHigh": false,
+ "signal": {
+  "rssi": -39,
+  "snr": 24,
+  "noise": -63
+ },
+ "wifistat": {
+  "wifi": 1,
+  "uap": false,
+  "cloud": 14
+ }
+}
