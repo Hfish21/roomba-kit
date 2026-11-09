@@ -101,9 +101,12 @@ HTTP also exposes `events_list` as an SSE stream at the same route with
 
 | Operation | Params | Result |
 |---|---|---|
-| `verify` | `robot`, `capabilities?: [str]`, `allow_motion=false` | `[{capability, result: pass \| fail \| skipped, evidence}]` |
+| `verify` | `robot`, `capabilities?: [str]` (omit for every declared capability; `[]` is `invalid_request`), `allow_motion=false` | `VerificationRun{id, robot_id, profile_id, anchor, started_at, ended_at, allow_motion, results: [{capability, result: pass \| fail \| skipped, evidence}], report}` |
 
 Motion checks are skipped unless `allow_motion=true`. The CLI prompts before moving the robot.
+Naming a capability the model doesn't declare is `not_supported`, before any robot contact.
+`report` is markdown for `docs/verification/<profile_id>.md`; `anchor` (`run-YYYYMMDD-HHMMSS`,
+UTC) is what a profile's `Verification.verified(run=...)` cites.
 
 ## CLI composites (presentation only)
 
