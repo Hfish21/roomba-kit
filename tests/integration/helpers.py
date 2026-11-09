@@ -15,9 +15,11 @@ from typing import Any
 
 import httpx
 import pytest
+from click.testing import CliRunner, Result
 from fastapi import FastAPI
 
 from roomba_kit.api.app import create_app
+from roomba_kit.cli.client import CliState
 from roomba_kit.config.credentials import CredentialStore
 from roomba_kit.config.settings import ConfigModel, RobotEntry, save_config
 from roomba_kit.core import registry
@@ -217,3 +219,67 @@ class VirtualTimeLoop(asyncio.SelectorEventLoop):
 def run_virtual[T](main: Callable[[], Awaitable[T]]) -> T:
     with asyncio.Runner(loop_factory=VirtualTimeLoop) as runner:
         return runner.run(main())  # type: ignore[arg-type]
+
+
+# -- the CLI against the in-process app (T107) -----------------------------------------------
+
+
+class AsgiBridge(httpx.BaseTransport):
+    """A sync transport for the CLI's `httpx.Client` that forwards to the app on `loop`.
+
+    The CLI runs in a worker thread (it is synchronous); the app keeps running on the test's loop.
+    """
+
+    def __init__(self, app: FastAPI, loop: asyncio.AbstractEventLoop) -> None:
+        self._client = httpx.AsyncClient(transport=httpx.ASGITransport(app=app))
+        self._loop = loop
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        async def send() -> httpx.Response:
+            forwarded = httpx.Request(
+                request.method, request.url, headers=request.headers, content=request.read()
+            )
+            response = await self._client.send(forwarded)
+            await response.aread()
+            return response
+
+        response = asyncio.run_coroutine_threadsafe(send(), self._loop).result(timeout=60)
+        return httpx.Response(
+            response.status_code, headers=response.headers, content=response.content
+        )
+
+
+async def run_cli(
+    root: Any,
+    args: list[str],
+    bridge: httpx.BaseTransport,
+    *,
+    input: str | None = None,
+    env: dict[str, str] | None = None,
+) -> Result:
+    """`roomba-kit <args>` in a worker thread, talking to the app through `bridge`."""
+    state = CliState(transport=bridge)  # every request goes through the bridge, whatever its URL
+    runner = CliRunner()
+    return await asyncio.to_thread(runner.invoke, root, args, obj=state, input=input, env=env)
+
+
+def cli_args(op: registry.Operation, params: dict[str, Any]) -> tuple[list[str], str | None]:
+    """The command line (and stdin, for secret params) that sends `params` to `op`."""
+    assert op.cli is not None
+    args = [*op.cli.group, op.cli.name]
+    for name in op.cli.args:
+        value = params.get(name)
+        args += [str(v) for v in value] if isinstance(value, list) else [str(value)]
+    for name, value in params.items():
+        if name in op.cli.args or name in op.cli.secret:
+            continue
+        flag = "--" + name.replace("_", "-")
+        if isinstance(value, bool):
+            args.append(flag if value else f"--no-{flag[2:]}")
+        elif isinstance(value, list):
+            for item in value:
+                args += [flag, str(item)]
+        else:
+            args += [flag, json.dumps(value) if isinstance(value, dict) else str(value)]
+    secrets = [str(params[s]) for s in op.cli.secret if s in params]
+    return args, ("\n".join(secrets) + "\n") if secrets else None
