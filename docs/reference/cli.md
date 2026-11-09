@@ -21,17 +21,64 @@ Options:
   -h, --help         Show this message and exit.
 
 Commands:
+  capabilities  What the robot's model supports, each with `verified` (exercised on...
+  clean         Start cleaning the whole home.
   cloud
-  config    Where the kit keeps its files, and what's in them.
+  config        Where the kit keeps its files, and what's in them.
+  dock          Send the robot back to its dock.
+  evac          Empty the bin into the Clean Base.
   events
+  find          Play the locate sound so you can find the robot.
+  health        Whether the service is up, and its version.
   missions
-  position  Where the robot is now: x/y in metres from the dock and heading in...
-  serve     Run the service in the foreground on `server.host`:`server.port`.
-  service   Run the service in the background and manage it.
+  pause         Pause the current mission.
+  position      Where the robot is now: x/y in metres from the dock and heading in...
+  reboot        Soft-reboot the robot.
+  resume        Resume a paused mission.
+  robots
+  serve         Run the service in the foreground on `server.host`:`server.port`.
+  service       Run the service in the background and manage it.
   settings
-  state     Get a robot's full live state: battery, activity, current mission, last...
-  token     Create, list and revoke API tokens (local file ops).
-  version   Print the kit version.
+  state         Get a robot's full live state: battery, activity, current mission,...
+  stop          End the current mission where the robot is.
+  token         Create, list and revoke API tokens (local file ops).
+  train         Start a mapping run with no cleaning.
+  version       Print the kit version.
+```
+
+## `roomba-kit capabilities`
+
+```text
+Usage: roomba-kit capabilities [OPTIONS] ROBOT
+
+  What the robot's model supports, each with `verified` (exercised on real hardware) or
+  `unverified`. Empty for a model without a profile.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit clean`
+
+```text
+Usage: roomba-kit clean [OPTIONS] ROBOT
+
+  Start cleaning the whole home. Confirmed when the robot reports cleaning.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
 ```
 
 ## `roomba-kit cloud`
@@ -43,9 +90,10 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  login   Add or change the iRobot account login.
-  logout  Remove the stored iRobot account login and disconnect from the cloud.
-  status  The cloud subsystem's status: `connected`, `unavailable` (with a reason)...
+  login     Add or change the iRobot account login.
+  logout    Remove the stored iRobot account login and disconnect from the cloud.
+  password  Fetch a robot's local password from the iRobot account, check it by...
+  status    The cloud subsystem's status: `connected`, `unavailable` (with a...
 ```
 
 ## `roomba-kit cloud login`
@@ -80,6 +128,22 @@ Options:
   -h, --help  Show this message and exit.
 ```
 
+## `roomba-kit cloud password`
+
+```text
+Usage: roomba-kit cloud password [OPTIONS] ROBOT
+
+  Fetch a robot's local password from the iRobot account, check it by connecting, and
+  store it. For models or robots that won't release it locally. The password is never
+  returned.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
 ## `roomba-kit cloud status`
 
 ```text
@@ -104,6 +168,7 @@ Options:
 
 Commands:
   path  Print the config and state directories.
+  show  The effective configuration (files plus environment overrides), with every...
 ```
 
 ## `roomba-kit config path`
@@ -112,6 +177,59 @@ Commands:
 Usage: roomba-kit config path [OPTIONS]
 
   Print the config and state directories.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit config show`
+
+```text
+Usage: roomba-kit config show [OPTIONS]
+
+  The effective configuration (files plus environment overrides), with every secret
+  shown as `"***"`.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit dock`
+
+```text
+Usage: roomba-kit dock [OPTIONS] ROBOT
+
+  Send the robot back to its dock. Confirmed when it reports returning, docked or
+  charging.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit evac`
+
+```text
+Usage: roomba-kit evac [OPTIONS] ROBOT
+
+  Empty the bin into the Clean Base. Confirmed when the robot reports emptying.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: roomba_i5
+
+  Verification: roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
 
 Options:
   -h, --help  Show this message and exit.
@@ -196,6 +314,36 @@ Options:
   -h, --help                      Show this message and exit.
 ```
 
+## `roomba-kit find`
+
+```text
+Usage: roomba-kit find [OPTIONS] ROBOT
+
+  Play the locate sound so you can find the robot. It doesn't move. Confirmed when the
+  robot echoes the command.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit health`
+
+```text
+Usage: roomba-kit health [OPTIONS]
+
+  Whether the service is up, and its version. Needs no API token over HTTP.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
 ## `roomba-kit missions`
 
 ```text
@@ -228,6 +376,26 @@ Options:
   -h, --help         Show this message and exit.
 ```
 
+## `roomba-kit pause`
+
+```text
+Usage: roomba-kit pause [OPTIONS] ROBOT
+
+  Pause the current mission. Confirmed when the robot reports paused.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
 ## `roomba-kit position`
 
 ```text
@@ -249,6 +417,105 @@ Usage: roomba-kit position [OPTIONS] ROBOT
 
 Options:
   --watch     Follow live position fixes.
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit reboot`
+
+```text
+Usage: roomba-kit reboot [OPTIONS] ROBOT
+
+  Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3
+  minutes).
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit resume`
+
+```text
+Usage: roomba-kit resume [OPTIONS] ROBOT
+
+  Resume a paused mission. Confirmed when the robot reports cleaning again.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit robots`
+
+```text
+Usage: roomba-kit robots [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  list          List every configured robot: ID, name, model, SKU, firmware,...
+  set-password  Store a robot's local password you already know, after checking...
+  show          One robot's details: ID, name, model, SKU, firmware, address,...
+```
+
+## `roomba-kit robots list`
+
+```text
+Usage: roomba-kit robots list [OPTIONS]
+
+  List every configured robot: ID, name, model, SKU, firmware, address, connection state
+  and capabilities with their verification status. Robots without a model profile are
+  listed with `supported=false` (see docs/guides/adding-a-model.md).
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit robots set-password`
+
+```text
+Usage: roomba-kit robots set-password [OPTIONS] ROBOT
+
+  Store a robot's local password you already know, after checking that the robot accepts
+  it. Nothing is saved if the robot rejects it or can't be reached.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `password`: str — The robot's local password. The CLI prompts for it; it is never echoed, returned or logged.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit robots show`
+
+```text
+Usage: roomba-kit robots show [OPTIONS] ROBOT
+
+  One robot's details: ID, name, model, SKU, firmware, address, connection state and
+  capabilities.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
   -h, --help  Show this message and exit.
 ```
 
@@ -428,6 +695,26 @@ Options:
   -h, --help  Show this message and exit.
 ```
 
+## `roomba-kit stop`
+
+```text
+Usage: roomba-kit stop [OPTIONS] ROBOT
+
+  End the current mission where the robot is. Confirmed when no mission is active.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
 ## `roomba-kit token`
 
 ```text
@@ -478,6 +765,28 @@ Usage: roomba-kit token revoke [OPTIONS] NAME
 
   Parameters:
   - `name`: str — Token name, e.g. `cli` or `home-assistant`
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit train`
+
+```text
+Usage: roomba-kit train [OPTIONS] ROBOT
+
+  Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This
+  can re-create the stored map and change room IDs, which breaks room names and room-
+  clean requests that use the old IDs.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
 
 Options:
   -h, --help  Show this message and exit.

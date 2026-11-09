@@ -4,6 +4,37 @@
 
 Every capability, as it appears on HTTP, MCP and the CLI.
 
+## `clean`
+
+Start cleaning the whole home. Confirmed when the robot reports cleaning.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/clean` |
+| MCP | tool `clean` |
+| CLI | `roomba-kit clean [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
 ## `cloud_login`
 
 Add or change the iRobot account login. It's checked by logging in and saved only if that works. Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and password retrieval; local control never needs it.
@@ -55,6 +86,31 @@ Type: `CloudStatus`
 | `reason` | str \| None | no |  |
 | `last_ok` | datetime \| None | no |  |
 
+## `cloud_retrieve_password`
+
+Fetch a robot's local password from the iRobot account, check it by connecting, and store it. For models or robots that won't release it locally. The password is never returned.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/password/cloud` |
+| MCP | tool `cloud_retrieve_password` |
+| CLI | `roomba-kit cloud password [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CloudPasswordResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `outcome` | "stored" \| "unavailable" | yes |  |
+| `reason` | str \| None | no | Why not: a cloud status reason, `not_in_account`, or `auth_failed` when the robot rejected the password the account gave |
+
 ## `cloud_status`
 
 The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and when it last worked.
@@ -78,6 +134,97 @@ Type: `CloudStatus`
 | `status` | "connected" \| "unavailable" \| "not_configured" | yes |  |
 | `reason` | str \| None | no |  |
 | `last_ok` | datetime \| None | no |  |
+
+## `config_show`
+
+The effective configuration (files plus environment overrides), with every secret shown as `"***"`.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/config_show` |
+| MCP | tool `config_show` |
+| CLI | `roomba-kit config show [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `ConfigView`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `server` | ServerConfig | yes |  |
+| `alerts` | AlertsConfig | yes |  |
+| `history` | HistoryConfig | yes |  |
+| `events` | EventsConfig | yes |  |
+| `discovery` | DiscoveryConfig | yes |  |
+| `cloud` | CloudView | yes |  |
+| `robots` | list[RobotView] | yes |  |
+| `tokens` | list[TokenView] | yes | Names only; token values are never shown |
+
+## `dock`
+
+Send the robot back to its dock. Confirmed when it reports returning, docked or charging.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/dock` |
+| MCP | tool `dock` |
+| CLI | `roomba-kit dock [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
+## `evac`
+
+Empty the bin into the Clean Base. Confirmed when the robot reports emptying.
+Supported on: roomba_i5
+Verification: roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/evac` |
+| MCP | tool `evac` |
+| CLI | `roomba-kit evac [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
 
 ## `events_list`
 
@@ -135,6 +282,61 @@ Type: `EventPage`
 | `events` | list[Event] | yes |  |
 | `next` | int | yes | Pass as `since` to continue after these events |
 
+## `find`
+
+Play the locate sound so you can find the robot. It doesn't move. Confirmed when the robot echoes the command.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/find` |
+| MCP | tool `find` |
+| CLI | `roomba-kit find [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
+## `get_capabilities`
+
+What the robot's model supports, each with `verified` (exercised on real hardware) or `unverified`. Empty for a model without a profile.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/capabilities` |
+| MCP | tool `get_capabilities` |
+| CLI | `roomba-kit capabilities [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `list[CapabilityStatus]`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `capability` | Capability | yes |  |
+| `verification` | Verification | yes |  |
+
 ## `get_position`
 
 Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.
@@ -157,6 +359,38 @@ Verification: braava_m6: verified
 
 Type: `PositionFix | NoFix`
 
+
+## `get_robot`
+
+One robot's details: ID, name, model, SKU, firmware, address, connection state and capabilities.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}` |
+| MCP | tool `get_robot` |
+| CLI | `roomba-kit robots show [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `Robot`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes | The robot's permanent ID (BLID); the only identifier. |
+| `name` | str | yes |  |
+| `profile_id` | str \| None | yes |  |
+| `supported` | bool | yes |  |
+| `sku` | str | yes |  |
+| `firmware` | str | yes |  |
+| `address` | str | yes |  |
+| `connection` | ConnectionState | yes |  |
+| `capabilities` | list[CapabilityStatus] | yes |  |
 
 ## `get_settings`
 
@@ -220,6 +454,59 @@ Type: `RobotState`
 | `lid_open` | bool \| None | no |  |
 | `settings` | object | no |  |
 
+## `health`
+
+Whether the service is up, and its version. Needs no API token over HTTP.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/health` (no auth) |
+| MCP | tool `health` |
+| CLI | `roomba-kit health [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `Health`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `status` | "ok" | no |  |
+| `version` | str | yes |  |
+
+## `list_robots`
+
+List every configured robot: ID, name, model, SKU, firmware, address, connection state and capabilities with their verification status. Robots without a model profile are listed with `supported=false` (see docs/guides/adding-a-model.md).
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots` |
+| MCP | tool `list_robots` |
+| CLI | `roomba-kit robots list [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `list[Robot]`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes | The robot's permanent ID (BLID); the only identifier. |
+| `name` | str | yes |  |
+| `profile_id` | str \| None | yes |  |
+| `supported` | bool | yes |  |
+| `sku` | str | yes |  |
+| `firmware` | str | yes |  |
+| `address` | str | yes |  |
+| `connection` | ConnectionState | yes |  |
+| `capabilities` | list[CapabilityStatus] | yes |  |
+
 ## `mission_wait`
 
 Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if it hasn't ended in time.
@@ -242,6 +529,149 @@ Wait until a robot's mission ends and return it with its outcome. Without `missi
 
 Type: `Mission | MissionWaitTimeout`
 
+
+## `pause`
+
+Pause the current mission. Confirmed when the robot reports paused.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/pause` |
+| MCP | tool `pause` |
+| CLI | `roomba-kit pause [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
+## `reboot`
+
+Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: unverified, roomba_i5: unverified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/reboot` |
+| MCP | tool `reboot` |
+| CLI | `roomba-kit reboot [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
+## `resume`
+
+Resume a paused mission. Confirmed when the robot reports cleaning again.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: verified, roomba_i5: verified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/resume` |
+| MCP | tool `resume` |
+| CLI | `roomba-kit resume [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
+
+## `service_status`
+
+The service's version and uptime, each robot's connection state, and the cloud subsystem's status.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/service_status` |
+| MCP | tool `service_status` |
+| CLI | `roomba-kit service status [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `ServiceStatus`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `version` | str | yes |  |
+| `uptime_s` | int | yes |  |
+| `robots` | list[RobotConnection] | yes |  |
+| `cloud` | CloudStatus | yes |  |
+
+## `set_robot_password`
+
+Store a robot's local password you already know, after checking that the robot accepts it. Nothing is saved if the robot rejects it or can't be reached.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/password` |
+| MCP | not on MCP |
+| CLI | `roomba-kit robots set-password [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+| `password` | str | yes |  | The robot's local password. The CLI prompts for it; it is never echoed, returned or logged. |
+
+**Result**
+
+Type: `PasswordStored`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `outcome` | "stored" \| "auth_failed" | yes |  |
 
 ## `set_setting`
 
@@ -272,6 +702,37 @@ Type: `SettingChange`
 | `requested` | any | yes |  |
 | `outcome` | "applied" \| "not_applied" | yes |  |
 | `actual` | any | yes |  |
+
+## `stop`
+
+End the current mission where the robot is. Confirmed when no mission is active.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: unverified, roomba_i5: unverified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/stop` |
+| MCP | tool `stop` |
+| CLI | `roomba-kit stop [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
 
 ## `token_create`
 
@@ -346,3 +807,34 @@ Type: `TokenRevoked`
 |---|---|---|---|
 | `name` | str | yes |  |
 | `revoked` | bool | yes |  |
+
+## `train`
+
+Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This can re-create the stored map and change room IDs, which breaks room names and room-clean requests that use the old IDs.
+Supported on: braava_m6, roomba_i5
+Verification: braava_m6: unverified, roomba_i5: unverified
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/commands/train` |
+| MCP | tool `train` |
+| CLI | `roomba-kit train [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `CommandResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `command` | str | yes |  |
+| `outcome` | "confirmed" \| "unconfirmed" | yes |  |
+| `state` | StateSummary | yes |  |
+| `waited_ms` | int | yes |  |
