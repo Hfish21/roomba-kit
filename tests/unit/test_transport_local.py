@@ -142,7 +142,7 @@ async def test_drop_tears_down_and_reports_once(link, probe_answer):
     client.drop()
     await asyncio.sleep(0.01)
     assert client.calls == [("disconnect",)]
-    assert links == [(True, None), (False, "connection_held_elsewhere")]
+    assert links == [(True, None), (False, "robot_offline")]
     with pytest.raises(KitError) as err:
         await transport.send_command("find")
     assert err.value.code is ErrorCode.ROBOT_OFFLINE

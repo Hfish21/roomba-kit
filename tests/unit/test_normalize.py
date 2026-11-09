@@ -89,7 +89,8 @@ def test_m6_capture_docked_with_tank_pad_lid():
         ("charge", "evac", 100, Activity.EMPTYING_BIN),
         ("run", "evac", 100, Activity.EMPTYING_BIN),  # observed on the i5 mid-evac
         ("stuck", "clean", 50, Activity.STUCK),
-        ("charge", "clean", 100, Activity.UNKNOWN),  # transient, between start and run
+        ("charge", "clean", 100, Activity.DOCKED),  # a mission waiting on the dock (HW-1)
+        ("charge", "clean", 80, Activity.CHARGING),
         ("wobble", "none", 100, Activity.UNKNOWN),
     ],
 )
@@ -128,7 +129,10 @@ def test_error_and_not_ready_codes():
     s = normalize(I5_ID, _status("stuck", "clean", error=15, notReady=0), I5, AT)
     assert (s.error.code, s.error.text) == (15, "Robot rebooted") and s.not_ready is None
     s = normalize(I5_ID, _status("charge", "none", error=0, notReady=68), I5, AT)
-    assert s.error is None and s.not_ready.text == "Robot is off the dock"
+    assert (
+        s.error is None
+        and s.not_ready.text == "Not ready yet (transient around docking and bin emptying)"
+    )
 
 
 def test_last_command_with_nulls():

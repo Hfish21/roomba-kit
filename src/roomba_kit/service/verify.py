@@ -33,6 +33,15 @@ Result = Literal["pass", "fail", "skipped"]
 
 POSITION_TIMEOUT_S = 5.0
 SETTLE_S = 180.0
+NOT_READY_WAIT_S = 120.0
+"""How long to wait for a not-ready condition to clear before cleaning. HW-1: an i5 reports
+not-ready 68 for ~1.5 min after a bin evacuation and refuses to start."""
+CLEAN_HOLD_S = 8.0
+"""`clean` only passes if the robot is still cleaning this long after confirmation. HW-1: an
+i5 reported `cleaning` for 1 s, then aborted."""
+STOP_TO_DOCK_S = 5.0
+"""Pause between `stop` and the closing `dock`. HW-1: an i5 ignored a dock sent ~3 s after
+stop, and accepted one sent later."""
 """How long to wait for the robot to be back on its dock after evac or the motion sequence."""
 SEQUENCE = (C.CLEAN, C.PAUSE, C.RESUME, C.STOP, C.DOCK)
 """Motion checks run in this order from the dock, and always end with a dock."""
@@ -246,10 +255,40 @@ class _Run:
         task.add_done_callback(_BACKGROUND.discard)
         return await asyncio.shield(task)
 
+    async def ready(self) -> bool:
+        """Wait (bounded) for any not-ready condition to clear."""
+        loop = asyncio.get_running_loop()
+        deadline = loop.time() + NOT_READY_WAIT_S
+        while self.session.state.not_ready is not None:
+            if (left := deadline - loop.time()) <= 0:
+                return False
+            await self.session.wait_change(self.session.change_seq, min(left, 1.0))
+        return True
+
+    async def sustained_clean(self) -> CheckResult:
+        result = await self.command(C.CLEAN)
+        if result.result != "pass":
+            return result
+        await asyncio.sleep(CLEAN_HOLD_S)
+        state = self.session.state
+        if state.activity is not Activity.CLEANING or state.mission is None:
+            return _fail(
+                C.CLEAN,
+                f"{result.evidence}, but {CLEAN_HOLD_S:g} s later the robot was "
+                f"{state.activity} (mission {'open' if state.mission else 'ended'})",
+            )
+        return result.model_copy(
+            update={"evidence": f"{result.evidence}; still cleaning {CLEAN_HOLD_S:g} s later"}
+        )
+
     async def motion(self, wanted: list[C]) -> list[CheckResult]:
         """Clean from the dock, then pause/resume/stop as named, then dock (always)."""
         if not self.docked():
             why = f"motion checks start from the dock; the robot is {self.session.state.activity}"
+            return [_skip(c, why) for c in wanted]
+        if not await self.ready():
+            nr = self.session.state.not_ready
+            why = f"the robot stayed not ready ({nr.code}: {nr.text})" if nr else "not ready"
             return [_skip(c, why) for c in wanted]
         needed = set(wanted) | ({C.PAUSE} if C.RESUME in wanted else set())
         steps = [C.CLEAN, *(c for c in SEQUENCE[1:-1] if c in needed)]
@@ -261,7 +300,8 @@ class _Run:
                 if failed := next((d for d in done.values() if d.result != "pass"), None):
                     done[step] = _skip(step, f"not run: {failed.capability} didn't pass")
                     continue
-                done[step] = await self.guarded(step, partial(self.command, step))
+                run = self.sustained_clean if step is C.CLEAN else partial(self.command, step)
+                done[step] = await self.guarded(step, run)
                 if step is C.CLEAN and done[step].result == "pass" and self.position_pending:
                     self.position_result = await self.guarded(
                         C.LIVE_POSITION, partial(self.position, C.LIVE_POSITION)
@@ -272,6 +312,8 @@ class _Run:
         finally:
             # Dock only counts as a check when the robot is off the dock when it's sent.
             if not self.docked() or cancelled:
+                if C.STOP in done and not cancelled:
+                    await asyncio.sleep(STOP_TO_DOCK_S)
                 closing = await self.closing_dock()
         failed = next((d for d in done.values() if d.result != "pass"), None)
         if failed is not None:

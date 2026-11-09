@@ -139,5 +139,5 @@ NOT_READY_TEXTS: dict[int, str] = {
     38: "Unable to start: no battery detected",
     39: "Saving the map (transient; clears on its own)",
     51: "Unable to start: camera issue",
-    68: "Robot is off the dock",
+    68: "Not ready yet (transient around docking and bin emptying)",
 }

@@ -300,3 +300,19 @@ async def test_unknown_command_is_invalid_request(bus, factory):
     with pytest.raises(KitError) as exc:
         await s.execute("state.bin")
     assert exc.value.code is ErrorCode.INVALID_REQUEST
+
+
+async def test_a_connection_that_sends_no_state_is_retried(bus, factory):
+    """HW-1: right after HOME-button pairing an i5 accepted the session but sent no state."""
+    fake = factory.get(I5)
+    full = dict(fake.reported)
+    fake.reported = {}  # connects, but the first state burst is empty
+    s = _session(bus, factory, first_state_timeout_s=0.1)
+    await s.start()
+    try:
+        await _until(lambda: fake.connect_calls >= 1 and s.connection is ConnectionState.OFFLINE)
+        fake.reported = full
+        await _until(lambda: s.has_state and s.connection is ConnectionState.CONNECTED)
+        assert fake.connect_calls >= 2
+    finally:
+        await s.stop()
