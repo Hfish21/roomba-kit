@@ -39,6 +39,7 @@ Commands:
   reboot        Soft-reboot the robot.
   resume        Resume a paused mission.
   robots        Add, list, pair and remove robots.
+  rooms
   serve         Run the service in the foreground on `server.host`:`server.port`.
   service       Run the service in the background and manage it.
   settings      Read and change robot settings (read back).
@@ -653,6 +654,55 @@ Usage: roomba-kit robots show [OPTIONS] ROBOT
 
   One robot's details: ID, name, model, SKU, firmware, address, connection state and
   capabilities.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit rooms`
+
+```text
+Usage: roomba-kit rooms [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  import  Import the robot's room IDs and names from its stored map in the iRobot...
+  list    List the robot's rooms: imported from the cloud, named locally, or...
+```
+
+## `roomba-kit rooms import`
+
+```text
+Usage: roomba-kit rooms import [OPTIONS] ROBOT
+
+  Import the robot's room IDs and names from its stored map in the iRobot cloud.
+  Replaces rooms stored for older map versions; local names on the same map version are
+  kept. The result is cached, so rooms stay usable while the cloud is down.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit rooms list`
+
+```text
+Usage: roomba-kit rooms list [OPTIONS] ROBOT
+
+  List the robot's rooms: imported from the cloud, named locally, or learned from room
+  cleans the robot reported (including ones started by other apps). Works without the
+  cloud. Unnamed rooms are shown as `Room <id>`.
 
   Parameters:
   - `robot`: str — Robot ID or unambiguous name
