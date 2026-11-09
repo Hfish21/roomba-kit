@@ -370,3 +370,44 @@ async def test_stream_presenter_hook(client, auth):
         assert unauth.status_code == 401 and len(seen) == 2
     finally:
         stream_presenters.pop("robot_state")
+
+
+_MCP_HEADERS = {"Accept": "application/json, text/event-stream"}
+_INIT = {
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "initialize",
+    "params": {
+        "protocolVersion": "2025-06-18",
+        "capabilities": {},
+        "clientInfo": {"name": "test", "version": "0"},
+    },
+}
+
+
+async def test_mcp_mount_requires_auth(client):
+    resp = await client.post("/mcp", json=_INIT, headers=_MCP_HEADERS)
+    assert resp.status_code == 401 and resp.json()["error"]["code"] == "unauthorized"
+
+
+async def test_mcp_mount_serves_with_token(client, auth):
+    resp = await client.post("/mcp", json=_INIT, headers={**_MCP_HEADERS, **auth})
+    assert resp.status_code == 200, resp.text
+    assert "roomba-kit" in resp.text
+
+
+async def test_mcp_tool_call_over_mount(client, auth):
+    headers = {**_MCP_HEADERS, **auth}
+    init = await client.post("/mcp", json=_INIT, headers=headers)
+    headers["mcp-session-id"] = init.headers["mcp-session-id"]
+    note = {"jsonrpc": "2.0", "method": "notifications/initialized"}
+    await client.post("/mcp", json=note, headers=headers)
+    call = {
+        "jsonrpc": "2.0",
+        "id": 2,
+        "method": "tools/call",
+        "params": {"name": "evac", "arguments": {"robot": I5}},
+    }
+    resp = await client.post("/mcp", json=call, headers=headers)
+    assert resp.status_code == 200
+    assert '"isError":true' in resp.text and "not_supported: Braava jet m6" in resp.text
