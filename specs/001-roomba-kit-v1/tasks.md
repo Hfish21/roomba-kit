@@ -430,7 +430,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - The only exclusions allowed are exactly `set_robot_password` and `cloud_login` (not MCP)
     and `token_create`, `token_list` and `token_revoke` (CLI only), per the plan's Complexity
     Tracking.
-- [ ] T038 [P] Contract test `tests/contract/test_errors.py`: `ErrorCode`, `HTTP_STATUS` and
+- [x] T038 [P] Contract test `tests/contract/test_errors.py`: `ErrorCode`, `HTTP_STATUS` and
   `CLI_EXIT` equal the table parsed from `specs/001-roomba-kit-v1/contracts/errors.md`.
 - [ ] T039 [P] Implement `scripts/gen_docs.py`:
   - Generates these files from the registry, profiles, error catalogue, event types and Click
