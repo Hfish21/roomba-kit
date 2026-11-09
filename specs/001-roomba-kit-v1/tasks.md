@@ -855,14 +855,14 @@ unverified capabilities.
     - Assert that no module under `api/`, `mcp/` or `cli/` references a profile ID, so adding a
       profile needs no surface change.
     - Assert that an unknown SKU → `unsupported_model` on commands.
-- [ ] T096 [P] [US10] Implement `scripts/capture_fixture.py`, a developer tool and not a kit
+- [x] T096 [P] [US10] Implement `scripts/capture_fixture.py`, a developer tool and not a kit
   surface:
   - Refuse if the service pidfile is live.
   - Connect directly via `transport/local.py` using stored credentials.
   - Collect 30 s of reported state.
   - Scrub BLID, IP, MAC, `passwordHash`, `netinfo`, `wlcfg` and SSID.
   - Write `tests/fixtures/profiles/<id>/state.json`.
-- [ ] T097 [P] [US10] Write `docs/guides/adding-a-model.md`, following the five-step workflow in
+- [x] T097 [P] [US10] Write `docs/guides/adding-a-model.md`, following the five-step workflow in
   `contracts/model-profile.md`, with a worked example based on `braava_m6.py`.
 
 ---
