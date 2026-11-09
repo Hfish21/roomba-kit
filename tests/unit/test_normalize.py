@@ -126,9 +126,9 @@ def test_mission_only_while_cycle_active():
 
 def test_error_and_not_ready_codes():
     s = normalize(I5_ID, _status("stuck", "clean", error=15, notReady=0), I5, AT)
-    assert (s.error.code, s.error.text) == (15, "Error 15") and s.not_ready is None
+    assert (s.error.code, s.error.text) == (15, "Robot rebooted") and s.not_ready is None
     s = normalize(I5_ID, _status("charge", "none", error=0, notReady=68), I5, AT)
-    assert s.error is None and s.not_ready.text == "Not ready 68"
+    assert s.error is None and s.not_ready.text == "Robot is off the dock"
 
 
 def test_last_command_with_nulls():
