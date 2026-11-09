@@ -1,6 +1,9 @@
 """US6: cloud extras when available, and clean degradation (FR-041–FR-043, SC-004, V6)."""
 
 import asyncio
+import copy
+import json
+import time
 from collections.abc import AsyncIterator
 from pathlib import Path
 
@@ -21,6 +24,8 @@ from tests.unit.test_api import running
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 I5 = "00000000000000000000000000000001"
 M6 = "00000000000000000000000000000002"
+PUBLISHED = "01M0J6GSQ8MB898573DF8CCQNN"
+"""In the i5 history fixture, with its UMF in `i5_mission_umf.json`."""
 RUNNING = "01M6YKFD5R2N93S8D9ZJS7KH6X"
 """The mission in `i5_timeline.jsonl`: not in cloud history yet."""
 
@@ -31,9 +36,26 @@ async def until(predicate, timeout: float = 3.0) -> None:
             await asyncio.sleep(0.005)
 
 
+class SlowCloud(FakeCloud):
+    """FakeCloud whose REST calls can be made to hang."""
+
+    hang = False
+
+    async def pmaps(self, blid):
+        if self.hang:
+            self.calls.append("pmaps (hanging)")
+            await asyncio.Event().wait()
+        return await super().pmaps(blid)
+
+
 @pytest.fixture
 def fake_cloud() -> FakeCloud:
-    return FakeCloud.from_fixtures(FIXTURES)
+    fake = SlowCloud.from_fixtures(FIXTURES)
+    for rid, prefix in ((I5, "i5"), (M6, "m6")):
+        doc = json.loads((FIXTURES / "captures" / f"{prefix}_floorplan_umf.json").read_text())
+        header = doc["maps"][0]["map_header"]
+        fake.umf_by_key[(rid, header["id"], header["version"])] = doc
+    return fake
 
 
 @pytest.fixture
@@ -48,6 +70,7 @@ async def ctx(tmp_kit_home, factory, fake_cloud, monkeypatch) -> AsyncIterator[S
     monkeypatch.setattr(cloud, "BACKOFF_MAX_S", 0.05)
     monkeypatch.setattr(cloud_data, "RECONCILE_S", 0.02)
     monkeypatch.setattr(cloud_data, "RETRY_S", 0.02)
+    monkeypatch.setattr(cloud_data, "CALL_TIMEOUT_S", 0.2)
     save_config(
         ConfigModel(
             robots=[
@@ -81,6 +104,16 @@ async def client(ctx) -> AsyncIterator[httpx.AsyncClient]:
             yield c
 
 
+def collect(ctx: ServiceContext, *types: EventType) -> list[Event]:
+    seen: list[Event] = []
+
+    async def on_event(event: Event) -> None:
+        seen.append(event)
+
+    ctx.bus.subscribe(on_event, types=list(types))
+    return seen
+
+
 async def cloud_down(ctx: ServiceContext, fake: FakeCloud) -> None:
     fake.fail_everything = True
     ctx.cloud.report_failure(
@@ -97,6 +130,13 @@ async def timeline(ctx: ServiceContext, count: int) -> list[Event]:
             if len(events) >= count:
                 return events
             await asyncio.sleep(0.005)
+
+
+def unavailable(response: httpx.Response) -> str:
+    assert response.status_code == 503, response.text
+    error = response.json()["error"]
+    assert error["code"] == "cloud_unavailable"
+    return error["details"]["reason"]
 
 
 async def test_timeline_reports_become_cloud_timeline_events(client, ctx, fake_cloud):
@@ -144,3 +184,93 @@ async def test_timeline_stops_while_the_cloud_is_down_and_resumes(client, ctx, f
     seen = await timeline(ctx, 8)
     assert len(seen) == 8
     assert (seen[-1].data["mission_id"], seen[-1].data["kind"]) == ("M3", "start")
+
+
+async def test_floor_plan_has_rooms_with_polygons(client):
+    response = await client.get(f"/v1/robots/{I5}/floor-plan")
+    assert response.status_code == 200, response.text
+    plan = response.json()
+    assert plan["map"] == {"map_id": "FbKwAujERSazAALZRD_rEg", "version": "231231T204559"}
+    rooms = {r["id"]: r for r in plan["rooms"]}
+    assert set(rooms) == {"1", "3", "4", "5", "6", "7", "8"}
+    assert rooms["7"]["name"] == "Laundry Room"
+    assert len(rooms["1"]["polygon"]) == 2  # outer ring and one hole
+    assert all(len(point) == 2 for ring in rooms["1"]["polygon"] for point in ring)
+    assert plan["retrieved_at"]
+    # By name, too; the m6's unnamed rooms fall back to "Room <id>".
+    mop = (await client.get("/v1/robots/Mop/floor-plan")).json()
+    names = {r["id"]: r["name"] for r in mop["rooms"]}
+    assert names["1"] == "Kitchen" and names["0"] == "Room 0"
+
+
+async def test_cloud_history_is_kit_shaped(client):
+    response = await client.get(f"/v1/robots/{I5}/cloud-history", params={"limit": 5})
+    assert response.status_code == 200, response.text
+    missions = response.json()
+    assert len(missions) == 5
+    first = missions[0]
+    assert first["mission_ref"] == "01M6YA3MD0EKS3N4WT7JEG4CBE"
+    assert first["outcome"] == "manually_docked"
+    assert first["map"] == {"map_id": "FbKwAujERSazAALZRD_rEg", "version": "261108T205633"}
+    assert not {"missionId", "done", "pmaps_info", "timeline"} & set(first)
+
+
+async def test_coverage_is_not_yet_published_then_points(client, fake_cloud):
+    response = await client.get(f"/v1/robots/{I5}/missions/{RUNNING}/coverage")
+    assert unavailable(response) == "not_yet_published"
+
+    # The cloud publishes it minutes after docking.
+    record = copy.deepcopy(fake_cloud.history_by_robot[I5][1])
+    record["missionId"] = record["timeline"]["mission_id"] = RUNNING
+    fake_cloud.history_by_robot[I5].insert(0, record)
+    response = await client.get(f"/v1/robots/{I5}/missions/{RUNNING}/coverage")
+    assert response.status_code == 200, response.text
+    coverage = response.json()
+    assert coverage["mission_ref"] == RUNNING
+    assert (coverage["map_id"], coverage["map_version"]) == (
+        "iQpmRZnFReKgtSH8YpG4UA",
+        "260821T153709",
+    )
+    assert len(coverage["points"]) > 100 and coverage["point_area_m2"] > 0
+    assert coverage["dirt"] and coverage["clutter"]
+    assert all(len(p) == 2 for p in coverage["points"] + coverage["dirt"] + coverage["clutter"])
+
+
+async def test_cloud_down_cache_and_local_ops_unaffected(client, ctx, fake_cloud, factory):
+    plan = (await client.get(f"/v1/robots/{I5}/floor-plan")).json()
+    history = (await client.get(f"/v1/robots/{I5}/cloud-history")).json()
+    coverage = (await client.get(f"/v1/robots/{I5}/missions/{PUBLISHED}/coverage")).json()
+
+    await cloud_down(ctx, fake_cloud)
+    # Cached results are served with their original retrieval time (FR-043).
+    assert (await client.get(f"/v1/robots/{I5}/floor-plan")).json() == plan
+    assert (await client.get(f"/v1/robots/{I5}/cloud-history")).json() == history
+    cached = await client.get(f"/v1/robots/{I5}/missions/{PUBLISHED}/coverage")
+    assert cached.json() == coverage
+    # Nothing cached: cloud_unavailable with the reason (FR-042).
+    assert unavailable(await client.get(f"/v1/robots/{M6}/floor-plan")) == "connection_failed"
+    response = await client.get(f"/v1/robots/{I5}/missions/{RUNNING}/coverage")
+    assert unavailable(response) == "connection_failed"
+
+    # Local commands, state and events are unaffected and fast (Constitution I, SC-004).
+    state_events = collect(ctx, EventType.STATE_CHANGED)
+    factory.get(I5).emit({"batPct": 42})
+    await until(lambda: ctx.session(I5).state.battery_pct == 42)
+    await until(lambda: state_events)
+    started = time.monotonic()
+    result = await ctx.session(I5).execute("find")
+    assert result.outcome == "confirmed"
+    assert time.monotonic() - started < 0.5
+    response = await client.get(f"/v1/robots/{M6}/position")
+    assert response.status_code == 200
+
+
+async def test_a_hanging_cloud_never_delays_local_commands(client, ctx, fake_cloud):
+    fake_cloud.hang = True
+    pending = asyncio.create_task(client.get(f"/v1/robots/{I5}/floor-plan"))
+    await until(lambda: "pmaps (hanging)" in fake_cloud.calls)
+    started = time.monotonic()
+    assert (await ctx.session(I5).execute("find")).outcome == "confirmed"
+    assert time.monotonic() - started < 0.5
+    assert not pending.done()
+    assert unavailable(await pending) == "timeout"
