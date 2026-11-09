@@ -919,7 +919,7 @@ parallel. Each task:
   - Run every operation on every surface against fakes, including the error paths.
   - Capture logs, CLI output, HTTP bodies, MCP results and persisted events.
   - Assert that no canary appears.
-- [ ] T108 [P] Cloud-blocked test `tests/integration/test_cloud_blocked.py` (SC-004): with
+- [x] T108 [P] Cloud-blocked test `tests/integration/test_cloud_blocked.py` (SC-004): with
   FakeCloud raising on every call, run the US1, US2, US3 (local-name path), US5 and US8
   integration flows. All pass, and cloud ops return `cloud_unavailable`.
 - [ ] T109 [P] Timing test `tests/integration/test_timing.py`, using fake latency:
