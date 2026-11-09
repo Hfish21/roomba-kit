@@ -424,7 +424,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - `held_elsewhere` detection.
   - `not_supported` raised without a transport call.
   - FIFO ordering under concurrent `execute` calls.
-- [ ] T037 [P] Contract test `tests/contract/test_parity.py`:
+- [x] T037 [P] Contract test `tests/contract/test_parity.py`:
   - Every registry operation appears on HTTP (OpenAPI), MCP (tool list) and CLI (Click
     tree), with the same parameter names and result schema.
   - The only exclusions allowed are exactly `set_robot_password` and `cloud_login` (not MCP)
