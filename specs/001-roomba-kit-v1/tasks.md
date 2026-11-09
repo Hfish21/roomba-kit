@@ -258,7 +258,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     file, then defaults. Env-sourced values are never written back.
   - Defaults: `server.host=127.0.0.1`, `server.port=8765`, `alerts.dock_search_minutes=5`,
     `history.event_retention_days=30`.
-- [ ] T022 [P] Implement the three secrets modules:
+- [x] T022 [P] Implement the three secrets modules:
   - `src/roomba_kit/config/credentials.py`:
     - `credentials.toml` is created with mode 0600 and written atomically.
     - Refuse to load if the mode is broader than 0600, raising a message that includes
@@ -414,7 +414,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - A pause that lands 5 s late → `confirmed`.
   - A pause that never lands → `unconfirmed` with state.
   - `find` echo detection.
-- [ ] T035 [P] Unit tests in `tests/unit/test_config.py`:
+- [x] T035 [P] Unit tests in `tests/unit/test_config.py`:
   - Path resolution, and env precedence over file.
   - A mode-0644 credentials file is refused with the chmod hint.
   - The redact filter masks canary values.
