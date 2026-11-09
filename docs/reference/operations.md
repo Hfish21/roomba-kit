@@ -79,6 +79,29 @@ Type: `CloudStatus`
 | `reason` | str \| None | no |  |
 | `last_ok` | datetime \| None | no |  |
 
+## `get_position`
+
+Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.
+Supported on: braava_m6
+Verification: braava_m6: verified
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/position` |
+| MCP | tool `get_position` |
+| CLI | `roomba-kit position [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+
+**Result**
+
+Type: `PositionFix | NoFix`
+
+
 ## `token_create`
 
 Create an API token and show it once. The `cli` token is also saved for the CLI.
