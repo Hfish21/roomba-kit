@@ -123,6 +123,47 @@ Read the robot's settings: every setting its model supports, null when the robot
 Type: `dict[str, bool | int | str | None]`
 
 
+## `get_state`
+
+Get a robot's full live state: battery, activity, current mission, last command, error and not-ready codes with readable text, Wi-Fi signal, stored map, robot schedules, lifetime counters, settings, and the bin, Clean Base, pad, tank and lid where the model has them. `at` is when the robot last reported; while it's offline this is the last state it reported.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/state` |
+| MCP | tool `get_state` |
+| CLI | `roomba-kit state [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `RobotState`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `at` | datetime | yes |  |
+| `battery_pct` | int \| None | no |  |
+| `activity` | Activity | no |  |
+| `mission` | MissionRef \| None | no |  |
+| `last_command` | CommandEcho \| None | no |  |
+| `error` | CodeText \| None | no |  |
+| `not_ready` | CodeText \| None | no |  |
+| `signal` | Signal \| None | no |  |
+| `map` | MapRef \| None | no |  |
+| `schedules` | list[RobotSchedule] | no |  |
+| `counters` | Counters | no |  |
+| `bin` | BinState \| None | no |  |
+| `clean_base` | CleanBaseState \| None | no |  |
+| `pad` | PadState \| None | no |  |
+| `tank` | TankState \| None | no |  |
+| `lid_open` | bool \| None | no |  |
+| `settings` | object | no |  |
+
 ## `set_setting`
 
 Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.

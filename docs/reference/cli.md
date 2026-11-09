@@ -27,6 +27,7 @@ Commands:
   serve     Run the service in the foreground on `server.host`:`server.port`.
   service   Run the service in the background and manage it.
   settings
+  state     Get a robot's full live state: battery, activity, current mission, last...
   token     Create, list and revoke API tokens (local file ops).
   version   Print the kit version.
 ```
@@ -291,6 +292,24 @@ Usage: roomba-kit settings show [OPTIONS] ROBOT
 
   Parameters:
   - `robot`: str — Robot ID or name
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit state`
+
+```text
+Usage: roomba-kit state [OPTIONS] ROBOT
+
+  Get a robot's full live state: battery, activity, current mission, last command, error
+  and not-ready codes with readable text, Wi-Fi signal, stored map, robot schedules,
+  lifetime counters, settings, and the bin, Clean Base, pad, tank and lid where the
+  model has them. `at` is when the robot last reported; while it's offline this is the
+  last state it reported.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
 
 Options:
   -h, --help  Show this message and exit.
