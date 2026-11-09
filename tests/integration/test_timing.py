@@ -35,7 +35,7 @@ from roomba_kit.config.settings import RobotEntry, load_settings
 from roomba_kit.core.models import ConnectionState, DiscoveredRobot
 from roomba_kit.profiles.loader import load_profiles
 from roomba_kit.service.app import ServiceContext
-from roomba_kit.service.session import RobotSession
+from roomba_kit.service.session import BACKOFF_MAX_S, RobotSession
 from roomba_kit.transport.fake import FakeTransport, FakeTransportFactory
 from tests.integration.helpers import (
     FAST_BACKOFF,
@@ -223,15 +223,16 @@ async def outage(restore_after_failure: int, then_wait: float, *, rediscovery: b
         fake.restore()
         await connected.wait()
         assert session.connection is ConnectionState.CONNECTED
-        assert session.backoff_history[:8] == [1, 2, 4, 8, 16, 32, 60, 60]
+        assert session.backoff_history[:6] == [1, 2, 4, 8, 16, 32]
+        assert max(session.backoff_history) <= BACKOFF_MAX_S
         return loop.time() - back
     finally:
         await session.stop()
 
 
-# Restore points across two full 3-attempt cycles once backoff has reached its 60 s cap, at the
+# Restore points across two full 3-attempt cycles once backoff has reached its cap, at the
 # start, middle and very end of each wait.
-RESTORE_POINTS = [(k, wait) for k in range(7, 13) for wait in (0.0, 4.0, 30.0, 59.5)]
+RESTORE_POINTS = [(k, wait) for k in range(7, 13) for wait in (0.0, 4.0, 30.0, 49.5)]
 
 
 def test_sc006_backoff_alone_reconnects_within_60s(tmp_kit_home):
@@ -239,19 +240,19 @@ def test_sc006_backoff_alone_reconnects_within_60s(tmp_kit_home):
         return max([await outage(k, w, rediscovery=False) for k, w in RESTORE_POINTS])
 
     latency = run_virtual(worst)
-    assert 59.0 < latency <= 60.0  # the cap itself is the worst case
+    assert BACKOFF_MAX_S - 1 < latency <= BACKOFF_MAX_S  # the cap itself is the worst case
+    assert latency + 10 <= 60.0  # SC-006, with margin for a real TLS connect
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="FR-018 rediscovery: every 3rd failed connect runs an 8 s discovery broadcast before "
-    "the 60 s backoff, so a robot returning then waits 68 s (session._attempt).",
-)
 def test_sc006_reconnects_within_60s_with_rediscovery(tmp_kit_home):
+    """Regression: the 8 s rediscovery used to run before a full backoff pause (68 s)."""
+
     async def worst() -> float:
         return max([await outage(k, w, rediscovery=True) for k, w in RESTORE_POINTS])
 
-    assert run_virtual(worst) <= 60.0
+    latency = run_virtual(worst)
+    assert latency <= BACKOFF_MAX_S
+    assert latency + 10 <= 60.0  # SC-006, with margin for a real TLS connect
 
 
 # -- SC-009: service readiness ---------------------------------------------------------------
