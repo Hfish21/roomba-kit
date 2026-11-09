@@ -158,7 +158,8 @@ async def test_error_codes_carry_text(ctx: ServiceContext, factory: FakeTranspor
             "text": "Not ready yet (transient around docking and bin emptying)",
         }
         params = {"since": since, "types": ["error.raised"]}
-        page = (await client.get("/events", params=params)).json()
+        # State updates before the derived event is published; wait for the event itself.
+        page = (await client.get("/events/wait", params={**params, "timeout_s": 5})).json()
         assert [e["data"] for e in page["events"]] == [
             {
                 "kind": "not_ready",
