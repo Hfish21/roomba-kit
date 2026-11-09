@@ -14,11 +14,12 @@ are built and parsed only here; operations and surfaces see kit models.
 """
 
 import json
+import sqlite3
 from collections import Counter
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Literal
 
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.models import MapRef, RobotState, Room
@@ -30,6 +31,8 @@ from roomba_kit.service.store import Store, format_ts, parse_ts
 
 CACHE_KIND = "pmap"
 """`cloud_cache.kind` for an imported map: key is the map ID, json the cloud's map record."""
+
+Passes = Literal["auto", "one", "two"]
 
 
 @dataclass(frozen=True)
@@ -167,6 +170,49 @@ def _missing(session: RobotSession, rooms: RoomSet, ref: str) -> KitError:
     )
 
 
+# -- naming --------------------------------------------------------------------------------------
+
+
+async def name_room(store: Store, session: RobotSession, room_id: str, name: str) -> Room:
+    """Give a room on the current map a local name (works without the cloud)."""
+    require_map(session)
+    rooms = await room_set(store, session)
+    room = next((r for r in rooms.usable if r.room_id == room_id), None)
+    if room is None:
+        raise _missing(session, rooms, room_id)
+    name = name.strip()
+    if not name or name.isdigit():
+        raise KitError(
+            ErrorCode.INVALID_REQUEST,
+            "A room name must be non-empty and can't be only digits (those are room IDs).",
+            session.robot_id,
+        )
+    clash = [
+        r for r in rooms.usable if r.room_id != room_id and r.name.casefold() == name.casefold()
+    ]
+    if clash:
+        raise KitError(
+            ErrorCode.INVALID_REQUEST,
+            f"Room {clash[0].room_id} is already named {clash[0].name!r} on this map.",
+            session.robot_id,
+            {"conflict": _listing(clash)[0]},
+        )
+    try:
+        await store.execute(
+            "INSERT INTO rooms (robot_id, map_id, map_version, room_id, local_name)"
+            " VALUES (?, ?, ?, ?, ?) ON CONFLICT (robot_id, map_id, map_version, room_id)"
+            " DO UPDATE SET local_name = excluded.local_name",
+            (room.robot_id, room.map_id, room.map_version, room.room_id, name),
+        )
+    except sqlite3.IntegrityError:
+        raise KitError(
+            ErrorCode.INVALID_REQUEST,
+            f"Another room on this map version is already named {name!r}.",
+            session.robot_id,
+        ) from None
+    return room.model_copy(update={"local_name": name})
+
+
 # -- cloud import --------------------------------------------------------------------------------
 
 
@@ -271,6 +317,48 @@ async def import_rooms(ctx: ServiceContext, session: RobotSession) -> tuple[int,
             (rid, CACHE_KIND, ref.map_id, json.dumps(record), format_ts(datetime.now(UTC))),
         )
     return len(regions), ref
+
+
+# -- room clean ----------------------------------------------------------------------------------
+
+
+def _region_params(passes: Passes) -> dict[str, bool]:
+    return {"noAutoPasses": passes != "auto", "twoPass": passes == "two"}
+
+
+async def clean_params(
+    store: Store,
+    session: RobotSession,
+    rooms: list[Room],
+    *,
+    ordered: bool,
+    passes: Mapping[str, Passes] | None = None,
+) -> dict[str, Any]:
+    """The protocol params of a room clean, each room once. `passes` is keyed by room ID."""
+    rooms = list({room.room_id: room for room in rooms}.values())
+    if not rooms:  # the robot would treat an empty list as the whole home
+        raise KitError(ErrorCode.INVALID_REQUEST, "No rooms given.", session.robot_id)
+    current = require_map(session)
+    record, _ = await cached_map(store, session.robot_id, current.map_id)
+    echo = session.state.last_command
+    if record.get("active_pmapv_id") == current.version and record.get("user_pmapv_id"):
+        user_version = str(record["user_pmapv_id"])
+    elif echo is not None and echo.map_id == current.map_id and echo.map_version:
+        user_version = echo.map_version
+    else:
+        user_version = current.version
+    regions = []
+    for room in rooms:
+        region: dict[str, Any] = {"region_id": room.room_id, "type": "rid"}
+        if passes and room.room_id in passes:
+            region["params"] = _region_params(passes[room.room_id])
+        regions.append(region)
+    return {
+        "pmap_id": current.map_id,
+        "user_pmapv_id": user_version,
+        "ordered": 1 if ordered else 0,
+        "regions": regions,
+    }
 
 
 # -- learned rooms (FR-032) ----------------------------------------------------------------------

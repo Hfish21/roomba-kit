@@ -87,6 +87,14 @@ async def client(ctx, with_cloud) -> AsyncIterator[httpx.AsyncClient]:
             yield c
 
 
+async def clean(client: httpx.AsyncClient, robot: str, **body) -> httpx.Response:
+    return await client.post(f"/v1/robots/{robot}/commands/clean_rooms", json=body)
+
+
+def start_commands(factory: FakeTransportFactory, robot: str) -> list[dict | None]:
+    return [params for name, params in factory.get(robot).sent_commands if name == "start"]
+
+
 async def test_import_lists_rooms_with_placeholders_for_unnamed_ones(client):
     imported = await client.post(f"/v1/robots/{I5}/rooms/import")
     assert imported.status_code == 200, imported.text
@@ -111,6 +119,40 @@ async def test_import_lists_rooms_with_placeholders_for_unnamed_ones(client):
     assert mop["rooms"][0]["cloud_name"] is None
 
 
+async def test_clean_rooms_by_name_sends_regions_in_order(client, factory):
+    await client.post(f"/v1/robots/{I5}/rooms/import")
+    response = await clean(client, "Vacuum", rooms=["Laundry Room", "office", "1"])
+    assert response.status_code == 200, response.text
+    assert response.json()["outcome"] == "confirmed"
+    assert start_commands(factory, I5)[-1] == {
+        "pmap_id": I5_MAP,
+        "user_pmapv_id": I5_VERSION,
+        "ordered": 1,
+        "regions": rid("7", "4", "1"),
+    }
+
+    await clean(client, I5, rooms=["Den"], ordered=False)
+    assert start_commands(factory, I5)[-1]["ordered"] == 0
+
+
+async def test_an_empty_room_list_is_rejected_before_anything_is_sent(client, factory):
+    await client.post(f"/v1/robots/{I5}/rooms/import")
+    response = await clean(client, I5, rooms=[])
+    assert response.status_code == 400
+    assert response.json()["error"]["code"] == "invalid_request"
+    assert start_commands(factory, I5) == []
+
+
+async def test_an_unknown_room_lists_the_valid_ones(client, factory):
+    await client.post(f"/v1/robots/{I5}/rooms/import")
+    response = await clean(client, I5, rooms=["Laundry Room", "Nowhere"])
+    assert response.status_code == 404
+    error = response.json()["error"]
+    assert error["code"] == "room_not_found"
+    assert {"id": "7", "name": "Laundry Room"} in error["details"]["valid"]
+    assert start_commands(factory, I5) == []
+
+
 async def test_a_changed_map_version_marks_stored_rooms_stale(client, ctx, factory):
     await client.post(f"/v1/robots/{I5}/rooms/import")
     factory.get(I5).emit({"pmaps": [{I5_MAP: "261201T090000"}]})
@@ -121,6 +163,22 @@ async def test_a_changed_map_version_marks_stored_rooms_stale(client, ctx, facto
     assert {r["map_version"] for r in listed["rooms"]} == {I5_VERSION}  # nothing learned since
 
 
+async def test_a_changed_map_version_refuses_stale_names(client, ctx, factory):
+    await client.post(f"/v1/robots/{I5}/rooms/import")
+    factory.get(I5).emit({"pmaps": [{I5_MAP: "261201T090000"}]})
+    await until(lambda: ctx.sessions[I5].state.map.version == "261201T090000")
+
+    response = await clean(client, I5, rooms=["Laundry Room"])
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "map_changed"
+    assert start_commands(factory, I5) == []
+
+    factory.get(I5).emit({"pmaps": []})
+    await until(lambda: ctx.sessions[I5].state.map is None)
+    response = await clean(client, I5, rooms=["Laundry Room"])
+    assert response.json()["error"]["code"] == "no_map"
+
+
 async def test_imported_rooms_stay_usable_while_the_cloud_is_down(client, fake_cloud, factory):
     await client.post(f"/v1/robots/{I5}/rooms/import")
     fake_cloud.fail_everything = True
@@ -128,10 +186,11 @@ async def test_imported_rooms_stay_usable_while_the_cloud_is_down(client, fake_c
     assert failed.json()["error"]["code"] == "cloud_unavailable"
     listed = (await client.get(f"/v1/robots/{I5}/rooms")).json()
     assert len(listed["rooms"]) == 7 and listed["retrieved_at"]
+    assert (await clean(client, I5, rooms=["Laundry Room"])).status_code == 200
 
 
 @pytest.mark.parametrize("with_cloud", [False])
-async def test_learned_rooms_are_captured_and_named_without_the_cloud(client, factory):
+async def test_learned_rooms_are_captured_and_named_without_the_cloud(client, ctx, factory):
     imported = await client.post(f"/v1/robots/{I5}/rooms/import")
     assert imported.json()["error"]["code"] == "cloud_unavailable"
 
@@ -158,3 +217,19 @@ async def test_learned_rooms_are_captured_and_named_without_the_cloud(client, fa
         while {"3", "6"} - await learned():
             await asyncio.sleep(0.01)
     assert "7" in await learned()  # from the room clean already echoed at startup
+
+    named = await client.put(f"/v1/robots/{I5}/rooms/3", json={"name": "Den"})
+    assert named.status_code == 200, named.text
+    assert named.json()["name"] == "Den" and named.json()["local_name"] == "Den"
+
+    response = await clean(client, I5, rooms=["den", "6"])
+    assert response.status_code == 200, response.text
+    sent = start_commands(factory, I5)[-1]
+    assert sent["regions"] == rid("3", "6") and sent["pmap_id"] == I5_MAP
+
+    # Learned IDs belong to the map version they were seen on, like imported ones.
+    factory.get(I5).emit({"pmaps": [{I5_MAP: "261201T090000"}]})
+    await until(lambda: ctx.sessions[I5].state.map.version == "261201T090000")
+    for ref in ("den", "6"):
+        response = await clean(client, I5, rooms=[ref])
+        assert response.json()["error"]["code"] == "map_changed"
