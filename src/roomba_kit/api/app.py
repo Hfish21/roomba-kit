@@ -1,5 +1,7 @@
 """The HTTP API: a FastAPI app generated from the registry, with the MCP server at `/mcp`."""
 
+import importlib
+import pkgutil
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
@@ -10,6 +12,7 @@ from starlette.exceptions import HTTPException
 from starlette.routing import Route
 from starlette.types import ASGIApp, Receive, Scope, Send
 
+import roomba_kit.api
 from roomba_kit.api.generate import (
     API_PREFIX,
     Presenter,
@@ -63,6 +66,8 @@ async def _validation_error(request: Request, exc: Exception) -> JSONResponse:
 def create_app(ctx: ServiceContext | None = None) -> FastAPI:
     """The service's ASGI app. Its lifespan starts and stops `ctx` (built here if not given)."""
     load_operations()
+    for info in pkgutil.iter_modules(roomba_kit.api.__path__):  # e.g. api/sse.py self-registers
+        importlib.import_module(f"roomba_kit.api.{info.name}")
     context = ctx if ctx is not None else ServiceContext()
     mcp_app = build_mcp(in_process(context)).http_app(transport="http", path=MCP_PATH)
 
