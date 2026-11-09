@@ -28,7 +28,7 @@ from roomba_kit.service.operations.setup import PASSWORD_STEPS
 RETRIEVE_TIMEOUT_S = 60
 VPN_HINT = (
     "Nothing answered. If a VPN is on, it may own the network route: broadcast to your own "
-    "subnet instead (e.g. 192.168.1.255), or give the robot's IP address (your router's client "
+    "subnet instead (e.g. 192.0.2.255), or give the robot's IP address (your router's client "
     "list shows it)."
 )
 CLOUD_PITCH = """\

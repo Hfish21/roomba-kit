@@ -142,7 +142,7 @@ def test_empty_discovery_explains_vpn_and_adds_by_ip(tmp_kit_home):
     keys = ["192.0.2.10", "", "n"]  # the robot's IP, it's on its dock, no account
     result = run(service, keys)
     assert result.exit_code == 0, result.output
-    assert "VPN" in result.output and "192.168.1.255" in result.output
+    assert "VPN" in result.output and "192.0.2.255" in result.output
     assert service.calls[1:4] == [
         ("discover_robots", {}),
         ("discover_robots", {"broadcast": "192.0.2.10"}),
