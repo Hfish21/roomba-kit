@@ -355,7 +355,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
       2. Otherwise send the command and confirm it.
   - `apply_settings(...)` hook (used by US5).
   - Depends on T016, T024–T026.
-- [ ] T028 Implement `src/roomba_kit/service/app.py` `ServiceContext`:
+- [x] T028 Implement `src/roomba_kit/service/app.py` `ServiceContext`:
   - Loads settings, credentials, profiles, store and eventbus.
   - Creates a `RobotSession` per configured robot.
   - Exposes `cloud` (`CloudManager` interface, status `not_configured` until US1 T042).
