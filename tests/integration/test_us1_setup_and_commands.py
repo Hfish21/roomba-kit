@@ -1,7 +1,8 @@
 """US1 end to end over the real HTTP API, against fake robots and a fake cloud (T040).
 
-Covers: inventory with supported and unsupported models, every whole-home command confirmed,
-capability and model errors, cloud declined, and that no password ever appears in a response.
+Covers: discovery (supported and unsupported models), adding by address, local password
+retrieval (stored, and cloud_only), inventory, every whole-home command confirmed, capability and
+model errors, cloud declined, and that no password ever appears in a response.
 """
 
 import asyncio
@@ -15,7 +16,10 @@ import pytest
 from roomba_kit.api.app import create_app
 from roomba_kit.config.credentials import CredentialStore
 from roomba_kit.config.settings import RobotEntry, load_settings
+from roomba_kit.core.models import DiscoveredRobot
+from roomba_kit.profiles.loader import match_profile
 from roomba_kit.service.app import ServiceContext
+from roomba_kit.service.operations import setup
 from roomba_kit.transport.fake import FakeCloud, FakePasswordRetriever, FakeTransportFactory
 from tests.unit.test_api import running
 
@@ -24,6 +28,32 @@ I5 = "00000000000000000000000000000001"
 M6 = "00000000000000000000000000000002"
 ODD = "00000000000000000000000000000003"
 SECRETS = ("i5-local-secret", "m6-local-secret", "account-secret")
+ON_LAN = [
+    (I5, "Vacuum", "i5G5020", "192.0.2.10"),
+    (M6, "Mop", "m611020", "192.0.2.11"),
+    (ODD, "Mystery", "x900020", "192.0.2.12"),
+]
+
+
+def lan_robot(rid: str, name: str, sku: str, address: str) -> DiscoveredRobot:
+    profile = match_profile(sku)
+    return DiscoveredRobot(
+        id=rid,
+        name=name,
+        sku=sku,
+        firmware="fw+1.0",
+        address=address,
+        supported=profile is not None,
+        profile_id=profile.id if profile else None,
+    )
+
+
+async def discover(broadcast: str, timeout_s: float) -> list[DiscoveredRobot]:
+    return [lan_robot(*r) for r in ON_LAN]
+
+
+async def probe(address: str, timeout_s: float) -> DiscoveredRobot | None:
+    return next((lan_robot(*r) for r in ON_LAN if r[3] == address), None)
 
 
 @pytest.fixture
@@ -43,6 +73,8 @@ async def ctx(tmp_kit_home, factory, retriever) -> ServiceContext:
         transport_factory=factory,
         password_retriever=retriever,
         cloud_factory=lambda username, password, country: FakeCloud(),
+        discover=discover,
+        probe=probe,
         session_options={"backoff_min": 0.01, "backoff_max": 0.02},
     )
 
@@ -183,3 +215,53 @@ async def test_health_needs_no_token_and_config_show_redacts(api, configured):
     assert passwords == {I5: "***", M6: "***", ODD: None}
     assert shown["tokens"] == [{"name": "cli", "created_at": shown["tokens"][0]["created_at"]}]
     assert "sha256" not in str(shown) and "someone@example.com" not in str(shown)
+
+
+async def test_setup_from_zero(api, factory, monkeypatch):
+    monkeypatch.setattr(setup, "RETRY_S", 0.01)
+    found = {r["id"]: r for r in (await api("GET", "/discover_robots")).json()}
+    assert {rid: r["supported"] for rid, r in found.items()} == {I5: True, M6: True, ODD: False}
+    assert found[I5]["profile_id"] == "roomba_i5" and not found[I5]["configured"]
+    assert found[ODD]["profile_id"] is None and found[ODD]["sku"] == "x900020"
+    bad = await api("GET", "/discover_robots", params={"broadcast": "not-an-ip"})
+    assert bad.status_code == 400
+
+    added = await api("POST", "/robots", json={"address": "192.0.2.10"})
+    assert added.json()["id"] == I5 and added.json()["configured"] is True
+    nobody = await api("POST", "/robots", json={"address": "192.0.2.99"})
+    assert nobody.json()["error"]["code"] == "robot_offline"
+
+    pairing = await api("POST", "/robots/Vacuum/password/retrieve", json={"timeout_s": 5})
+    assert pairing.json() == {"outcome": "stored", "steps": setup.PASSWORD_STEPS}
+    assert CredentialStore().robot_password(I5) == SECRETS[0]
+    await wait_connected(api, I5)
+    assert factory.get(I5).password == SECRETS[0]
+    assert (await api("POST", f"/robots/{I5}/commands/clean")).json()["outcome"] == "confirmed"
+    found = {r["id"]: r for r in (await api("GET", "/discover_robots")).json()}
+    assert found[I5]["configured"] and not found[M6]["configured"]
+
+
+async def test_robot_that_wont_release_its_password_is_cloud_only(api, retriever, monkeypatch):
+    monkeypatch.setattr(setup, "RETRY_S", 0.01)
+    del retriever.passwords["192.0.2.11"]
+    await api("POST", "/robots", json={"address": "192.0.2.11"})
+    pairing = await api("POST", f"/robots/{M6}/password/retrieve", json={"timeout_s": 0.2})
+    assert pairing.json()["outcome"] == "cloud_only"
+    assert len(retriever.calls) > 1  # retried through the window, not given up at once
+    assert CredentialStore().robot_password(M6) is None
+
+
+async def test_unanswered_retrieval_times_out(api, retriever, monkeypatch):
+    monkeypatch.setattr(setup, "RETRY_S", 0.01)
+    retriever.delay = 1.0
+    await api("POST", "/robots", json={"address": "192.0.2.10"})
+    pairing = await api("POST", f"/robots/{I5}/password/retrieve", json={"timeout_s": 0.1})
+    assert pairing.json()["outcome"] == "timeout"
+
+
+async def test_remove_robot(api, configured):
+    assert (await api("DELETE", "/robots/Mop")).json() == {"removed": True}
+    assert {r["id"] for r in (await api("GET", "/robots")).json()} == {I5, ODD}
+    assert CredentialStore().robot_password(M6) is None
+    assert CredentialStore().robot_password(I5) == SECRETS[0]
+    assert (await api("DELETE", "/robots/Mop")).json() == {"removed": False}
