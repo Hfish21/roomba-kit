@@ -6,6 +6,7 @@ A write publishes the setting's whole protocol `group` at once, inside the robot
 """
 
 import asyncio
+from collections.abc import Callable
 from typing import Any
 
 from roomba_kit.core.capabilities import Capability
@@ -92,34 +93,53 @@ def read_settings(session: RobotSession) -> dict[str, Any]:
     return {name: m.read(session.reported) for name, m in session.profile.settings.items()}
 
 
+async def publish_confirmed(
+    session: RobotSession,
+    values: dict[str, Any],
+    holds: Callable[[dict[str, Any]], bool],
+    timeout_s: float | None = None,
+) -> bool:
+    """Publish protocol keys and wait for a fresh report where `holds(reported)`.
+
+    Runs inline: callers that need FIFO ordering (FR-030) call it inside `session.submit`.
+    A value the robot already held may never be echoed; it still reads back correctly.
+    """
+    session.require_link()
+    seq = session.change_seq
+    await session.publish_settings(values)
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + (CONFIRM_TIMEOUT_S if timeout_s is None else timeout_s)
+    while (left := deadline - loop.time()) > 0:
+        await session.wait_change(seq, left)
+        if session.change_seq > seq:
+            seq = session.change_seq
+            if holds(session.reported):
+                break
+    return holds(session.reported)
+
+
+async def write_setting(
+    session: RobotSession, setting: str, value: Any, timeout_s: float | None = None
+) -> SettingChange:
+    """Write one logical setting inline (no queueing) and report its read-back."""
+    mapping = mapping_for(session, setting)
+    wanted = coerce(setting, value)
+    applied = await publish_confirmed(
+        session, mapping.write(wanted), lambda r: mapping.confirm(r, wanted), timeout_s
+    )
+    return SettingChange(
+        robot_id=session.robot_id,
+        setting=setting,
+        requested=wanted,
+        outcome="applied" if applied else "not_applied",
+        actual=mapping.read(session.reported),
+    )
+
+
 async def change_setting(
     session: RobotSession, setting: str, value: Any, timeout_s: float | None = None
 ) -> SettingChange:
-    """Write one logical setting and confirm it by read-back (FR-034, FR-035)."""
-    mapping = mapping_for(session, setting)
-    wanted = coerce(setting, value)
-    window = CONFIRM_TIMEOUT_S if timeout_s is None else timeout_s
-
-    async def run() -> SettingChange:
-        session.require_link()
-        seq = session.change_seq
-        await session.publish_settings(mapping.write(wanted))
-        loop = asyncio.get_running_loop()
-        deadline = loop.time() + window
-        while (left := deadline - loop.time()) > 0:
-            await session.wait_change(seq, left)
-            if session.change_seq > seq:
-                seq = session.change_seq
-                if mapping.confirm(session.reported, wanted):
-                    break
-        # A value the robot already held may never be echoed; it still reads back correctly.
-        applied = mapping.confirm(session.reported, wanted)
-        return SettingChange(
-            robot_id=session.robot_id,
-            setting=setting,
-            requested=wanted,
-            outcome="applied" if applied else "not_applied",
-            actual=mapping.read(session.reported),
-        )
-
-    return await session.submit(run)
+    """Write one logical setting in the robot's FIFO queue, confirmed by read-back (FR-034)."""
+    mapping_for(session, setting)
+    coerce(setting, value)  # validate before queueing: errors never wait behind commands
+    return await session.submit(lambda: write_setting(session, setting, value, timeout_s))
