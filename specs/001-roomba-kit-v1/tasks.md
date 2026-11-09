@@ -668,12 +668,12 @@ unverified capabilities.
 
 **Independent Test**: quickstart V5, or `tests/integration/test_us5_settings.py`.
 
-- [ ] T069 [P] [US5] Integration test `tests/integration/test_us5_settings.py`:
+- [x] T069 [P] [US5] Integration test `tests/integration/test_us5_settings.py`:
   - `passes=two` writes both keys together.
   - A read-back mismatch → `not_applied` with `actual`.
   - `pad_wetness` on i5 → `not_supported`.
   - `schedule_hold` round trip.
-- [ ] T070 [P] [US5] Fill `settings` in `src/roomba_kit/profiles/roomba_i5.py`:
+- [x] T070 [P] [US5] Fill `settings` in `src/roomba_kit/profiles/roomba_i5.py`:
   - `passes`: write `noAutoPasses` and `twoPass` together.
 
     | Value | `noAutoPasses` | `twoPass` |
@@ -688,17 +688,17 @@ unverified capabilities.
   - `eco_charge` = `ecoCharge`.
   - `schedule_hold` = `schedHold`.
   - No `carpet_boost`: the i5 drops `carpetBoost`/`vacHigh` writes.
-- [ ] T071 [P] [US5] Fill `settings` in `src/roomba_kit/profiles/braava_m6.py`:
+- [x] T071 [P] [US5] Fill `settings` in `src/roomba_kit/profiles/braava_m6.py`:
   - `passes`, `edge_clean`, `child_lock`, `eco_charge`, `schedule_hold`: same mappings as T070.
   - `pad_wetness` (1–3) → `padWetness {"disposable": v, "reusable": v}`.
   - `spray_overlap` → `rankOverlap`: `standard`=67, `deep`=85, `extended`=25.
-- [ ] T072 [US5] Implement `src/roomba_kit/service/settings.py`:
+- [x] T072 [US5] Implement `src/roomba_kit/service/settings.py`:
   - Read via `SettingMapping.read`.
   - Write the full `group` in one publish.
   - Wait up to 10 s for `confirm`, then return `SettingChange` `applied`, or `not_applied`
     with the actual value.
   - Route through the session's command queue for ordering.
-- [ ] T073 [US5] Implement `src/roomba_kit/service/operations/settings.py`: `get_settings(robot)`
+- [x] T073 [US5] Implement `src/roomba_kit/service/operations/settings.py`: `get_settings(robot)`
   and `set_setting(robot, setting, value)`, validating values per `contracts/operations.md`.
 - [ ] T074 [US5] Implement the `verify` operation in `src/roomba_kit/service/verify.py` and
   `src/roomba_kit/service/operations/verify.py`:
