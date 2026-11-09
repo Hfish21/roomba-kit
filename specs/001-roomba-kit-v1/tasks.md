@@ -101,18 +101,18 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Core types
 
-- [ ] T008 [P] Implement `src/roomba_kit/core/errors.py`:
+- [x] T008 [P] Implement `src/roomba_kit/core/errors.py`:
   - `ErrorCode` StrEnum with exactly the codes in `contracts/errors.md`.
   - `KitError(code, message, robot_id=None, details=None)`.
   - `HTTP_STATUS` and `CLI_EXIT` dicts copied verbatim from that table
     (e.g. `not_supported → 422 / 5`, `service_unavailable → exit 69`).
-- [ ] T009 [P] Implement `src/roomba_kit/core/capabilities.py`:
+- [x] T009 [P] Implement `src/roomba_kit/core/capabilities.py`:
   - `Capability` StrEnum with exactly the values listed under "Capability (enum, V1)" in
     `data-model.md` (e.g. `clean_rooms`, `setting.pad_wetness`, `live_position`,
     `cloud.timeline`).
   - `Verification` (`verified(run: str)` / `unverified()`).
   - `CapabilityStatus` model.
-- [ ] T010 [P] Implement `src/roomba_kit/core/models.py`, the pydantic v2 models in
+- [x] T010 [P] Implement `src/roomba_kit/core/models.py`, the pydantic v2 models in
   `data-model.md` (no transport types):
   - `Robot`
   - `ConnectionState` (values `connected`, `connecting`, `offline`, `held_elsewhere`,
@@ -131,7 +131,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - `ActivityTransition`, `PositionFix`, `CoverageRecord`
   - `DiscoveredRobot` (`id`, `name`, `sku`, `firmware`, `address`, `supported`,
     `profile_id`, `configured`)
-- [ ] T011 [P] Implement `src/roomba_kit/core/events.py`:
+- [x] T011 [P] Implement `src/roomba_kit/core/events.py`:
   - An `Event` envelope `{schema: "roomba-kit.event/v1", seq, type, robot_id, at, data}`.
   - An `EventType` StrEnum with exactly the types in `contracts/events.md`.
   - Typed `data` models per type.
