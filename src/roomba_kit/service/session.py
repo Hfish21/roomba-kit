@@ -249,13 +249,15 @@ class RobotSession:
             raise KitError(ErrorCode.INVALID_REQUEST, f"Unknown command: {command}", self.robot_id)
         profile = self.require(Capability(command))
 
-        async def send(name: str, args: dict[str, Any] | None) -> CommandResult:
+        async def send(
+            name: str, args: dict[str, Any] | None, detect: bool = True
+        ) -> CommandResult:
             transport = self.require_link()
             spec = spec_for(name, profile)
             before, sent_at, heard = self._state, _now(), self._fragment_count
             await transport.send_command(profile.protocol_command(name), args)
             result = await await_confirmation(self, name, spec, before=before, sent_at=sent_at)
-            if result.outcome == "unconfirmed" and self._fragment_count == heard:
+            if detect and result.outcome == "unconfirmed" and self._fragment_count == heard:
                 # Not even an echo: the link is up but dead (HW-1: an i5's link kept
                 # "connected" while delivering nothing). Reconnect for a fresh one.
                 log.warning("robot %s: no reaction at all to %s; reconnecting", self.robot_id, name)
@@ -266,7 +268,7 @@ class RobotSession:
         async def run() -> CommandResult:
             cleaning = self._state is not None and self._state.activity is Activity.CLEANING
             if command == "dock" and profile.dock_needs_pause and cleaning:
-                await send("pause", None)
+                await send("pause", None, detect=False)  # the dock's outcome decides
             return await send(command, params)
 
         return await self.submit(run)

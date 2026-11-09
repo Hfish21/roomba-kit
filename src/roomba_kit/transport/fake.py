@@ -197,6 +197,8 @@ class FakeTransport:
             self.emit(self._status(phase="stop"))
         elif name == "resume":
             self.emit(self._status(phase="run"))
+        elif name == "stop":
+            self.emit(self._status(cycle="none", phase="stop"))
         elif name == "dock":
             self.emit(self._status(phase="hmUsrDock"))
             await asyncio.sleep(self.dock_delay)
