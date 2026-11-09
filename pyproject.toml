@@ -1,0 +1,85 @@
+[project]
+name = "roomba-kit"
+version = "0.1.0"
+description = "Local-first control kit for iRobot Roomba i5/i5+ and Braava jet m6: one service, exposed through a CLI, an HTTP API and an MCP server."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Hayden Salmon" }]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.162",
+    "uvicorn>=0.54",
+    "fastmcp>=4.1,<5",
+    "click>=8.5",
+    "pydantic>=2.14",
+    "pydantic-settings",
+    "httpx",
+    "aiosqlite>=0.22",
+    "sse-starlette>=3.7",
+    "roombapy==2.0.2",
+    "roombapy-prime==0.8.3",
+]
+
+[project.scripts]
+roomba-kit = "roomba_kit.cli.main:cli"
+
+[project.entry-points."roomba_kit.profiles"]
+roomba_i5 = "roomba_kit.profiles.roomba_i5:PROFILE"
+braava_m6 = "roomba_kit.profiles.braava_m6:PROFILE"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-asyncio",
+    "ruff",
+    "mypy",
+    "import-linter",
+    "mkdocs-material",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/roomba_kit"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+src = ["src", "tests", "scripts"]
+extend-exclude = [".specify"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "S"]
+
+[tool.ruff.lint.per-file-ignores]
+# Tests assert, use fixed fake secrets and temp paths by design.
+"tests/**" = ["S101", "S105", "S106", "S108"]
+
+[tool.mypy]
+python_version = "3.13"
+files = ["src"]
+mypy_path = "src"
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+check_untyped_defs = true
+
+[[tool.mypy.overrides]]
+module = ["roomba_kit.core.*", "roomba_kit.service.*", "roomba_kit.profiles.*"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = ["roombapy.*", "roombapy_prime.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["tests"]
+markers = [
+    "hardware: needs a real robot; opt in with --robot",
+    "slow: slow test",
+]
