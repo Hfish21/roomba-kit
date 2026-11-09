@@ -134,10 +134,30 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  logs    Show the background service's log.
-  start   Start the service in the background.
-  status  Show the pid, health and `service_status`.
-  stop    Stop the background service.
+  install    Start the service automatically: a launchd agent on macOS, a systemd...
+  logs       Show the background service's log.
+  start      Start the service in the background.
+  status     Show the pid, health and `service_status`.
+  stop       Stop the background service.
+  uninstall  Stop the installed service and remove it, so it no longer starts...
+```
+
+## `roomba-kit service install`
+
+```text
+Usage: roomba-kit service install [OPTIONS]
+
+  Start the service automatically: a launchd agent on macOS, a systemd user unit on
+  Linux.
+
+  It runs `serve` with this Python and pins the current config and state dirs. Logs go
+  to `<state>/service.log`. Exits 69 if it's installed but not healthy within the
+  timeout.
+
+Options:
+  --print          Print the unit; install nothing.
+  --timeout FLOAT  Seconds to wait for health.  [default: 10.0]
+  -h, --help       Show this message and exit.
 ```
 
 ## `roomba-kit service logs`
@@ -192,6 +212,17 @@ Usage: roomba-kit service stop [OPTIONS]
 Options:
   --timeout FLOAT  Seconds before SIGKILL.  [default: 10.0]
   -h, --help       Show this message and exit.
+```
+
+## `roomba-kit service uninstall`
+
+```text
+Usage: roomba-kit service uninstall [OPTIONS]
+
+  Stop the installed service and remove it, so it no longer starts automatically.
+
+Options:
+  -h, --help  Show this message and exit.
 ```
 
 ## `roomba-kit token`
