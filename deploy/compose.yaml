@@ -1,0 +1,24 @@
+# Always-on Linux host (docs/deployment.md). From the repo root:
+#   docker compose -f deploy/compose.yaml up -d
+name: roomba-kit
+services:
+  roomba-kit:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    image: roomba-kit:local
+    # Required: robot discovery is UDP broadcast on the LAN. `ports:` has no effect in this mode;
+    # the service listens on the host's port 8765 (ROOMBA_KIT_SERVER__PORT to change it).
+    network_mode: host
+    restart: unless-stopped
+    # Secrets and overrides as ROOMBA_KIT_* variables (gitignored: *.env). Optional.
+    env_file:
+      - path: roomba-kit.env
+        required: false
+    volumes:
+      - config:/config # config.toml (robots), credentials.toml (tokens, passwords)
+      - state:/state # state.db, service.log
+
+volumes:
+  config:
+  state:

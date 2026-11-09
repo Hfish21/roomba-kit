@@ -817,7 +817,7 @@ unverified capabilities.
   - A `systemd --user` unit with `Restart=on-failure`.
   - `install` runs `daemon-reload` and `enable --now`, and tells the user about
     `loginctl enable-linger` for boot without login.
-- [ ] T091 [P] [US9] Create the container files:
+- [x] T091 [P] [US9] Create the container files:
   - `deploy/Dockerfile`:
     - `python:3.13-slim` base with `uv sync --frozen --no-dev`.
     - Runs as a non-root user.
@@ -830,7 +830,7 @@ unverified capabilities.
   `src/roomba_kit/cli/lifecycle.py`, dispatching to launchd on macOS and systemd on Linux.
 - [x] T093 [P] [US9] Unit test `tests/unit/test_lifecycle_templates.py`: rendered plist and unit
   contents (paths, `KeepAlive`, `Restart`).
-- [ ] T094 [P] [US9] Write `docs/deployment.md`, covering:
+- [x] T094 [P] [US9] Write `docs/deployment.md`, covering:
   - a Linux always-on host;
   - the container (host networking; Docker Desktop on macOS can't discover, so add robots by
     IP);
