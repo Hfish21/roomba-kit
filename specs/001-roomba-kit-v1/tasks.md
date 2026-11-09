@@ -291,7 +291,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Service core
 
-- [ ] T025 [P] Implement `src/roomba_kit/service/normalize.py`, mapping a merged raw
+- [x] T025 [P] Implement `src/roomba_kit/service/normalize.py`, mapping a merged raw
   `state.reported` dict to `RobotState`:
   - **Activity mapping** (exactly research R8):
     - `phase=charge, cycle=none` → `docked`, or `charging` if `batPct<100`
@@ -408,7 +408,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Foundational tests & docs tooling
 
-- [ ] T033 [P] Unit tests in `tests/unit/test_normalize.py`. Feed fixtures plus synthetic
+- [x] T033 [P] Unit tests in `tests/unit/test_normalize.py`. Feed fixtures plus synthetic
   phase/cycle combos covering every R8 row, including `hmPostMsn` → `returning` and `evac`.
 - [ ] T034 [P] Unit tests in `tests/unit/test_confirm.py`:
   - A pause that lands 5 s late → `confirmed`.
