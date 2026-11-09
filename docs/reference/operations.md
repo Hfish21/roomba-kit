@@ -4,6 +4,81 @@
 
 Every capability, as it appears on HTTP, MCP and the CLI.
 
+## `cloud_login`
+
+Add or change the iRobot account login. It's checked by logging in and saved only if that works. Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and password retrieval; local control never needs it.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/cloud_login` |
+| MCP | not on MCP |
+| CLI | `roomba-kit cloud login [OPTIONS]` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `username` | str | yes |  | iRobot account email |
+| `password` | str | yes |  | iRobot account password. The CLI prompts for it; it is never echoed, returned or logged. |
+| `country` | str | no | "US" | The account's country code, e.g. US, GB, DE |
+
+**Result**
+
+Type: `CloudLoginResult`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `status` | "connected" \| "failed" | yes |  |
+| `reason` | str \| None | no | Why it failed: `auth_failed`, `timeout`, `connection_failed`, … |
+
+## `cloud_logout`
+
+Remove the stored iRobot account login and disconnect from the cloud. Credentials supplied by environment variables still apply.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/cloud_logout` |
+| MCP | tool `cloud_logout` |
+| CLI | `roomba-kit cloud logout [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `CloudStatus`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `status` | "connected" \| "unavailable" \| "not_configured" | yes |  |
+| `reason` | str \| None | no |  |
+| `last_ok` | datetime \| None | no |  |
+
+## `cloud_status`
+
+The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and when it last worked.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/cloud_status` |
+| MCP | tool `cloud_status` |
+| CLI | `roomba-kit cloud status [OPTIONS]` |
+
+**Parameters**
+
+_No fields._
+
+**Result**
+
+Type: `CloudStatus`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `status` | "connected" \| "unavailable" \| "not_configured" | yes |  |
+| `reason` | str \| None | no |  |
+| `last_ok` | datetime \| None | no |  |
+
 ## `token_create`
 
 Create an API token and show it once. The `cli` token is also saved for the CLI.
