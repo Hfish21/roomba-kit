@@ -452,7 +452,52 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
+  list  List the missions recorded in local history, newest first: robot, start and...
+  show  Get one mission from local history by its ID.
   wait  Wait until a robot's mission ends and return it with its outcome.
+```
+
+## `roomba-kit missions list`
+
+```text
+Usage: roomba-kit missions list [OPTIONS]
+
+  List the missions recorded in local history, newest first: robot, start and end,
+  outcome, rooms requested (empty means the whole home), who started it, duration and
+  errors. History is kept indefinitely and includes the mission in progress.
+
+  Parameters:
+  - `robot`: str | None (default: None) — Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.
+  - `since`: datetime.datetime | None (default: None) — Only missions started at or after this time (ISO 8601; UTC if no offset)
+  - `until`: datetime.datetime | None (default: None) — Only missions started before this time (ISO 8601; UTC if no offset)
+  - `outcome`: roomba_kit.core.models.MissionOutcome | None (default: None) — Only missions with this outcome
+  - `limit`: int (default: 50) — Most missions to return
+
+Options:
+  --robot TEXT                    Only this robot's missions (ID or unambiguous name). A
+                                  removed robot's missions are still found by its ID.
+  --since TEXT                    Only missions started at or after this time (ISO 8601;
+                                  UTC if no offset)
+  --until TEXT                    Only missions started before this time (ISO 8601; UTC
+                                  if no offset)
+  --outcome [in_progress|completed|cancelled|stuck|failed|manually_docked|unknown]
+                                  Only missions with this outcome
+  --limit INTEGER                 Most missions to return  [default: (50)]
+  -h, --help                      Show this message and exit.
+```
+
+## `roomba-kit missions show`
+
+```text
+Usage: roomba-kit missions show [OPTIONS] MISSION_ID
+
+  Get one mission from local history by its ID.
+
+  Parameters:
+  - `mission_id`: str — Mission ID, as listed by `list_missions`
+
+Options:
+  -h, --help  Show this message and exit.
 ```
 
 ## `roomba-kit missions wait`

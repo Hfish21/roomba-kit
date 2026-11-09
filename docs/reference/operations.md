@@ -536,6 +536,39 @@ Type: `FloorPlan`
 | `rooms` | list[FloorPlanRoom] | yes |  |
 | `retrieved_at` | datetime | yes | When this was fetched from the cloud |
 
+## `get_mission`
+
+Get one mission from local history by its ID.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/missions/{mission_id}` |
+| MCP | tool `get_mission` |
+| CLI | `roomba-kit missions show [OPTIONS] MISSION_ID` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `mission_id` | str | yes |  | Mission ID, as listed by `list_missions` |
+
+**Result**
+
+Type: `Mission`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes |  |
+| `robot_id` | str | yes |  |
+| `started_at` | datetime | yes |  |
+| `ended_at` | datetime \| None | no |  |
+| `initiator` | Initiator | yes |  |
+| `rooms_requested` | list[str] | no | Empty = whole home |
+| `outcome` | MissionOutcome | no |  |
+| `duration_s` | int \| None | no |  |
+| `errors` | list[CodeText] | no |  |
+| `cloud_mission_ref` | str \| None | no |  |
+
 ## `get_position`
 
 Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.
@@ -702,6 +735,43 @@ Type: `ImportResult`
 |---|---|---|---|
 | `imported` | int | yes | Rooms on the imported map |
 | `map` | MapRef | yes |  |
+
+## `list_missions`
+
+List the missions recorded in local history, newest first: robot, start and end, outcome, rooms requested (empty means the whole home), who started it, duration and errors. History is kept indefinitely and includes the mission in progress.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/missions` |
+| MCP | tool `list_missions` |
+| CLI | `roomba-kit missions list [OPTIONS]` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str \| None | no | null | Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID. |
+| `since` | datetime \| None | no | null | Only missions started at or after this time (ISO 8601; UTC if no offset) |
+| `until` | datetime \| None | no | null | Only missions started before this time (ISO 8601; UTC if no offset) |
+| `outcome` | MissionOutcome \| None | no | null | Only missions with this outcome |
+| `limit` | int | no | 50 | Most missions to return |
+
+**Result**
+
+Type: `list[Mission]`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes |  |
+| `robot_id` | str | yes |  |
+| `started_at` | datetime | yes |  |
+| `ended_at` | datetime \| None | no |  |
+| `initiator` | Initiator | yes |  |
+| `rooms_requested` | list[str] | no | Empty = whole home |
+| `outcome` | MissionOutcome | no |  |
+| `duration_s` | int \| None | no |  |
+| `errors` | list[CodeText] | no |  |
+| `cloud_mission_ref` | str \| None | no |  |
 
 ## `list_robots`
 
