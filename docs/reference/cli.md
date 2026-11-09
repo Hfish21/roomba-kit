@@ -25,6 +25,7 @@ Commands:
   clean         Start cleaning the whole home.
   cloud
   config        Where the kit keeps its files, and what's in them.
+  discover      Find iRobot robots on the local network: ID, name, SKU, firmware,...
   dock          Send the robot back to its dock.
   evac          Empty the bin into the Clean Base.
   events
@@ -192,6 +193,26 @@ Usage: roomba-kit config show [OPTIONS]
 
 Options:
   -h, --help  Show this message and exit.
+```
+
+## `roomba-kit discover`
+
+```text
+Usage: roomba-kit discover [OPTIONS]
+
+  Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the
+  model is supported, and whether it's already configured.
+
+  Parameters:
+  - `broadcast`: str | None (default: None) — Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml
+  - `timeout_s`: float (default: 8.0) — How long to listen
+
+Options:
+  --broadcast TEXT   Where to send the discovery datagram: your subnet's broadcast
+                     address (e.g. 192.0.2.255) when a VPN owns the default route, or
+                     one robot's IP. Default: `[discovery] broadcast` in config.toml
+  --timeout-s FLOAT  How long to listen  [default: (8.0)]
+  -h, --help         Show this message and exit.
 ```
 
 ## `roomba-kit dock`
@@ -470,9 +491,27 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
+  add           Add the robot at an IP address, for when discovery can't reach it.
   list          List every configured robot: ID, name, model, SKU, firmware,...
+  password      Retrieve the robot's local password over the network while you hold...
+  remove        Remove a robot: stop its connection and delete its config and...
   set-password  Store a robot's local password you already know, after checking...
   show          One robot's details: ID, name, model, SKU, firmware, address,...
+```
+
+## `roomba-kit robots add`
+
+```text
+Usage: roomba-kit robots add [OPTIONS] ADDRESS
+
+  Add the robot at an IP address, for when discovery can't reach it. The robot must
+  answer there. Next, give it a password with `retrieve_password`.
+
+  Parameters:
+  - `address`: str — The robot's IP address
+
+Options:
+  -h, --help  Show this message and exit.
 ```
 
 ## `roomba-kit robots list`
@@ -483,6 +522,38 @@ Usage: roomba-kit robots list [OPTIONS]
   List every configured robot: ID, name, model, SKU, firmware, address, connection state
   and capabilities with their verification status. Robots without a model profile are
   listed with `supported=false` (see docs/guides/adding-a-model.md).
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit robots password`
+
+```text
+Usage: roomba-kit robots password [OPTIONS] ROBOT
+
+  Retrieve the robot's local password over the network while you hold HOME on the docked
+  robot, verify it by connecting, and store it. The password is never returned.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `timeout_s`: float (default: 60.0) — How long to keep retrying (every 2 s)
+
+Options:
+  --timeout-s FLOAT  How long to keep retrying (every 2 s)  [default: (60.0)]
+  -h, --help         Show this message and exit.
+```
+
+## `roomba-kit robots remove`
+
+```text
+Usage: roomba-kit robots remove [OPTIONS] ROBOT
+
+  Remove a robot: stop its connection and delete its config and password. Other robots
+  and the cloud login are untouched.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
 
 Options:
   -h, --help  Show this message and exit.
