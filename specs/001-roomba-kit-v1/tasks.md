@@ -388,7 +388,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - Set `readOnlyHint` on read-only ops.
   - `KitError` → tool error text starting with the code.
   - Expose `http_app(transport="http")`.
-- [ ] T031 [P] Implement the CLI core:
+- [x] T031 [P] Implement the CLI core:
   - `src/roomba_kit/cli/main.py`: Click root with `--json`, `--service-url` (default
     `http://127.0.0.1:8765`) and `--quiet`.
   - `src/roomba_kit/cli/client.py`: an httpx client. The token comes from `ROOMBA_KIT_API_TOKEN`
