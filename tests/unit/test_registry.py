@@ -96,3 +96,16 @@ def test_dump_uses_wire_aliases():
     )
     dumped = op.dump(value)
     assert dumped["from"] == "docked" and "from_" not in dumped
+
+
+def test_http_request_mapping():
+    from roomba_kit.core.registry import http_request
+
+    _register(http=Http("GET", "/robots/{robot}/echo"))
+    get = http_request(registry.get("echo"), {"robot": "a b/c", "limit": 3, "x": None})
+    assert get.path == "/robots/a%20b%2Fc/echo" and get.query == {"limit": 3} and get.body is None
+    _register(name="post", http=Http("POST", "/robots/{robot}/commands/post"))
+    post = http_request(registry.get("post"), {"robot": "r1", "limit": 3})
+    assert (
+        post.path == "/robots/r1/commands/post" and post.query == {} and post.body == {"limit": 3}
+    )
