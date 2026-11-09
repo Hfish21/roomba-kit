@@ -1,0 +1,39 @@
+site_name: Roomba Kit
+repo_url: https://github.com/Hfish21/roomba-kit
+theme:
+  name: material
+  features:
+    - navigation.sections
+    - content.code.copy
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+  - pymdownx.superfences
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Setup: setup.md
+  - Guides:
+      - State and events: state-and-events.md
+      - Rooms: rooms.md
+      - Settings: settings.md
+      - Cloud extras: cloud.md
+      - Live position: position.md
+      - Mission history: history.md
+      - Building consumers: guides/building-consumers.md
+      - Adding a model: guides/adding-a-model.md
+  - Reference:
+      - Operations: reference/operations.md
+      - CLI: reference/cli.md
+      - Errors: reference/errors.md
+      - Events: reference/events.md
+      - Support matrix: reference/support-matrix.md
+  - Deployment: deployment.md
+  - Troubleshooting: troubleshooting.md
+  - Verification:
+      - Roomba i5/i5+: verification/roomba_i5.md
+      - Braava jet m6: verification/braava_m6.md
+  - Research:
+      - Discovery (2026-11-08): research/discovery-2026-11-08.md
