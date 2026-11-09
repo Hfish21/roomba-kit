@@ -26,6 +26,7 @@ Commands:
   position  Where the robot is now: x/y in metres from the dock and heading in...
   serve     Run the service in the foreground on `server.host`:`server.port`.
   service   Run the service in the background and manage it.
+  settings
   token     Create, list and revoke API tokens (local file ops).
   version   Print the kit version.
 ```
@@ -245,6 +246,51 @@ Options:
 Usage: roomba-kit service uninstall [OPTIONS]
 
   Stop the installed service and remove it, so it no longer starts automatically.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit settings`
+
+```text
+Usage: roomba-kit settings [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  set   Change one setting.
+  show  Read the robot's settings: every setting its model supports, null when the...
+```
+
+## `roomba-kit settings set`
+
+```text
+Usage: roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE
+
+  Change one setting. It is reported applied only once the robot reports the new value;
+  otherwise the error is `not_applied` with the value the robot holds.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap
+  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit settings show`
+
+```text
+Usage: roomba-kit settings show [OPTIONS] ROBOT
+
+  Read the robot's settings: every setting its model supports, null when the robot
+  hasn't reported it.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
 
 Options:
   -h, --help  Show this message and exit.

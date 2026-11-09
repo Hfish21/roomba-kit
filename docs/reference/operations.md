@@ -102,6 +102,57 @@ Verification: braava_m6: verified
 Type: `PositionFix | NoFix`
 
 
+## `get_settings`
+
+Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/robots/{robot}/settings` |
+| MCP | tool `get_settings` |
+| CLI | `roomba-kit settings show [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+
+**Result**
+
+Type: `dict[str, bool | int | str | None]`
+
+
+## `set_setting`
+
+Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `PUT /v1/robots/{robot}/settings/{setting}` |
+| MCP | tool `set_setting` |
+| CLI | `roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+| `setting` | str | yes |  | Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap |
+| `value` | bool \| int \| str | yes |  | passes: auto\|one\|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true\|false. pad_wetness: 1\|2\|3. spray_overlap: standard\|deep\|extended. |
+
+**Result**
+
+Type: `SettingChange`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `robot_id` | str | yes |  |
+| `setting` | str | yes |  |
+| `requested` | any | yes |  |
+| `outcome` | "applied" \| "not_applied" | yes |  |
+| `actual` | any | yes |  |
+
 ## `token_create`
 
 Create an API token and show it once. The `cli` token is also saved for the CLI.
