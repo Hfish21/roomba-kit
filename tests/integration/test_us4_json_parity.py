@@ -22,6 +22,13 @@ from roomba_kit.service.operations import load_operations
 from roomba_kit.transport.fake import FakeTransportFactory
 from tests.integration._us4 import FIXTURES, Served, make_ctx, sample_params, serving
 
+# CLI commands that a lifecycle extra replaces with a local composite, so their output isn't
+# the operation's body by design.
+COMPOSITES = {
+    "service_status": "`service status` is the lifecycle composite {pid, url, health, "
+    "service_status}: it works without the service, so it can't be the HTTP body",
+}
+
 
 def read_ops() -> list[Operation]:
     load_operations()
@@ -79,6 +86,8 @@ def test_there_are_read_operations_to_compare() -> None:
 async def test_cli_json_is_the_http_body(
     op: Operation, unknown_robot: bool, served: Served
 ) -> None:
+    if op.name in COMPOSITES:
+        pytest.skip(COMPOSITES[op.name])
     params = sample_params(op)
     if unknown_robot:
         if "robot" not in params:
