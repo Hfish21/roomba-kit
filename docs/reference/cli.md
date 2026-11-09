@@ -671,8 +671,43 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
+  clean   Clean only the given rooms, in order, by name or ID.
   import  Import the robot's room IDs and names from its stored map in the iRobot...
   list    List the robot's rooms: imported from the cloud, named locally, or...
+  name    Give a room on the robot's current map a local name.
+```
+
+## `roomba-kit rooms clean`
+
+```text
+Usage: roomba-kit rooms clean [OPTIONS] ROBOT
+
+  Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when
+  the names come from an older map version, and with `room_not_found` (listing the valid
+  rooms) when a room isn't on the current map. Confirmed when the robot reports
+  cleaning.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `rooms`: list[str] — Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).
+  - `ordered`: bool (default: True) — Clean in the given order; false lets the robot choose.
+  - `room_options`: dict[str, roomba_kit.service.operations.rooms.RoomOptions] | None (default: None) — Per-room options keyed by an entry of `rooms`, e.g. {"Office": {"passes": "two"}}. On the CLI, pass it as JSON.
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  --rooms TEXT              Rooms to clean, by name or ID, in the order to clean them.
+                            Must not be empty (the robot would clean the whole home).
+                            [required]
+  --ordered / --no-ordered  Clean in the given order; false lets the robot choose.
+                            [default: (True)]
+  --room-options TEXT       Per-room options keyed by an entry of `rooms`, e.g.
+                            {"Office": {"passes": "two"}}. On the CLI, pass it as JSON.
+  -h, --help                Show this message and exit.
 ```
 
 ## `roomba-kit rooms import`
@@ -706,6 +741,23 @@ Usage: roomba-kit rooms list [OPTIONS] ROBOT
 
   Parameters:
   - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit rooms name`
+
+```text
+Usage: roomba-kit rooms name [OPTIONS] ROBOT ROOM_ID NAME
+
+  Give a room on the robot's current map a local name. Works without the cloud, for
+  imported and learned rooms alike. Names apply to one map version.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `room_id`: str — The room's ID on the robot's current map
+  - `name`: str — The local name. Unique per map, ignoring case; it overrides the cloud name.
 
 Options:
   -h, --help  Show this message and exit.
