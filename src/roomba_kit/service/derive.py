@@ -18,12 +18,17 @@ Mission rules (research R8, captures in tests/fixtures/captures):
   last activity stuck → `stuck`; an error code at the end → `failed`; ended off the dock →
   `cancelled`; else `completed`. These are inferred from local state; the cloud's `done` field
   isn't available locally.
+- After a restart, `restore` re-attaches: history hands back each robot's recent missions, and an
+  `in_progress` one continues (no second `mission.started`) once the robot is seen running under
+  that robot mission ID. If the robot has moved on, the stale record finishes as `unknown`.
 """
 
 import asyncio
+import logging
 import uuid
 import weakref
 from collections import deque
+from collections.abc import Awaitable, Callable, Iterable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any
@@ -54,6 +59,8 @@ from roomba_kit.service.eventbus import EventBus
 if TYPE_CHECKING:
     from roomba_kit.service.app import ServiceContext
 
+log = logging.getLogger(__name__)
+
 ON_DOCK = frozenset({Activity.DOCKED, Activity.CHARGING})
 RUNNING = frozenset(
     {Activity.CLEANING, Activity.MAPPING, Activity.PAUSED, Activity.RETURNING, Activity.STUCK}
@@ -83,6 +90,8 @@ class _Robot:
     """Last known (non-`unknown`) activity."""
     track: _Track | None = None
     recent: deque[Mission] = field(default_factory=lambda: deque(maxlen=RECENT_MISSIONS))
+    resume: Mission | None = None
+    """An `in_progress` mission from before a restart, until the robot confirms or ends it."""
 
 
 def outcome(
@@ -127,7 +136,17 @@ class Deriver:
         return None
 
     def seen(self, robot_id: str) -> bool:
-        return robot_id in self._robots
+        r = self._robots.get(robot_id)
+        return r is not None and r.last is not None
+
+    def restore(self, missions: Iterable[Mission]) -> None:
+        """Seed from persisted history (oldest first) before the first state arrives."""
+        for mission in missions:
+            r = self._robots.setdefault(mission.robot_id, _Robot())
+            if mission.outcome is MissionOutcome.IN_PROGRESS:
+                r.resume = mission.model_copy(deep=True)
+            else:
+                r.recent.append(mission.model_copy(deep=True))
 
     # -- state path ------------------------------------------------------------------------------
 
@@ -184,6 +203,8 @@ class Deriver:
         """Advance the mission lifecycle; returns the mission that just finished, if any."""
         ref = after.mission
         if ref is None:
+            if r.resume is not None:
+                self._abandon(r, out)
             track, r.track = r.track, None
             if track is None or track.mission is None:
                 return None
@@ -201,11 +222,28 @@ class Deriver:
         if track.mission is None:
             track.robot_ref = ref.id or track.robot_ref
             if after.activity in RUNNING:
+                if r.resume is not None and r.resume.id == track.robot_ref:
+                    track.mission, r.resume = r.resume, None
+                    track.errors = track.mission.errors + [
+                        e for e in track.errors if e not in track.mission.errors
+                    ]
+                    track.mission.errors = list(track.errors)
+                    return None
+                if r.resume is not None:
+                    self._abandon(r, out)
                 track.mission = self._start(r, track, after)
                 out.append((EventType.MISSION_STARTED, MissionEventData(mission=track.mission)))
         else:
             track.mission.errors = list(track.errors)
         return None
+
+    def _abandon(self, r: _Robot, out: list[tuple[EventType, BaseModel]]) -> None:
+        """The robot isn't in the restored mission any more: it ended while nobody watched."""
+        mission, r.resume = r.resume, None
+        assert mission is not None  # noqa: S101 - caller checked
+        mission.outcome = MissionOutcome.UNKNOWN
+        r.recent.append(mission)
+        out.append((EventType.MISSION_FINISHED, MissionEventData(mission=mission.model_copy())))
 
     def _start(self, r: _Robot, track: _Track, after: RobotState) -> Mission:
         assert after.mission is not None  # noqa: S101 - caller checked
@@ -273,6 +311,14 @@ def _rooms(echo: CommandEcho | None, started: datetime) -> list[str]:
 
 
 _DERIVERS: "weakref.WeakKeyDictionary[ServiceContext, Deriver]" = weakref.WeakKeyDictionary()
+Restorer = Callable[["ServiceContext"], Awaitable[Iterable[Mission]]]
+_RESTORERS: list[Restorer] = []
+
+
+def restore_from(loader: Restorer) -> Restorer:
+    """Register a source of persisted missions to `restore` from when the deriver starts."""
+    _RESTORERS.append(loader)
+    return loader
 
 
 def deriver(ctx: "ServiceContext") -> Deriver | None:
@@ -288,6 +334,11 @@ def current_mission(ctx: "ServiceContext", robot_id: str) -> Mission | None:
 @component("derive")
 async def start(ctx: "ServiceContext") -> Stop:
     d = Deriver(ctx.bus)
+    for load in _RESTORERS:
+        try:
+            d.restore(await load(ctx))
+        except Exception:
+            log.exception("restoring missions from %s failed", getattr(load, "__qualname__", load))
 
     async def listener(session: Any, before: RobotState | None, after: RobotState) -> None:
         await d.update(after)
