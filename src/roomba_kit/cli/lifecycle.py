@@ -4,6 +4,7 @@ Registered through the `register(root)` seam in `cli/main.py`.
 """
 
 import sys
+import time
 from typing import Any
 
 import click
@@ -16,7 +17,7 @@ from roomba_kit.config import paths
 from roomba_kit.config.settings import load_settings
 from roomba_kit.core import registry
 from roomba_kit.core.errors import CLI_EXIT, ErrorCode, KitError
-from roomba_kit.lifecycle import daemon
+from roomba_kit.lifecycle import daemon, install, launchd, systemd
 
 
 def serve_command() -> list[str]:
@@ -142,6 +143,97 @@ def service_logs(lines: int, follow: bool) -> None:
             pass
 
 
+def service_manager() -> install.ServiceManager:
+    """This platform's boot supervisor. Tests replace it with one that has a fake runner."""
+    if sys.platform == "darwin":
+        return launchd.Launchd()
+    if sys.platform.startswith("linux"):
+        return systemd.Systemd()
+    fail(
+        ErrorCode.NOT_SUPPORTED,
+        f"`service install` supports macOS (launchd) and Linux (systemd), not {sys.platform}. "
+        "Run `roomba-kit serve` under your own supervisor, or use the container "
+        "(docs/deployment.md).",
+    )
+
+
+def _wait_healthy(url: str, timeout: float) -> bool:
+    deadline = time.monotonic() + timeout
+    while True:
+        if daemon.health(url) is not None:
+            return True
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.2)
+
+
+@click.command("install")
+@click.option("--print", "print_only", is_flag=True, help="Print the unit; install nothing.")
+@click.option("--timeout", default=10.0, show_default=True, help="Seconds to wait for health.")
+@click.pass_obj
+def service_install(state: CliState, print_only: bool, timeout: float) -> None:
+    """Start the service automatically: a launchd agent on macOS, a systemd user unit on Linux.
+
+    It runs `serve` with this Python and pins the current config and state dirs. Logs go to
+    `<state>/service.log`. Exits 69 if it's installed but not healthy within the timeout.
+    """
+    manager = service_manager()
+    spec = install.ServiceSpec(
+        command=tuple(serve_command()),
+        env={
+            "ROOMBA_KIT_CONFIG_DIR": str(paths.config_dir().absolute()),
+            "ROOMBA_KIT_STATE_DIR": str(paths.state_dir().absolute()),
+        },
+        log_path=paths.log_file().absolute(),
+    )
+    try:
+        if print_only:
+            click.echo(manager.render(spec), nl=False)
+            return
+        if (pid := daemon.running_pid(paths.pid_file())) is not None:
+            fail(
+                ErrorCode.INVALID_REQUEST,
+                f"`service start` is already running the service (pid {pid}) and holds the "
+                "robots. Stop it first: roomba-kit service stop",
+            )
+        notes = manager.install(spec)
+    except install.InstallError as exc:
+        fail(exc.code, str(exc))
+    url = local_service_url()
+    healthy = timeout > 0 and _wait_healthy(url, timeout)
+    data = {
+        "supervisor": manager.name,
+        "path": str(manager.path),
+        "installed": True,
+        "healthy": healthy,
+        "notes": notes,
+    }
+    text = "\n".join([f"Installed {manager.path} ({manager.name}).", *notes])
+    if healthy:
+        report(state, data, f"{text}\nService is up at {url}.")
+        return
+    report(state, data, text, essential=True)
+    if timeout > 0:
+        log = paths.log_file()
+        fail(
+            ErrorCode.SERVICE_UNAVAILABLE,
+            f"Installed, but {url} wasn't healthy after {timeout:g} s. Log:\n{daemon.tail(log)}",
+        )
+
+
+@click.command("uninstall")
+@click.pass_obj
+def service_uninstall(state: CliState) -> None:
+    """Stop the installed service and remove it, so it no longer starts automatically."""
+    manager = service_manager()
+    try:
+        removed = manager.uninstall()
+    except install.InstallError as exc:
+        fail(exc.code, str(exc))
+    data = {"supervisor": manager.name, "path": str(manager.path), "removed": removed}
+    report(state, data, f"Removed {manager.path}." if removed else "Not installed.")
+
+
 @click.command("path")
 @click.pass_obj
 def config_path(state: CliState) -> None:
@@ -167,4 +259,5 @@ def register(root: click.Group) -> None:
     service.help = "Run the service in the background and manage it."
     for command in (service_start, service_stop, service_status, service_logs):
         service.add_command(command)
-    # `service install` / `service uninstall` (T092) are added here.
+    service.add_command(service_install)
+    service.add_command(service_uninstall)
