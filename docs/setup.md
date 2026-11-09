@@ -31,7 +31,7 @@ whether it's already configured. Robots of an unsupported model can be added and
 
 **Behind a VPN**, discovery often finds nothing, because the VPN owns the default route. Use your
 subnet's broadcast address, which is your router's address with the last number replaced by 255.
-For example, `192.168.1.255`, or `192.0.2.255` in these docs. To make the kit's own rediscovery use
+For example, `192.0.2.255` (a documentation address; yours will differ). To make the kit's own rediscovery use
 it too (the kit rediscovers a robot by its ID when the robot's IP changes), set this in
 `config.toml`:
 
