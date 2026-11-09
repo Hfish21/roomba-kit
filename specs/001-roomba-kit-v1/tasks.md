@@ -588,7 +588,7 @@ clean/pause/resume/stop/dock/find.
 
 **Independent Test**: quickstart V3, or `tests/integration/test_us3_rooms.py`.
 
-- [ ] T057 [P] [US3] Integration test `tests/integration/test_us3_rooms.py`:
+- [x] T057 [P] [US3] Integration test `tests/integration/test_us3_rooms.py`:
   - Import from FakeCloud, including unnamed m6 rooms that get placeholders.
   - `clean_rooms` by name sends `regions` in order.
   - Empty list → `invalid_request`.
@@ -606,7 +606,7 @@ clean/pause/resume/stop/dock/find.
   - Cloud import via `CloudManager` → `transport.cloud.pmaps(blid)`. Use
     `active_pmapv_details.regions[]` `{id, name, region_type}` and `active_pmapv_id`, and cache
     in `cloud_cache` (FR-043).
-- [ ] T059 [US3] Implement `src/roomba_kit/service/operations/rooms.py`:
+- [x] T059 [US3] Implement `src/roomba_kit/service/operations/rooms.py`:
   - `list_rooms`, `import_rooms` (cap `cloud.rooms`) and `name_room`.
   - `clean_rooms(robot, rooms, ordered=true, room_options?)` (cap `clean_rooms`, `motion=True`):
     - Build params `{pmap_id, user_pmapv_id, ordered: 1|0, regions:[{region_id, type:"rid",

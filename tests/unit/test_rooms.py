@@ -9,6 +9,7 @@ from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.models import CommandEcho, Initiator, MapRef, RobotState, Room
 from roomba_kit.profiles.roomba_i5 import PROFILE
 from roomba_kit.service import rooms
+from roomba_kit.service.operations.rooms import CleanRoomsParams
 from roomba_kit.service.store import Store
 
 I5 = "00000000000000000000000000000001"
@@ -159,3 +160,65 @@ async def test_an_echo_replayed_at_startup_counts_only_if_it_names_the_current_v
     usable = (await rooms.room_set(store, Session())).usable
     assert [r.room_id for r in usable] == ["5"]
     assert len(await store.fetchall("SELECT * FROM learned_rooms")) == 2
+
+
+async def test_naming_rejects_clashes_and_id_like_names(store):
+    await add(store, "1", cloud="Kitchen")
+    await rooms.record_learned(store, I5, "m", ["3"], NOW, "v2")
+    named = await rooms.name_room(store, Session(), "3", " Den ")
+    assert (named.local_name, named.name) == ("Den", "Den")
+    renamed = await rooms.name_room(store, Session(), "1", "Galley")
+    assert renamed.cloud_name == "Kitchen" and renamed.name == "Galley"
+    for clash in ("den", "7", ""):
+        with pytest.raises(KitError) as exc:
+            await rooms.name_room(store, Session(), "1", clash)
+        assert exc.value.code is ErrorCode.INVALID_REQUEST
+    with pytest.raises(KitError) as exc:
+        await rooms.name_room(store, Session(), "9", "Hall")
+    assert exc.value.code is ErrorCode.ROOM_NOT_FOUND
+    assert exc.value.details["valid"] == [{"id": "1", "name": "Galley"}, {"id": "3", "name": "Den"}]
+
+
+async def test_clean_params_dedupe_and_pick_the_user_map_version(store):
+    session = Session()
+    params = await rooms.clean_params(
+        store, session, [room("7"), room("4"), room("7")], ordered=False, passes={"4": "two"}
+    )
+    assert params == {
+        "pmap_id": "m",
+        "user_pmapv_id": "v2",
+        "ordered": 0,
+        "regions": [
+            {"region_id": "7", "type": "rid"},
+            {"region_id": "4", "type": "rid", "params": {"noAutoPasses": True, "twoPass": True}},
+        ],
+    }
+    session.state.last_command = CommandEcho(
+        command="start", initiator=Initiator.APP, map_id="m", map_version="u1"
+    )
+    assert (await rooms.clean_params(store, session, [room("7")], ordered=True))[
+        "user_pmapv_id"
+    ] == "u1"
+    await store.execute(
+        "INSERT INTO cloud_cache VALUES (?, ?, 'm', ?, ?)",
+        (
+            I5,
+            rooms.CACHE_KIND,
+            '{"active_pmapv_id": "v2", "user_pmapv_id": "u0"}',
+            "2026-11-08T12:00:00.000000Z",
+        ),
+    )
+    assert (await rooms.clean_params(store, session, [room("7")], ordered=True))[
+        "user_pmapv_id"
+    ] == "u0"
+    with pytest.raises(KitError):
+        await rooms.clean_params(store, session, [], ordered=True)
+
+
+def test_clean_rooms_params_refuse_an_empty_list_and_parse_options_json():
+    with pytest.raises(ValueError, match="whole home"):
+        CleanRoomsParams(robot="r", rooms=[])
+    params = CleanRoomsParams(
+        robot="r", rooms=["Office"], room_options='{"Office": {"passes": "one"}}'
+    )
+    assert params.room_options["Office"].passes == "one"
