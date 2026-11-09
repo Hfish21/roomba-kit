@@ -47,7 +47,14 @@ def test_i5_capture_docked():
     first = s.schedules[0]
     assert (first.enabled, first.days, first.hour, first.minute) == (True, [5], 9, 0)
     assert (first.command, first.team) == ("start", True)
-    assert s.settings == {}
+    assert s.settings == {
+        "passes": "one",
+        "edge_clean": True,
+        "always_finish": False,
+        "child_lock": False,
+        "eco_charge": False,
+        "schedule_hold": False,
+    }
 
 
 def test_m6_capture_docked_with_tank_pad_lid():

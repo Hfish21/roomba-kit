@@ -47,7 +47,9 @@ def test_capabilities_and_verification(profile_id):
         assert profile.capabilities[cap].run == RUN
     for cap in unverified:
         assert not profile.capabilities[cap].is_verified, cap
-    assert profile.settings == {}
+    assert {C.for_setting(s) for s in profile.settings} == {
+        c for c in profile.capabilities if c.value.startswith("setting.")
+    }
     assert profile.error_texts == {} and profile.not_ready_texts == {}
 
 
