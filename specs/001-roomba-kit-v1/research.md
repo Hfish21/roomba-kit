@@ -216,14 +216,29 @@ resolved below.
 ## R12. Cloud session strategy
 
 - **Decision**: One `CloudAccount` login per configured account, shared by all robots. It is
-  refreshed via `relogin` on 403 or near token expiry. The live timeline uses one cloud MQTT
-  session per robot, from `create_prime_robot(blid=…)`. Rooms and floor plans are imported at
+  refreshed via `relogin` on 403 or near token expiry. The live timeline uses one shared cloud MQTT
+  session for all robots (see Result). Rooms and floor plans are imported at
   setup, on map version change, and on demand, and cached (FR-043). Cloud failures put the
   cloud subsystem into `unavailable(reason)` with exponential backoff, capped at 15 min.
-- **Open risk (verify in implementation)**: whether two concurrent per-robot cloud MQTT
+- **Open risk (resolved by T076, below)**: whether two concurrent per-robot cloud MQTT
   sessions under one login coexist. roombapy-prime logs show AWS evicting duplicate
   `client_id`s. If they collide, fall back to one session subscribed to both robots' timeline
   topics.
+- **Result (T076, 2026-11-08, hardware spike, read-only, both robots docked):** one
+  `CloudAccount` login, robots' cloud MQTT sessions via `create_prime_robot(blid=…,
+  login_result=…)`, each watching `{prefix}/things/{blid}/#`:
+
+  | Run (90 s each) | Sessions | Drops |
+  |---|---|---|
+  | One robot | 1 | 0 |
+  | Both robots, one session each | 2 | 105 (`[code:128]`, both sessions, roughly every 1.5 s, from the first second) |
+  | One session subscribed to both robots' topics | 1 | 0 |
+
+  The two per-robot sessions evict each other. **Strategy: one shared cloud MQTT session per
+  account, subscribed to every robot's timeline topic.** Per-robot sessions are rejected.
+  *Unverified:* that a second robot's timeline messages are actually delivered over the shared
+  session. The robots were idle, so no messages arrived in any run. This is checked during the
+  first hardware session with a mission (T102, m6 `cloud.timeline`).
 - **Rationale**: FR-041, FR-042 and Constitution I.
 
 ## R13. Position polling

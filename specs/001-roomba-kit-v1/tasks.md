@@ -721,7 +721,7 @@ unverified capabilities.
 
 **Independent Test**: quickstart V6, or `tests/integration/test_us6_cloud.py`.
 
-- [ ] T076 [US6] Hardware spike (research R12 open risk): with real credentials, open timeline
+- [x] T076 [US6] Hardware spike (research R12 open risk): with real credentials, open timeline
   sessions for both robots at once via `transport/cloud.py`, and check whether either evicts the
   other. Look for disconnect/reconnect loops in roombapy-prime logs. Record the result in
   `specs/001-roomba-kit-v1/research.md` under R12. Pick per-robot sessions, or one session
