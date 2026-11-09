@@ -16,6 +16,7 @@ from roomba_kit.transport.cloud import IRobotCloud, parse_umf_layers
 
 FIXTURES = Path(__file__).parents[1] / "fixtures"
 I5_ID = "00000000000000000000000000000001"
+M6_ID = "00000000000000000000000000000002"
 PREFIX = "v007-irbthbu"
 
 
@@ -96,6 +97,7 @@ def stubs(monkeypatch):
     async def create_prime_robot(session, username, password, country, blid=None, **kwargs):
         assert kwargs["login_result"] is not None and kwargs["relogin"] is not None
         robots.append(StubRobot([timeline[0], json.dumps(timeline[1]), "not json"]))
+        robots[-1].created_for = blid
         return robots[-1]
 
     monkeypatch.setattr(cloud, "CloudAccount", StubAccount)
@@ -128,14 +130,22 @@ async def test_rest_calls_login_once(account):
     assert StubAccount.logins[0]["app_id"].startswith("IOS-")
 
 
-async def test_timeline_subscribes_and_never_publishes(account, stubs):
-    stream = account.watch_timeline(I5_ID)
-    first, second = await anext(stream), await anext(stream)
+async def test_timeline_shares_one_session_and_never_publishes(account, stubs):
+    i5 = account.watch_timeline(I5_ID)
+    first, second = await anext(i5), await anext(i5)
     assert first == stubs.timeline[0] and second == stubs.timeline[1]
+    m6 = account.watch_timeline(M6_ID)
+    assert await anext(m6) == stubs.timeline[0]
     (robot,) = stubs.robots
-    assert robot.topics == [f"{PREFIX}/things/{I5_ID}/mission/timeline/report"]
+    assert robot.created_for == I5_ID
+    assert robot.topics == [
+        f"{PREFIX}/things/{I5_ID}/mission/timeline/report",
+        f"{PREFIX}/things/{M6_ID}/mission/timeline/report",
+    ]
+    await i5.aclose()
+    await m6.aclose()
     assert robot.connected and not robot.closed
-    await stream.aclose()
+    await account.close()
     assert robot.closed
 
 
