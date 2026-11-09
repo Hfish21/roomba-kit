@@ -109,3 +109,13 @@ def test_http_request_mapping():
     assert (
         post.path == "/robots/r1/commands/post" and post.query == {} and post.body == {"limit": 3}
     )
+
+
+def test_load_operations_is_a_noop_inside_isolation(monkeypatch):
+    from roomba_kit.service import operations
+
+    monkeypatch.setattr(operations, "_loaded", False)
+    with registry.isolated():
+        operations.load_operations()
+        assert registry.all() == []
+    assert operations._loaded is False
