@@ -157,3 +157,41 @@ async def test_stream_filters_and_ends_on_close(store: Store) -> None:
     await bus.close()
     await asyncio.wait_for(task, 1)
     assert seen == [M6]
+
+
+async def test_a_publish_cancelled_mid_insert_does_not_reuse_its_seq(tmp_kit_home):
+    """Regression: a cancelled publish left the counter behind a committed row, so every
+    later persisted event failed with UNIQUE constraint failed: events.seq."""
+    import asyncio
+
+    from roomba_kit.core.events import BinFullData, EventType
+    from roomba_kit.service.eventbus import EventBus
+    from roomba_kit.service.store import Store
+
+    store = await Store().open()
+    bus = EventBus(store)
+    await bus.start()
+    real_execute = store.execute
+    entered = asyncio.Event()
+
+    async def slow_execute(sql, params=()):
+        entered.set()
+        await asyncio.sleep(0.05)
+        return await real_execute(sql, params)
+
+    store.execute = slow_execute
+    try:
+        task = asyncio.create_task(bus.publish(EventType.BIN_FULL, "r", BinFullData()))
+        await entered.wait()
+        task.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        store.execute = real_execute
+        first = (await bus.read(0))[0]
+        assert [e.seq for e in first] == [1]  # the cancelled publish still landed once
+        nxt = await bus.publish(EventType.BIN_FULL, "r", BinFullData())
+        assert nxt.seq == 2
+    finally:
+        store.execute = real_execute
+        await bus.close()
+        await store.close()

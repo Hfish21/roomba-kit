@@ -112,13 +112,14 @@ class EventBus:
                 at=at or datetime.now(UTC),
                 data=payload,
             )
+            cancelled = False
             if self._persists(type_):
-                await self._store.execute(
+                cancelled = await self._write(
                     "INSERT INTO events (seq, type, robot_id, at, data) VALUES (?, ?, ?, ?, ?)",
                     (seq, type_.value, robot_id, format_ts(event.at), json.dumps(payload)),
                 )
             elif seq > self._reserved:
-                await self._store.execute(
+                cancelled = await self._write(
                     "UPDATE event_seq SET reserved = ? WHERE id = 1", (seq + SEQ_BLOCK,)
                 )
                 self._reserved = seq + SEQ_BLOCK
@@ -127,7 +128,27 @@ class EventBus:
             for listener in list(self._listeners):
                 if listener.filter.matches(event):
                     self._deliver(listener, event)
+        if cancelled:
+            raise asyncio.CancelledError
         return event
+
+    async def _write(self, sql: str, params: tuple[object, ...]) -> bool:
+        """Run a counter-advancing write that can't be abandoned halfway.
+
+        aiosqlite commits on its own thread, so cancelling the awaiting task doesn't stop the
+        write. If the publisher is cancelled, wait for the write to land, report the
+        cancellation, and let `publish` advance the counter first: otherwise the next publish
+        would reuse this seq and every later insert would fail. Returns True when cancelled.
+        """
+        write = asyncio.ensure_future(self._store.execute(sql, params))
+        try:
+            await asyncio.shield(write)
+        except asyncio.CancelledError:
+            await asyncio.wait([write])
+            if write.cancelled() or write.exception() is not None:
+                raise
+            return True
+        return False
 
     def _deliver(self, listener: _Listener, event: Event) -> None:
         try:
