@@ -129,7 +129,11 @@ Usage: roomba-kit position [OPTIONS] ROBOT
 
   Verification: braava_m6: verified
 
+  With --watch, print the current answer, then every fix as it arrives (Ctrl-C to stop).
+  Fixes arrive while the robot is cleaning or returning.
+
 Options:
+  --watch     Follow live position fixes.
   -h, --help  Show this message and exit.
 ```
 
