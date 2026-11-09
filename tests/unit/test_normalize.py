@@ -40,13 +40,13 @@ def test_i5_capture_docked():
         "stuck_count": 172,
     }
     cmd = s.last_command
-    assert (cmd.command, cmd.initiator, cmd.room_ids) == ("start", Initiator.KIT, ["7"])
+    assert (cmd.command, cmd.initiator, cmd.room_ids) == ("clean_rooms", Initiator.KIT, ["7"])
     assert (cmd.map_id, cmd.map_version) == ("FbKwAujERSazAALZRD_rEg", "231231T204559")
     assert cmd.at == datetime.fromtimestamp(1794173731, UTC)
     assert len(s.schedules) == 5
     first = s.schedules[0]
     assert (first.enabled, first.days, first.hour, first.minute) == (True, [5], 9, 0)
-    assert (first.command, first.team) == ("start", True)
+    assert (first.command, first.team) == ("clean", True)
     assert s.settings == {
         "passes": "one",
         "edge_clean": True,
@@ -68,7 +68,7 @@ def test_m6_capture_docked_with_tank_pad_lid():
     assert (s.last_command.command, s.last_command.room_ids) == ("find", [])
     [sched] = s.schedules
     assert (sched.enabled, sched.days, sched.hour) == (False, [0, 1, 3, 5], 14)
-    assert (sched.command, sched.team) == ("start", False)
+    assert (sched.command, sched.team) == ("clean", False)
 
 
 @pytest.mark.parametrize(
@@ -181,3 +181,37 @@ def test_merge_replays_local_stream():
                 normalize(M6_ID, state, M6, AT)
     final = normalize(M6_ID, state, M6, AT)
     assert final.activity is Activity.CHARGING and final.not_ready.code == 39
+
+
+def test_a_later_echo_replaces_the_previous_one_whole():
+    room_clean = {
+        "lastCommand": {
+            "command": "start",
+            "time": 10,
+            "initiator": "localApp",
+            "pmap_id": "m",
+            "user_pmapv_id": "v",
+            "regions": [{"region_id": "7"}],
+        }
+    }
+    find = {"lastCommand": {"command": "find", "time": 11, "initiator": "localApp"}}
+    reported = merge(merge({}, room_clean), find)
+    echo = normalize("r", reported, I5, datetime.now(UTC)).last_command
+    assert (echo.command, echo.room_ids, echo.map_id) == ("find", [], None)
+
+
+@pytest.mark.parametrize(
+    ("raw", "regions", "kit"),
+    [
+        ("start", [{"region_id": "7"}], "clean_rooms"),
+        ("start", None, "clean"),
+        ("dock", None, "dock"),
+        ("quick", None, "quick"),
+    ],
+)
+def test_echoes_use_kit_command_names(raw, regions, kit):
+    cmd = {"command": raw, "time": 1, "initiator": "localApp"}
+    if regions:
+        cmd["regions"] = regions
+    echo = normalize("r", {"lastCommand": cmd}, I5, datetime.now(UTC)).last_command
+    assert echo.command == kit

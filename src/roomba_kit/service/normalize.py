@@ -9,7 +9,7 @@ from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
 
-from roomba_kit.core.capabilities import Capability
+from roomba_kit.core.capabilities import COMMAND_CAPABILITIES, Capability
 from roomba_kit.core.models import (
     Activity,
     BinState,
@@ -39,15 +39,22 @@ _INITIATORS: dict[str, Initiator] = {
 _RETURNING_PHASES = frozenset({"hmUsrDock", "hmPostMsn", "hmMidMsn"})
 
 
+_REPLACED_WHOLE = frozenset({"lastCommand"})
+"""Keys the robot always reports as a complete object. Deep-merging them would let a later
+`find` echo inherit an earlier room clean's `regions` and `pmap_id`."""
+
+
 def merge(base: Mapping[str, Any], fragment: Mapping[str, Any]) -> dict[str, Any]:
     """Deep-merge a `state.reported` fragment into `base`. Dicts merge; anything else replaces.
 
-    Neither input is mutated.
+    Top-level keys in `_REPLACED_WHOLE` always replace. Neither input is mutated.
     """
     out = dict(base)
     for key, value in fragment.items():
         prior = out.get(key)
-        if isinstance(value, Mapping) and isinstance(prior, Mapping):
+        if key in _REPLACED_WHOLE:
+            out[key] = value
+        elif isinstance(value, Mapping) and isinstance(prior, Mapping):
             out[key] = merge(prior, value)
         else:
             out[key] = value
@@ -65,14 +72,14 @@ def normalize(robot_id: str, reported: Reported, profile: ModelProfile, at: date
         battery_pct=battery,
         activity=activity(phase, cycle, battery),
         mission=_mission(status, cycle),
-        last_command=_last_command(reported.get("lastCommand")),
+        last_command=_last_command(reported.get("lastCommand"), profile),
         error=_code(_int(status.get("error")), profile.error_texts, ERROR_TEXTS, "Error"),
         not_ready=_code(
             _int(status.get("notReady")), profile.not_ready_texts, NOT_READY_TEXTS, "Not ready"
         ),
         signal=_signal(reported.get("signal")),
         map=_map_ref(reported.get("pmaps")),
-        schedules=_schedules(reported.get("cleanSchedule2")),
+        schedules=_schedules(reported.get("cleanSchedule2"), profile),
         counters=Counters(
             missions_ok=_int(bbmssn.get("nMssnOk")),
             missions_failed=_int(bbmssn.get("nMssnF")),
@@ -137,7 +144,22 @@ def _mission(status: Mapping[str, Any], cycle: str | None) -> MissionRef | None:
     )
 
 
-def _last_command(raw: object) -> CommandEcho | None:
+def kit_command(raw: str, room_ids: list[str], profile: ModelProfile) -> str:
+    """The kit command name for a protocol command echo (`start` → `clean` / `clean_rooms`).
+
+    Commands the kit doesn't define (another client's) pass through unchanged.
+    """
+    names = [c.value for c in COMMAND_CAPABILITIES if profile.protocol_command(c.value) == raw]
+    if not names:
+        return raw
+    if "clean_rooms" in names and room_ids:
+        return "clean_rooms"
+    if "clean" in names:
+        return "clean"
+    return sorted(names)[0]
+
+
+def _last_command(raw: object, profile: ModelProfile) -> CommandEcho | None:
     cmd = _map(raw)
     command = _str(cmd.get("command"))
     if command is None:
@@ -149,7 +171,7 @@ def _last_command(raw: object) -> CommandEcho | None:
         if isinstance(r, Mapping) and r.get("region_id") is not None
     ]
     return CommandEcho(
-        command=command,
+        command=kit_command(command, room_ids, profile),
         at=_epoch(cmd.get("time")),
         initiator=initiator(cmd.get("initiator")),
         room_ids=room_ids,
@@ -171,7 +193,7 @@ def _map_ref(raw: object) -> MapRef | None:
     return MapRef(map_id=str(map_id), version=str(version))
 
 
-def _schedules(raw: object) -> list[RobotSchedule]:
+def _schedules(raw: object, profile: ModelProfile) -> list[RobotSchedule]:
     if not isinstance(raw, list):
         return []
     out: list[RobotSchedule] = []
@@ -188,7 +210,7 @@ def _schedules(raw: object) -> list[RobotSchedule]:
                 days=[d for d in days if _int(d) is not None] if isinstance(days, list) else [],
                 hour=_int(start.get("hour")) or 0,
                 minute=_int(start.get("min")) or 0,
-                command=_str(cmd.get("command")),
+                command=kit_command(c, [], profile) if (c := _str(cmd.get("command"))) else None,
                 team="team" in params,
             )
         )

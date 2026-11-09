@@ -40,7 +40,7 @@ EXPECTED: dict[str, dict[str, Any]] = {
             "not_ready": None,
             "signal": {"rssi": -39, "snr": 24},
             "map": {"map_id": "FbKwAujERSazAALZRD_rEg", "version": "231231T204559"},
-            "last_command": ("start", ["7"]),
+            "last_command": ("clean_rooms", ["7"]),
             "schedules": 5,
             "counters": {
                 "missions_ok": 264, "missions_failed": 186, "missions_cancelled": 100,
