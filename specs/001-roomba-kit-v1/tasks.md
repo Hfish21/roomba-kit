@@ -282,7 +282,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - `cloud_cache` (robot_id, kind, key, json, retrieved_at)
     - `verification_runs`
   - A daily event-retention prune.
-- [ ] T024 Implement `src/roomba_kit/service/eventbus.py`:
+- [x] T024 Implement `src/roomba_kit/service/eventbus.py`:
   - `publish(type, robot_id, data)` assigns `seq` and persists the event. `position` events
     are skipped for persistence unless `events.persist_position`.
   - Fan out to async subscribers with robot/type filters.
