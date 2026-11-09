@@ -1,0 +1,5238 @@
+[
+  {
+    "annotations": null,
+    "description": "Add the robot at an IP address, for when discovery can't reach it. The robot must answer there. Next, give it a password with `retrieve_password`.\n\nParameters:\n- `address`: str — The robot's IP address",
+    "input_schema": {
+      "properties": {
+        "address": {
+          "description": "The robot's IP address",
+          "title": "Address",
+          "type": "string"
+        }
+      },
+      "required": [
+        "address"
+      ],
+      "title": "Address",
+      "type": "object"
+    },
+    "name": "add_robot",
+    "output_schema": {
+      "properties": {
+        "address": {
+          "title": "Address",
+          "type": "string"
+        },
+        "configured": {
+          "default": false,
+          "title": "Configured",
+          "type": "boolean"
+        },
+        "firmware": {
+          "title": "Firmware",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Profile Id"
+        },
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "sku",
+        "firmware",
+        "address",
+        "supported"
+      ],
+      "title": "DiscoveredRobot",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Start cleaning the whole home. Confirmed when the robot reports cleaning.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "clean",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names come from an older map version, and with `room_not_found` (listing the valid rooms) when a room isn't on the current map. Confirmed when the robot reports cleaning.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `rooms`: list[str] — Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).\n- `ordered`: bool (default: True) — Clean in the given order; false lets the robot choose.\n- `room_options`: dict[str, roomba_kit.service.operations.rooms.RoomOptions] | None (default: None) — Per-room options keyed by an entry of `rooms`, e.g. {\"Office\": {\"passes\": \"two\"}}. On the CLI, pass it as JSON.\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "ordered": {
+          "default": true,
+          "description": "Clean in the given order; false lets the robot choose.",
+          "title": "Ordered",
+          "type": "boolean"
+        },
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        },
+        "room_options": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "properties": {
+                  "passes": {
+                    "anyOf": [
+                      {
+                        "enum": [
+                          "auto",
+                          "one",
+                          "two"
+                        ],
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "description": "Cleaning passes in this room: auto, one or two (vacuums).",
+                    "title": "Passes"
+                  }
+                },
+                "title": "RoomOptions",
+                "type": "object"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Per-room options keyed by an entry of `rooms`, e.g. {\"Office\": {\"passes\": \"two\"}}. On the CLI, pass it as JSON.",
+          "title": "Room Options"
+        },
+        "rooms": {
+          "description": "Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).",
+          "items": {
+            "type": "string"
+          },
+          "title": "Rooms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "robot",
+        "rooms"
+      ],
+      "title": "CleanRoomsParams",
+      "type": "object"
+    },
+    "name": "clean_rooms",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `limit`: int (default: 30) — Most recent missions to return\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+    "input_schema": {
+      "properties": {
+        "limit": {
+          "default": 30,
+          "description": "Most recent missions to return",
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CloudHistoryParams",
+      "type": "object"
+    },
+    "name": "cloud_history",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "items": {
+            "properties": {
+              "area_m2": {
+                "anyOf": [
+                  {
+                    "type": "number"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Area M2"
+              },
+              "duration_s": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Duration S"
+              },
+              "ended_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Ended At"
+              },
+              "evacs": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "Clean Base bin emptyings during the mission",
+                "title": "Evacs"
+              },
+              "initiator": {
+                "enum": [
+                  "kit",
+                  "schedule",
+                  "button",
+                  "app",
+                  "team",
+                  "other"
+                ],
+                "title": "Initiator",
+                "type": "string"
+              },
+              "map": {
+                "anyOf": [
+                  {
+                    "properties": {
+                      "map_id": {
+                        "title": "Map Id",
+                        "type": "string"
+                      },
+                      "version": {
+                        "title": "Version",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "map_id",
+                      "version"
+                    ],
+                    "title": "MapRef",
+                    "type": "object"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "The mission's map, used to fetch its coverage"
+              },
+              "mission_ref": {
+                "description": "Cloud mission ID; equals the robot's mission ID",
+                "title": "Mission Ref",
+                "type": "string"
+              },
+              "number": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "The robot's mission counter",
+                "title": "Number"
+              },
+              "outcome": {
+                "enum": [
+                  "in_progress",
+                  "completed",
+                  "cancelled",
+                  "stuck",
+                  "failed",
+                  "manually_docked",
+                  "unknown"
+                ],
+                "title": "MissionOutcome",
+                "type": "string"
+              },
+              "retrieved_at": {
+                "format": "date-time",
+                "title": "Retrieved At",
+                "type": "string"
+              },
+              "robot_id": {
+                "title": "Robot Id",
+                "type": "string"
+              },
+              "rooms_requested": {
+                "description": "Empty = whole home",
+                "items": {
+                  "type": "string"
+                },
+                "title": "Rooms Requested",
+                "type": "array"
+              },
+              "started_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Started At"
+              }
+            },
+            "required": [
+              "mission_ref",
+              "robot_id",
+              "outcome",
+              "initiator",
+              "retrieved_at"
+            ],
+            "title": "CloudMission",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Remove the stored iRobot account login and disconnect from the cloud. Credentials supplied by environment variables still apply.",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "cloud_logout",
+    "output_schema": {
+      "properties": {
+        "last_ok": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Ok"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "status": {
+          "enum": [
+            "connected",
+            "unavailable",
+            "not_configured"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "CloudStatus",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Fetch a robot's local password from the iRobot account, check it by connecting, and store it. For models or robots that won't release it locally. The password is never returned.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotRef",
+      "type": "object"
+    },
+    "name": "cloud_retrieve_password",
+    "output_schema": {
+      "properties": {
+        "outcome": {
+          "enum": [
+            "stored",
+            "unavailable"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Why not: a cloud status reason, `not_in_account`, or `auth_failed` when the robot rejected the password the account gave",
+          "title": "Reason"
+        }
+      },
+      "required": [
+        "outcome"
+      ],
+      "title": "CloudPasswordResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and when it last worked.",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "cloud_status",
+    "output_schema": {
+      "properties": {
+        "last_ok": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Last Ok"
+        },
+        "reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reason"
+        },
+        "status": {
+          "enum": [
+            "connected",
+            "unavailable",
+            "not_configured"
+          ],
+          "title": "Status",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "CloudStatus",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "The effective configuration (files plus environment overrides), with every secret shown as `\"***\"`.",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "config_show",
+    "output_schema": {
+      "properties": {
+        "alerts": {
+          "properties": {
+            "dock_search_minutes": {
+              "default": 5,
+              "minimum": 1,
+              "title": "Dock Search Minutes",
+              "type": "integer"
+            }
+          },
+          "title": "AlertsConfig",
+          "type": "object"
+        },
+        "cloud": {
+          "properties": {
+            "country": {
+              "title": "Country",
+              "type": "string"
+            },
+            "enabled": {
+              "title": "Enabled",
+              "type": "boolean"
+            },
+            "password": {
+              "anyOf": [
+                {
+                  "const": "***",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Password"
+            },
+            "username": {
+              "anyOf": [
+                {
+                  "const": "***",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Username"
+            }
+          },
+          "required": [
+            "enabled",
+            "country"
+          ],
+          "title": "CloudView",
+          "type": "object"
+        },
+        "discovery": {
+          "properties": {
+            "broadcast": {
+              "default": "255.255.255.255",
+              "description": "Broadcast address for rediscovery; use the subnet's (e.g. 192.0.2.255) when a VPN owns the default route",
+              "title": "Broadcast",
+              "type": "string"
+            }
+          },
+          "title": "DiscoveryConfig",
+          "type": "object"
+        },
+        "events": {
+          "properties": {
+            "persist_position": {
+              "default": false,
+              "title": "Persist Position",
+              "type": "boolean"
+            }
+          },
+          "title": "EventsConfig",
+          "type": "object"
+        },
+        "history": {
+          "properties": {
+            "event_retention_days": {
+              "default": 30,
+              "minimum": 1,
+              "title": "Event Retention Days",
+              "type": "integer"
+            }
+          },
+          "title": "HistoryConfig",
+          "type": "object"
+        },
+        "robots": {
+          "items": {
+            "properties": {
+              "address": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "Last known IP; a hint",
+                "title": "Address"
+              },
+              "firmware": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Firmware"
+              },
+              "id": {
+                "description": "BLID; the only identifier",
+                "minLength": 1,
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "default": "",
+                "title": "Name",
+                "type": "string"
+              },
+              "password": {
+                "anyOf": [
+                  {
+                    "const": "***",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "description": "`\"***\"` when a password is stored, else null",
+                "title": "Password"
+              },
+              "profile": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Profile"
+              },
+              "sku": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "From discovery; refreshed from the robot",
+                "title": "Sku"
+              }
+            },
+            "required": [
+              "id",
+              "password"
+            ],
+            "title": "RobotView",
+            "type": "object"
+          },
+          "title": "Robots",
+          "type": "array"
+        },
+        "server": {
+          "properties": {
+            "host": {
+              "default": "127.0.0.1",
+              "title": "Host",
+              "type": "string"
+            },
+            "port": {
+              "default": 8765,
+              "maximum": 65535,
+              "minimum": 1,
+              "title": "Port",
+              "type": "integer"
+            }
+          },
+          "title": "ServerConfig",
+          "type": "object"
+        },
+        "tokens": {
+          "description": "Names only; token values are never shown",
+          "items": {
+            "properties": {
+              "created_at": {
+                "format": "date-time",
+                "title": "Created At",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "name",
+              "created_at"
+            ],
+            "title": "TokenView",
+            "type": "object"
+          },
+          "title": "Tokens",
+          "type": "array"
+        }
+      },
+      "required": [
+        "server",
+        "alerts",
+        "history",
+        "events",
+        "discovery",
+        "cloud",
+        "robots",
+        "tokens"
+      ],
+      "title": "ConfigView",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the model is supported, and whether it's already configured.\n\nParameters:\n- `broadcast`: str | None (default: None) — Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml\n- `timeout_s`: float (default: 8.0) — How long to listen",
+    "input_schema": {
+      "properties": {
+        "broadcast": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml",
+          "title": "Broadcast"
+        },
+        "timeout_s": {
+          "default": 8.0,
+          "description": "How long to listen",
+          "exclusiveMinimum": 0,
+          "maximum": 60,
+          "title": "Timeout S",
+          "type": "number"
+        }
+      },
+      "title": "Discover",
+      "type": "object"
+    },
+    "name": "discover_robots",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "items": {
+            "properties": {
+              "address": {
+                "title": "Address",
+                "type": "string"
+              },
+              "configured": {
+                "default": false,
+                "title": "Configured",
+                "type": "boolean"
+              },
+              "firmware": {
+                "title": "Firmware",
+                "type": "string"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "profile_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Profile Id"
+              },
+              "sku": {
+                "title": "Sku",
+                "type": "string"
+              },
+              "supported": {
+                "title": "Supported",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "sku",
+              "firmware",
+              "address",
+              "supported"
+            ],
+            "title": "DiscoveredRobot",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Send the robot back to its dock. Confirmed when it reports returning, docked or charging.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "dock",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Empty the bin into the Clean Base. Confirmed when the robot reports emptying.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: roomba_i5\n\nVerification: roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "evac",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text/event-stream` to get the same events as a live SSE stream that resumes with `Last-Event-ID`.\n\nParameters:\n- `since`: int | None (default: None) — Return events with a seq greater than this; omit for the oldest\n- `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)\n- `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types\n- `limit`: int (default: 100) — Most events to return",
+    "input_schema": {
+      "properties": {
+        "limit": {
+          "default": 100,
+          "description": "Most events to return",
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "robot": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only this robot (ID or unambiguous name)",
+          "title": "Robot"
+        },
+        "since": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Return events with a seq greater than this; omit for the oldest",
+          "title": "Since"
+        },
+        "types": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "state.changed",
+                  "activity.changed",
+                  "mission.started",
+                  "mission.finished",
+                  "robot.docked",
+                  "robot.stuck",
+                  "bin.full",
+                  "error.raised",
+                  "error.cleared",
+                  "connection.changed",
+                  "setting.changed",
+                  "cloud.status",
+                  "cloud.timeline",
+                  "position",
+                  "alert.dock_search_timeout"
+                ],
+                "title": "EventType",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only these event types",
+          "title": "Types"
+        }
+      },
+      "title": "EventsListParams",
+      "type": "object"
+    },
+    "name": "events_list",
+    "output_schema": {
+      "properties": {
+        "events": {
+          "items": {
+            "properties": {
+              "at": {
+                "format": "date-time",
+                "title": "At",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "title": "Data",
+                "type": "object"
+              },
+              "robot_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Robot Id"
+              },
+              "schema": {
+                "const": "roomba-kit.event/v1",
+                "default": "roomba-kit.event/v1",
+                "title": "Schema",
+                "type": "string"
+              },
+              "seq": {
+                "title": "Seq",
+                "type": "integer"
+              },
+              "type": {
+                "enum": [
+                  "state.changed",
+                  "activity.changed",
+                  "mission.started",
+                  "mission.finished",
+                  "robot.docked",
+                  "robot.stuck",
+                  "bin.full",
+                  "error.raised",
+                  "error.cleared",
+                  "connection.changed",
+                  "setting.changed",
+                  "cloud.status",
+                  "cloud.timeline",
+                  "position",
+                  "alert.dock_search_timeout"
+                ],
+                "title": "EventType",
+                "type": "string"
+              }
+            },
+            "required": [
+              "seq",
+              "type",
+              "at"
+            ],
+            "title": "Event",
+            "type": "object"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "next": {
+          "description": "Pass as `since` to continue after these events",
+          "title": "Next",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "next"
+      ],
+      "title": "EventPage",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Wait for events after `since` and return them as soon as any arrive, or an empty list at the timeout. Call again with `next` to keep following.\n\nParameters:\n- `since`: int — Wait for events with a seq greater than this\n- `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)\n- `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types\n- `timeout_s`: float (default: 30) — Seconds to wait before returning no events",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only this robot (ID or unambiguous name)",
+          "title": "Robot"
+        },
+        "since": {
+          "description": "Wait for events with a seq greater than this",
+          "minimum": 0,
+          "title": "Since",
+          "type": "integer"
+        },
+        "timeout_s": {
+          "default": 30,
+          "description": "Seconds to wait before returning no events",
+          "exclusiveMinimum": 0,
+          "maximum": 300,
+          "title": "Timeout S",
+          "type": "number"
+        },
+        "types": {
+          "anyOf": [
+            {
+              "items": {
+                "enum": [
+                  "state.changed",
+                  "activity.changed",
+                  "mission.started",
+                  "mission.finished",
+                  "robot.docked",
+                  "robot.stuck",
+                  "bin.full",
+                  "error.raised",
+                  "error.cleared",
+                  "connection.changed",
+                  "setting.changed",
+                  "cloud.status",
+                  "cloud.timeline",
+                  "position",
+                  "alert.dock_search_timeout"
+                ],
+                "title": "EventType",
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only these event types",
+          "title": "Types"
+        }
+      },
+      "required": [
+        "since"
+      ],
+      "title": "EventsWaitParams",
+      "type": "object"
+    },
+    "name": "events_wait",
+    "output_schema": {
+      "properties": {
+        "events": {
+          "items": {
+            "properties": {
+              "at": {
+                "format": "date-time",
+                "title": "At",
+                "type": "string"
+              },
+              "data": {
+                "additionalProperties": true,
+                "title": "Data",
+                "type": "object"
+              },
+              "robot_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Robot Id"
+              },
+              "schema": {
+                "const": "roomba-kit.event/v1",
+                "default": "roomba-kit.event/v1",
+                "title": "Schema",
+                "type": "string"
+              },
+              "seq": {
+                "title": "Seq",
+                "type": "integer"
+              },
+              "type": {
+                "enum": [
+                  "state.changed",
+                  "activity.changed",
+                  "mission.started",
+                  "mission.finished",
+                  "robot.docked",
+                  "robot.stuck",
+                  "bin.full",
+                  "error.raised",
+                  "error.cleared",
+                  "connection.changed",
+                  "setting.changed",
+                  "cloud.status",
+                  "cloud.timeline",
+                  "position",
+                  "alert.dock_search_timeout"
+                ],
+                "title": "EventType",
+                "type": "string"
+              }
+            },
+            "required": [
+              "seq",
+              "type",
+              "at"
+            ],
+            "title": "Event",
+            "type": "object"
+          },
+          "title": "Events",
+          "type": "array"
+        },
+        "next": {
+          "description": "Pass as `since` to continue after these events",
+          "title": "Next",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "events",
+        "next"
+      ],
+      "title": "EventPage",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Play the locate sound so you can find the robot. It doesn't move. Confirmed when the robot echoes the command.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "find",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "What the robot's model supports, each with `verified` (exercised on real hardware) or `unverified`. Empty for a model without a profile.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotRef",
+      "type": "object"
+    },
+    "name": "get_capabilities",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "items": {
+            "properties": {
+              "capability": {
+                "enum": [
+                  "clean",
+                  "clean_rooms",
+                  "pause",
+                  "resume",
+                  "stop",
+                  "dock",
+                  "find",
+                  "evac",
+                  "reboot",
+                  "train",
+                  "setting.passes",
+                  "setting.edge_clean",
+                  "setting.always_finish",
+                  "setting.child_lock",
+                  "setting.eco_charge",
+                  "setting.schedule_hold",
+                  "setting.pad_wetness",
+                  "setting.spray_overlap",
+                  "setting.carpet_boost",
+                  "state.bin",
+                  "state.clean_base",
+                  "state.pad",
+                  "state.tank",
+                  "state.lid",
+                  "live_position",
+                  "cloud.rooms",
+                  "cloud.history",
+                  "cloud.coverage",
+                  "cloud.timeline"
+                ],
+                "title": "Capability",
+                "type": "string"
+              },
+              "verification": {
+                "description": "Whether a capability has been exercised on real hardware (Constitution VIII).",
+                "properties": {
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Run"
+                  },
+                  "status": {
+                    "enum": [
+                      "verified",
+                      "unverified"
+                    ],
+                    "title": "Status",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "title": "Verification",
+                "type": "object"
+              }
+            },
+            "required": [
+              "capability",
+              "verification"
+            ],
+            "title": "CapabilityStatus",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Where a finished mission cleaned: covered points, dirt detections and clutter, in metres from the dock. The cloud publishes it minutes after the robot docks; until then this returns `cloud_unavailable` with reason `not_yet_published`. Clutter is given as the vertices of each clutter area's outline.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `mission_id`: str — The kit mission ID (the robot's own mission ID) or the cloud mission ref\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+    "input_schema": {
+      "properties": {
+        "mission_id": {
+          "description": "The kit mission ID (the robot's own mission ID) or the cloud mission ref",
+          "title": "Mission Id",
+          "type": "string"
+        },
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot",
+        "mission_id"
+      ],
+      "title": "CoverageParams",
+      "type": "object"
+    },
+    "name": "get_coverage",
+    "output_schema": {
+      "properties": {
+        "clutter": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Clutter",
+          "type": "array"
+        },
+        "dirt": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Dirt",
+          "type": "array"
+        },
+        "map_id": {
+          "title": "Map Id",
+          "type": "string"
+        },
+        "map_version": {
+          "title": "Map Version",
+          "type": "string"
+        },
+        "mission_ref": {
+          "title": "Mission Ref",
+          "type": "string"
+        },
+        "point_area_m2": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Point Area M2"
+        },
+        "points": {
+          "items": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "type": "array"
+          },
+          "title": "Points",
+          "type": "array"
+        },
+        "retrieved_at": {
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot_id",
+        "mission_ref",
+        "map_id",
+        "map_version",
+        "points",
+        "retrieved_at"
+      ],
+      "title": "CoverageRecord",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "The robot's stored map from the iRobot cloud: its rooms with names, types and outlines (rings of [x, y] metres, outer ring first). While the cloud is unavailable, the last copy fetched is returned with its `retrieved_at`.\n\nParameters:\n- `robot`: str — Robot ID or name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotParams",
+      "type": "object"
+    },
+    "name": "get_floor_plan",
+    "output_schema": {
+      "properties": {
+        "map": {
+          "properties": {
+            "map_id": {
+              "title": "Map Id",
+              "type": "string"
+            },
+            "version": {
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "map_id",
+            "version"
+          ],
+          "title": "MapRef",
+          "type": "object"
+        },
+        "retrieved_at": {
+          "description": "When this was fetched from the cloud",
+          "format": "date-time",
+          "title": "Retrieved At",
+          "type": "string"
+        },
+        "rooms": {
+          "items": {
+            "properties": {
+              "id": {
+                "description": "Room (region) ID on this map",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "description": "Kit name, else the cloud name, else `Room <id>`",
+                "title": "Name",
+                "type": "string"
+              },
+              "polygon": {
+                "description": "Outline as rings of [x, y] metres from the dock, the outer ring first",
+                "items": {
+                  "items": {
+                    "maxItems": 2,
+                    "minItems": 2,
+                    "prefixItems": [
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "number"
+                      }
+                    ],
+                    "type": "array"
+                  },
+                  "type": "array"
+                },
+                "title": "Polygon",
+                "type": "array"
+              },
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "Room type from the cloud, e.g. `kitchen`",
+                "title": "Type"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "polygon"
+            ],
+            "title": "FloorPlanRoom",
+            "type": "object"
+          },
+          "title": "Rooms",
+          "type": "array"
+        }
+      },
+      "required": [
+        "map",
+        "rooms",
+        "retrieved_at"
+      ],
+      "title": "FloorPlan",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Get one mission from local history by its ID.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
+    "input_schema": {
+      "properties": {
+        "mission_id": {
+          "description": "Mission ID, as listed by `list_missions`",
+          "title": "Mission Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "mission_id"
+      ],
+      "title": "GetMissionParams",
+      "type": "object"
+    },
+    "name": "get_mission",
+    "output_schema": {
+      "properties": {
+        "cloud_mission_ref": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cloud Mission Ref"
+        },
+        "duration_s": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Duration S"
+        },
+        "ended_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Ended At"
+        },
+        "errors": {
+          "items": {
+            "properties": {
+              "code": {
+                "title": "Code",
+                "type": "integer"
+              },
+              "text": {
+                "title": "Text",
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "text"
+            ],
+            "title": "CodeText",
+            "type": "object"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "initiator": {
+          "enum": [
+            "kit",
+            "schedule",
+            "button",
+            "app",
+            "team",
+            "other"
+          ],
+          "title": "Initiator",
+          "type": "string"
+        },
+        "outcome": {
+          "default": "in_progress",
+          "enum": [
+            "in_progress",
+            "completed",
+            "cancelled",
+            "stuck",
+            "failed",
+            "manually_docked",
+            "unknown"
+          ],
+          "title": "MissionOutcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "rooms_requested": {
+          "description": "Empty = whole home",
+          "items": {
+            "type": "string"
+          },
+          "title": "Rooms Requested",
+          "type": "array"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "robot_id",
+        "started_at",
+        "initiator"
+      ],
+      "title": "Mission",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on. `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During missions the same fixes stream as `position` events.\n\nParameters:\n- `robot`: str — Robot ID or name\n\nSupported on: braava_m6\n\nVerification: braava_m6: verified",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "PositionParams",
+      "type": "object"
+    },
+    "name": "get_position",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "anyOf": [
+            {
+              "properties": {
+                "at": {
+                  "format": "date-time",
+                  "title": "At",
+                  "type": "string"
+                },
+                "heading_rad": {
+                  "title": "Heading Rad",
+                  "type": "number"
+                },
+                "map_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Map Id"
+                },
+                "map_version": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Map Version"
+                },
+                "robot_id": {
+                  "title": "Robot Id",
+                  "type": "string"
+                },
+                "x_m": {
+                  "title": "X M",
+                  "type": "number"
+                },
+                "y_m": {
+                  "title": "Y M",
+                  "type": "number"
+                }
+              },
+              "required": [
+                "robot_id",
+                "at",
+                "x_m",
+                "y_m",
+                "heading_rad"
+              ],
+              "title": "PositionFix",
+              "type": "object"
+            },
+            {
+              "properties": {
+                "no_fix": {
+                  "const": true,
+                  "default": true,
+                  "title": "No Fix",
+                  "type": "boolean"
+                }
+              },
+              "title": "NoFix",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "One robot's details: ID, name, model, SKU, firmware, address, connection state and capabilities.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotRef",
+      "type": "object"
+    },
+    "name": "get_robot",
+    "output_schema": {
+      "properties": {
+        "address": {
+          "title": "Address",
+          "type": "string"
+        },
+        "capabilities": {
+          "items": {
+            "properties": {
+              "capability": {
+                "enum": [
+                  "clean",
+                  "clean_rooms",
+                  "pause",
+                  "resume",
+                  "stop",
+                  "dock",
+                  "find",
+                  "evac",
+                  "reboot",
+                  "train",
+                  "setting.passes",
+                  "setting.edge_clean",
+                  "setting.always_finish",
+                  "setting.child_lock",
+                  "setting.eco_charge",
+                  "setting.schedule_hold",
+                  "setting.pad_wetness",
+                  "setting.spray_overlap",
+                  "setting.carpet_boost",
+                  "state.bin",
+                  "state.clean_base",
+                  "state.pad",
+                  "state.tank",
+                  "state.lid",
+                  "live_position",
+                  "cloud.rooms",
+                  "cloud.history",
+                  "cloud.coverage",
+                  "cloud.timeline"
+                ],
+                "title": "Capability",
+                "type": "string"
+              },
+              "verification": {
+                "description": "Whether a capability has been exercised on real hardware (Constitution VIII).",
+                "properties": {
+                  "run": {
+                    "anyOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ],
+                    "default": null,
+                    "title": "Run"
+                  },
+                  "status": {
+                    "enum": [
+                      "verified",
+                      "unverified"
+                    ],
+                    "title": "Status",
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "status"
+                ],
+                "title": "Verification",
+                "type": "object"
+              }
+            },
+            "required": [
+              "capability",
+              "verification"
+            ],
+            "title": "CapabilityStatus",
+            "type": "object"
+          },
+          "title": "Capabilities",
+          "type": "array"
+        },
+        "connection": {
+          "enum": [
+            "connected",
+            "connecting",
+            "offline",
+            "held_elsewhere",
+            "auth_failed",
+            "not_configured"
+          ],
+          "title": "ConnectionState",
+          "type": "string"
+        },
+        "firmware": {
+          "title": "Firmware",
+          "type": "string"
+        },
+        "id": {
+          "description": "The robot's permanent ID (BLID); the only identifier.",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Profile Id"
+        },
+        "sku": {
+          "title": "Sku",
+          "type": "string"
+        },
+        "supported": {
+          "title": "Supported",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "profile_id",
+        "supported",
+        "sku",
+        "firmware",
+        "address",
+        "connection",
+        "capabilities"
+      ],
+      "title": "Robot",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.\n\nParameters:\n- `robot`: str — Robot ID or name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotRef",
+      "type": "object"
+    },
+    "name": "get_settings",
+    "output_schema": {
+      "additionalProperties": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "integer"
+          },
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Get a robot's full live state: battery, activity, current mission, last command, error and not-ready codes with readable text, Wi-Fi signal, stored map, robot schedules, lifetime counters, settings, and the bin, Clean Base, pad, tank and lid where the model has them. `at` is when the robot last reported; while it's offline this is the last state it reported.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotParams",
+      "type": "object"
+    },
+    "name": "get_state",
+    "output_schema": {
+      "properties": {
+        "activity": {
+          "default": "unknown",
+          "enum": [
+            "docked",
+            "charging",
+            "cleaning",
+            "mapping",
+            "paused",
+            "returning",
+            "emptying_bin",
+            "stuck",
+            "unknown"
+          ],
+          "title": "Activity",
+          "type": "string"
+        },
+        "at": {
+          "format": "date-time",
+          "title": "At",
+          "type": "string"
+        },
+        "battery_pct": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Battery Pct"
+        },
+        "bin": {
+          "anyOf": [
+            {
+              "properties": {
+                "full": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Full"
+                },
+                "present": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Present"
+                }
+              },
+              "title": "BinState",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "clean_base": {
+          "anyOf": [
+            {
+              "properties": {
+                "present": {
+                  "title": "Present",
+                  "type": "boolean"
+                },
+                "state": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "State"
+                }
+              },
+              "required": [
+                "present"
+              ],
+              "title": "CleanBaseState",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "counters": {
+          "properties": {
+            "missions_cancelled": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Missions Cancelled"
+            },
+            "missions_failed": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Missions Failed"
+            },
+            "missions_ok": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Missions Ok"
+            },
+            "runtime_hours": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Runtime Hours"
+            },
+            "stuck_count": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Stuck Count"
+            }
+          },
+          "title": "Counters",
+          "type": "object"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "properties": {
+                "code": {
+                  "title": "Code",
+                  "type": "integer"
+                },
+                "text": {
+                  "title": "Text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "code",
+                "text"
+              ],
+              "title": "CodeText",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "last_command": {
+          "anyOf": [
+            {
+              "description": "The robot's echo of the last command it accepted, from any client.",
+              "properties": {
+                "at": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "At"
+                },
+                "command": {
+                  "title": "Command",
+                  "type": "string"
+                },
+                "initiator": {
+                  "enum": [
+                    "kit",
+                    "schedule",
+                    "button",
+                    "app",
+                    "team",
+                    "other"
+                  ],
+                  "title": "Initiator",
+                  "type": "string"
+                },
+                "map_id": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Map Id"
+                },
+                "map_version": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Map Version"
+                },
+                "room_ids": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Room Ids",
+                  "type": "array"
+                }
+              },
+              "required": [
+                "command",
+                "initiator"
+              ],
+              "title": "CommandEcho",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "lid_open": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lid Open"
+        },
+        "map": {
+          "anyOf": [
+            {
+              "properties": {
+                "map_id": {
+                  "title": "Map Id",
+                  "type": "string"
+                },
+                "version": {
+                  "title": "Version",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "map_id",
+                "version"
+              ],
+              "title": "MapRef",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "mission": {
+          "anyOf": [
+            {
+              "properties": {
+                "id": {
+                  "title": "Id",
+                  "type": "string"
+                },
+                "initiator": {
+                  "enum": [
+                    "kit",
+                    "schedule",
+                    "button",
+                    "app",
+                    "team",
+                    "other"
+                  ],
+                  "title": "Initiator",
+                  "type": "string"
+                },
+                "started_at": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Started At"
+                }
+              },
+              "required": [
+                "id",
+                "initiator"
+              ],
+              "title": "MissionRef",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "not_ready": {
+          "anyOf": [
+            {
+              "properties": {
+                "code": {
+                  "title": "Code",
+                  "type": "integer"
+                },
+                "text": {
+                  "title": "Text",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "code",
+                "text"
+              ],
+              "title": "CodeText",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pad": {
+          "anyOf": [
+            {
+              "properties": {
+                "detected": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Detected"
+                }
+              },
+              "title": "PadState",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "schedules": {
+          "items": {
+            "description": "A schedule stored on the robot. Read-only in V1.",
+            "properties": {
+              "command": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Command"
+              },
+              "days": {
+                "description": "0 = Sunday … 6 = Saturday",
+                "items": {
+                  "type": "integer"
+                },
+                "title": "Days",
+                "type": "array"
+              },
+              "enabled": {
+                "title": "Enabled",
+                "type": "boolean"
+              },
+              "hour": {
+                "title": "Hour",
+                "type": "integer"
+              },
+              "minute": {
+                "title": "Minute",
+                "type": "integer"
+              },
+              "team": {
+                "default": false,
+                "description": "True when the entry triggers a vendor team routine",
+                "title": "Team",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "enabled",
+              "days",
+              "hour",
+              "minute"
+            ],
+            "title": "RobotSchedule",
+            "type": "object"
+          },
+          "title": "Schedules",
+          "type": "array"
+        },
+        "settings": {
+          "additionalProperties": true,
+          "title": "Settings",
+          "type": "object"
+        },
+        "signal": {
+          "anyOf": [
+            {
+              "properties": {
+                "rssi": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Rssi"
+                },
+                "snr": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Snr"
+                }
+              },
+              "title": "Signal",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tank": {
+          "anyOf": [
+            {
+              "properties": {
+                "level_pct": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Level Pct"
+                },
+                "present": {
+                  "anyOf": [
+                    {
+                      "type": "boolean"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Present"
+                }
+              },
+              "title": "TankState",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "robot_id",
+        "at"
+      ],
+      "title": "RobotState",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Whether the service is up, and its version. Needs no API token over HTTP.",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "health",
+    "output_schema": {
+      "properties": {
+        "status": {
+          "const": "ok",
+          "default": "ok",
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version"
+      ],
+      "title": "Health",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Import the robot's room IDs and names from its stored map in the iRobot cloud. Replaces rooms stored for older map versions; local names on the same map version are kept. The result is cached, so rooms stay usable while the cloud is down.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotParams",
+      "type": "object"
+    },
+    "name": "import_rooms",
+    "output_schema": {
+      "properties": {
+        "imported": {
+          "description": "Rooms on the imported map",
+          "title": "Imported",
+          "type": "integer"
+        },
+        "map": {
+          "properties": {
+            "map_id": {
+              "title": "Map Id",
+              "type": "string"
+            },
+            "version": {
+              "title": "Version",
+              "type": "string"
+            }
+          },
+          "required": [
+            "map_id",
+            "version"
+          ],
+          "title": "MapRef",
+          "type": "object"
+        }
+      },
+      "required": [
+        "imported",
+        "map"
+      ],
+      "title": "ImportResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "List the missions recorded in local history, newest first: robot, start and end, outcome, rooms requested (empty means the whole home), who started it, duration and errors. History is kept indefinitely and includes the mission in progress.\n\nParameters:\n- `robot`: str | None (default: None) — Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.\n- `since`: datetime.datetime | None (default: None) — Only missions started at or after this time (ISO 8601; UTC if no offset)\n- `until`: datetime.datetime | None (default: None) — Only missions started before this time (ISO 8601; UTC if no offset)\n- `outcome`: roomba_kit.core.models.MissionOutcome | None (default: None) — Only missions with this outcome\n- `limit`: int (default: 50) — Most missions to return",
+    "input_schema": {
+      "properties": {
+        "limit": {
+          "default": 50,
+          "description": "Most missions to return",
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Limit",
+          "type": "integer"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "enum": [
+                "in_progress",
+                "completed",
+                "cancelled",
+                "stuck",
+                "failed",
+                "manually_docked",
+                "unknown"
+              ],
+              "title": "MissionOutcome",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only missions with this outcome"
+        },
+        "robot": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.",
+          "title": "Robot"
+        },
+        "since": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only missions started at or after this time (ISO 8601; UTC if no offset)",
+          "title": "Since"
+        },
+        "until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Only missions started before this time (ISO 8601; UTC if no offset)",
+          "title": "Until"
+        }
+      },
+      "title": "ListMissionsParams",
+      "type": "object"
+    },
+    "name": "list_missions",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "items": {
+            "properties": {
+              "cloud_mission_ref": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Cloud Mission Ref"
+              },
+              "duration_s": {
+                "anyOf": [
+                  {
+                    "type": "integer"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Duration S"
+              },
+              "ended_at": {
+                "anyOf": [
+                  {
+                    "format": "date-time",
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Ended At"
+              },
+              "errors": {
+                "items": {
+                  "properties": {
+                    "code": {
+                      "title": "Code",
+                      "type": "integer"
+                    },
+                    "text": {
+                      "title": "Text",
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "text"
+                  ],
+                  "title": "CodeText",
+                  "type": "object"
+                },
+                "title": "Errors",
+                "type": "array"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "initiator": {
+                "enum": [
+                  "kit",
+                  "schedule",
+                  "button",
+                  "app",
+                  "team",
+                  "other"
+                ],
+                "title": "Initiator",
+                "type": "string"
+              },
+              "outcome": {
+                "default": "in_progress",
+                "enum": [
+                  "in_progress",
+                  "completed",
+                  "cancelled",
+                  "stuck",
+                  "failed",
+                  "manually_docked",
+                  "unknown"
+                ],
+                "title": "MissionOutcome",
+                "type": "string"
+              },
+              "robot_id": {
+                "title": "Robot Id",
+                "type": "string"
+              },
+              "rooms_requested": {
+                "description": "Empty = whole home",
+                "items": {
+                  "type": "string"
+                },
+                "title": "Rooms Requested",
+                "type": "array"
+              },
+              "started_at": {
+                "format": "date-time",
+                "title": "Started At",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "robot_id",
+              "started_at",
+              "initiator"
+            ],
+            "title": "Mission",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "List every configured robot: ID, name, model, SKU, firmware, address, connection state and capabilities with their verification status. Robots without a model profile are listed with `supported=false` (see docs/guides/adding-a-model.md).",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "list_robots",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "items": {
+            "properties": {
+              "address": {
+                "title": "Address",
+                "type": "string"
+              },
+              "capabilities": {
+                "items": {
+                  "properties": {
+                    "capability": {
+                      "enum": [
+                        "clean",
+                        "clean_rooms",
+                        "pause",
+                        "resume",
+                        "stop",
+                        "dock",
+                        "find",
+                        "evac",
+                        "reboot",
+                        "train",
+                        "setting.passes",
+                        "setting.edge_clean",
+                        "setting.always_finish",
+                        "setting.child_lock",
+                        "setting.eco_charge",
+                        "setting.schedule_hold",
+                        "setting.pad_wetness",
+                        "setting.spray_overlap",
+                        "setting.carpet_boost",
+                        "state.bin",
+                        "state.clean_base",
+                        "state.pad",
+                        "state.tank",
+                        "state.lid",
+                        "live_position",
+                        "cloud.rooms",
+                        "cloud.history",
+                        "cloud.coverage",
+                        "cloud.timeline"
+                      ],
+                      "title": "Capability",
+                      "type": "string"
+                    },
+                    "verification": {
+                      "description": "Whether a capability has been exercised on real hardware (Constitution VIII).",
+                      "properties": {
+                        "run": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Run"
+                        },
+                        "status": {
+                          "enum": [
+                            "verified",
+                            "unverified"
+                          ],
+                          "title": "Status",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "status"
+                      ],
+                      "title": "Verification",
+                      "type": "object"
+                    }
+                  },
+                  "required": [
+                    "capability",
+                    "verification"
+                  ],
+                  "title": "CapabilityStatus",
+                  "type": "object"
+                },
+                "title": "Capabilities",
+                "type": "array"
+              },
+              "connection": {
+                "enum": [
+                  "connected",
+                  "connecting",
+                  "offline",
+                  "held_elsewhere",
+                  "auth_failed",
+                  "not_configured"
+                ],
+                "title": "ConnectionState",
+                "type": "string"
+              },
+              "firmware": {
+                "title": "Firmware",
+                "type": "string"
+              },
+              "id": {
+                "description": "The robot's permanent ID (BLID); the only identifier.",
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "profile_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "title": "Profile Id"
+              },
+              "sku": {
+                "title": "Sku",
+                "type": "string"
+              },
+              "supported": {
+                "title": "Supported",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "profile_id",
+              "supported",
+              "sku",
+              "firmware",
+              "address",
+              "connection",
+              "capabilities"
+            ],
+            "title": "Robot",
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "List the robot's rooms: imported from the cloud, named locally, or learned from room cleans the robot reported (including ones started by other apps). Works without the cloud. Unnamed rooms are shown as `Room <id>`.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotParams",
+      "type": "object"
+    },
+    "name": "list_rooms",
+    "output_schema": {
+      "properties": {
+        "map": {
+          "anyOf": [
+            {
+              "properties": {
+                "map_id": {
+                  "title": "Map Id",
+                  "type": "string"
+                },
+                "version": {
+                  "title": "Version",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "map_id",
+                "version"
+              ],
+              "title": "MapRef",
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "The robot's current map (the newest stored one while it hasn't reported state); null when nothing is known about its map."
+        },
+        "retrieved_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When this map's rooms were last imported from the cloud.",
+          "title": "Retrieved At"
+        },
+        "rooms": {
+          "description": "Rooms on that map: imported, locally named and learned. Rooms stored for an older map version are included with their own `map_version`.",
+          "items": {
+            "properties": {
+              "cloud_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Cloud Name"
+              },
+              "local_name": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Local Name"
+              },
+              "map_id": {
+                "title": "Map Id",
+                "type": "string"
+              },
+              "map_version": {
+                "title": "Map Version",
+                "type": "string"
+              },
+              "name": {
+                "description": "Effective name: `local_name`, then `cloud_name`, then `Room <id>`.",
+                "readOnly": true,
+                "title": "Name",
+                "type": "string"
+              },
+              "robot_id": {
+                "title": "Robot Id",
+                "type": "string"
+              },
+              "room_id": {
+                "title": "Room Id",
+                "type": "string"
+              },
+              "type": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Type"
+              }
+            },
+            "required": [
+              "robot_id",
+              "map_id",
+              "map_version",
+              "room_id",
+              "name"
+            ],
+            "title": "Room",
+            "type": "object"
+          },
+          "title": "Rooms",
+          "type": "array"
+        },
+        "stale": {
+          "description": "True when some rooms are for an older map: using them fails with `map_changed` until rooms are re-imported or named again.",
+          "title": "Stale",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "map",
+        "rooms",
+        "stale"
+      ],
+      "title": "RoomList",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if it hasn't ended in time.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `mission_id`: str | None (default: None) — The mission to wait for; omit for the current or next mission\n- `timeout_s`: float (default: 1800) — Seconds to wait for the mission to end",
+    "input_schema": {
+      "properties": {
+        "mission_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "The mission to wait for; omit for the current or next mission",
+          "title": "Mission Id"
+        },
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        },
+        "timeout_s": {
+          "default": 1800,
+          "description": "Seconds to wait for the mission to end",
+          "exclusiveMinimum": 0,
+          "maximum": 21600,
+          "title": "Timeout S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "MissionWaitParams",
+      "type": "object"
+    },
+    "name": "mission_wait",
+    "output_schema": {
+      "properties": {
+        "result": {
+          "anyOf": [
+            {
+              "properties": {
+                "cloud_mission_ref": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Cloud Mission Ref"
+                },
+                "duration_s": {
+                  "anyOf": [
+                    {
+                      "type": "integer"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Duration S"
+                },
+                "ended_at": {
+                  "anyOf": [
+                    {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "default": null,
+                  "title": "Ended At"
+                },
+                "errors": {
+                  "items": {
+                    "properties": {
+                      "code": {
+                        "title": "Code",
+                        "type": "integer"
+                      },
+                      "text": {
+                        "title": "Text",
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "text"
+                    ],
+                    "title": "CodeText",
+                    "type": "object"
+                  },
+                  "title": "Errors",
+                  "type": "array"
+                },
+                "id": {
+                  "title": "Id",
+                  "type": "string"
+                },
+                "initiator": {
+                  "enum": [
+                    "kit",
+                    "schedule",
+                    "button",
+                    "app",
+                    "team",
+                    "other"
+                  ],
+                  "title": "Initiator",
+                  "type": "string"
+                },
+                "outcome": {
+                  "default": "in_progress",
+                  "enum": [
+                    "in_progress",
+                    "completed",
+                    "cancelled",
+                    "stuck",
+                    "failed",
+                    "manually_docked",
+                    "unknown"
+                  ],
+                  "title": "MissionOutcome",
+                  "type": "string"
+                },
+                "robot_id": {
+                  "title": "Robot Id",
+                  "type": "string"
+                },
+                "rooms_requested": {
+                  "description": "Empty = whole home",
+                  "items": {
+                    "type": "string"
+                  },
+                  "title": "Rooms Requested",
+                  "type": "array"
+                },
+                "started_at": {
+                  "format": "date-time",
+                  "title": "Started At",
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "robot_id",
+                "started_at",
+                "initiator"
+              ],
+              "title": "Mission",
+              "type": "object"
+            },
+            {
+              "properties": {
+                "mission": {
+                  "anyOf": [
+                    {
+                      "properties": {
+                        "cloud_mission_ref": {
+                          "anyOf": [
+                            {
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Cloud Mission Ref"
+                        },
+                        "duration_s": {
+                          "anyOf": [
+                            {
+                              "type": "integer"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Duration S"
+                        },
+                        "ended_at": {
+                          "anyOf": [
+                            {
+                              "format": "date-time",
+                              "type": "string"
+                            },
+                            {
+                              "type": "null"
+                            }
+                          ],
+                          "default": null,
+                          "title": "Ended At"
+                        },
+                        "errors": {
+                          "items": {
+                            "properties": {
+                              "code": {
+                                "title": "Code",
+                                "type": "integer"
+                              },
+                              "text": {
+                                "title": "Text",
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "code",
+                              "text"
+                            ],
+                            "title": "CodeText",
+                            "type": "object"
+                          },
+                          "title": "Errors",
+                          "type": "array"
+                        },
+                        "id": {
+                          "title": "Id",
+                          "type": "string"
+                        },
+                        "initiator": {
+                          "enum": [
+                            "kit",
+                            "schedule",
+                            "button",
+                            "app",
+                            "team",
+                            "other"
+                          ],
+                          "title": "Initiator",
+                          "type": "string"
+                        },
+                        "outcome": {
+                          "default": "in_progress",
+                          "enum": [
+                            "in_progress",
+                            "completed",
+                            "cancelled",
+                            "stuck",
+                            "failed",
+                            "manually_docked",
+                            "unknown"
+                          ],
+                          "title": "MissionOutcome",
+                          "type": "string"
+                        },
+                        "robot_id": {
+                          "title": "Robot Id",
+                          "type": "string"
+                        },
+                        "rooms_requested": {
+                          "description": "Empty = whole home",
+                          "items": {
+                            "type": "string"
+                          },
+                          "title": "Rooms Requested",
+                          "type": "array"
+                        },
+                        "started_at": {
+                          "format": "date-time",
+                          "title": "Started At",
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "robot_id",
+                        "started_at",
+                        "initiator"
+                      ],
+                      "title": "Mission",
+                      "type": "object"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "description": "The mission still in progress, if any"
+                },
+                "timeout": {
+                  "const": true,
+                  "default": true,
+                  "title": "Timeout",
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "mission"
+              ],
+              "title": "MissionWaitTimeout",
+              "type": "object"
+            }
+          ]
+        }
+      },
+      "required": [
+        "result"
+      ],
+      "type": "object",
+      "x-fastmcp-wrap-result": true
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Give a room on the robot's current map a local name. Works without the cloud, for imported and learned rooms alike. Names apply to one map version.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `room_id`: str — The room's ID on the robot's current map\n- `name`: str — The local name. Unique per map, ignoring case; it overrides the cloud name.",
+    "input_schema": {
+      "properties": {
+        "name": {
+          "description": "The local name. Unique per map, ignoring case; it overrides the cloud name.",
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        },
+        "room_id": {
+          "description": "The room's ID on the robot's current map",
+          "title": "Room Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot",
+        "room_id",
+        "name"
+      ],
+      "title": "NameRoomParams",
+      "type": "object"
+    },
+    "name": "name_room",
+    "output_schema": {
+      "properties": {
+        "cloud_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cloud Name"
+        },
+        "local_name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Local Name"
+        },
+        "map_id": {
+          "title": "Map Id",
+          "type": "string"
+        },
+        "map_version": {
+          "title": "Map Version",
+          "type": "string"
+        },
+        "name": {
+          "description": "Effective name: `local_name`, then `cloud_name`, then `Room <id>`.",
+          "readOnly": true,
+          "title": "Name",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "room_id": {
+          "title": "Room Id",
+          "type": "string"
+        },
+        "type": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Type"
+        }
+      },
+      "required": [
+        "robot_id",
+        "map_id",
+        "map_version",
+        "room_id",
+        "name"
+      ],
+      "title": "Room",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Pause the current mission. Confirmed when the robot reports paused.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "pause",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "reboot",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Remove a robot: stop its connection and delete its config and password. Other robots and the cloud login are untouched.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RobotRef",
+      "type": "object"
+    },
+    "name": "remove_robot",
+    "output_schema": {
+      "properties": {
+        "removed": {
+          "title": "Removed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "removed"
+      ],
+      "title": "Removed",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Resume a paused mission. Confirmed when the robot reports cleaning again.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "resume",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Retrieve the robot's local password over the network while you hold HOME on the docked robot, verify it by connecting, and store it. The password is never returned.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n- `timeout_s`: float (default: 60.0) — How long to keep retrying (every 2 s)",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        },
+        "timeout_s": {
+          "default": 60.0,
+          "description": "How long to keep retrying (every 2 s)",
+          "exclusiveMinimum": 0,
+          "maximum": 600,
+          "title": "Timeout S",
+          "type": "number"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "RetrieveParams",
+      "type": "object"
+    },
+    "name": "retrieve_password",
+    "output_schema": {
+      "properties": {
+        "outcome": {
+          "description": "`stored`: retrieved, verified and saved. `timeout`: the robot never answered. `cloud_only`: it answered but didn't release a password; retry with HOME held, or use `cloud_retrieve_password`.",
+          "enum": [
+            "stored",
+            "timeout",
+            "cloud_only"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "steps": {
+          "description": "What to do at the robot",
+          "items": {
+            "type": "string"
+          },
+          "title": "Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "outcome",
+        "steps"
+      ],
+      "title": "PasswordRetrieval",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "read_only_hint": true
+    },
+    "description": "The service's version and uptime, each robot's connection state, and the cloud subsystem's status.",
+    "input_schema": {
+      "description": "Params model for operations that take none.",
+      "properties": {},
+      "title": "NoParams",
+      "type": "object"
+    },
+    "name": "service_status",
+    "output_schema": {
+      "properties": {
+        "cloud": {
+          "properties": {
+            "last_ok": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Last Ok"
+            },
+            "reason": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null,
+              "title": "Reason"
+            },
+            "status": {
+              "enum": [
+                "connected",
+                "unavailable",
+                "not_configured"
+              ],
+              "title": "Status",
+              "type": "string"
+            }
+          },
+          "required": [
+            "status"
+          ],
+          "title": "CloudStatus",
+          "type": "object"
+        },
+        "robots": {
+          "items": {
+            "properties": {
+              "connection": {
+                "enum": [
+                  "connected",
+                  "connecting",
+                  "offline",
+                  "held_elsewhere",
+                  "auth_failed",
+                  "not_configured"
+                ],
+                "title": "ConnectionState",
+                "type": "string"
+              },
+              "id": {
+                "title": "Id",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "connection"
+            ],
+            "title": "RobotConnection",
+            "type": "object"
+          },
+          "title": "Robots",
+          "type": "array"
+        },
+        "uptime_s": {
+          "title": "Uptime S",
+          "type": "integer"
+        },
+        "version": {
+          "title": "Version",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "uptime_s",
+        "robots",
+        "cloud"
+      ],
+      "title": "ServiceStatus",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": null,
+    "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        },
+        "setting": {
+          "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+          "title": "Setting",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "string"
+            }
+          ],
+          "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+          "title": "Value"
+        }
+      },
+      "required": [
+        "robot",
+        "setting",
+        "value"
+      ],
+      "title": "SetSettingParams",
+      "type": "object"
+    },
+    "name": "set_setting",
+    "output_schema": {
+      "properties": {
+        "actual": {
+          "title": "Actual"
+        },
+        "outcome": {
+          "enum": [
+            "applied",
+            "not_applied"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "requested": {
+          "title": "Requested"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "setting": {
+          "title": "Setting",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot_id",
+        "setting",
+        "requested",
+        "outcome",
+        "actual"
+      ],
+      "title": "SettingChange",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "End the current mission where the robot is. Confirmed when no mission is active.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "stop",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This can re-create the stored map and change room IDs, which breaks room names and room-clean requests that use the old IDs.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "robot": {
+          "description": "Robot ID or unambiguous name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "CommandParams",
+      "type": "object"
+    },
+    "name": "train",
+    "output_schema": {
+      "properties": {
+        "command": {
+          "title": "Command",
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "confirmed",
+            "unconfirmed"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "state": {
+          "properties": {
+            "activity": {
+              "enum": [
+                "docked",
+                "charging",
+                "cleaning",
+                "mapping",
+                "paused",
+                "returning",
+                "emptying_bin",
+                "stuck",
+                "unknown"
+              ],
+              "title": "Activity",
+              "type": "string"
+            },
+            "mission": {
+              "anyOf": [
+                {
+                  "properties": {
+                    "id": {
+                      "title": "Id",
+                      "type": "string"
+                    },
+                    "initiator": {
+                      "enum": [
+                        "kit",
+                        "schedule",
+                        "button",
+                        "app",
+                        "team",
+                        "other"
+                      ],
+                      "title": "Initiator",
+                      "type": "string"
+                    },
+                    "started_at": {
+                      "anyOf": [
+                        {
+                          "format": "date-time",
+                          "type": "string"
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ],
+                      "default": null,
+                      "title": "Started At"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "initiator"
+                  ],
+                  "title": "MissionRef",
+                  "type": "object"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
+            }
+          },
+          "required": [
+            "activity"
+          ],
+          "title": "StateSummary",
+          "type": "object"
+        },
+        "waited_ms": {
+          "title": "Waited Ms",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "robot_id",
+        "command",
+        "outcome",
+        "state",
+        "waited_ms"
+      ],
+      "title": "CommandResult",
+      "type": "object"
+    }
+  },
+  {
+    "annotations": {
+      "destructive_hint": false,
+      "idempotent_hint": false
+    },
+    "description": "Check capabilities against the real robot and record the run: settings are written, read back and restored; commands are issued and confirmed (only `find` without allow_motion). Returns each result with evidence, plus a markdown report for `docs/verification/<profile>.md`.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `capabilities`: list[str] | None (default: None) — Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)\n- `allow_motion`: bool (default: False) — Run checks that act on the robot (every command except `find`). Without it they are skipped\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "input_schema": {
+      "properties": {
+        "allow_motion": {
+          "default": false,
+          "description": "Run checks that act on the robot (every command except `find`). Without it they are skipped",
+          "title": "Allow Motion",
+          "type": "boolean"
+        },
+        "capabilities": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)",
+          "title": "Capabilities"
+        },
+        "robot": {
+          "description": "Robot ID or name",
+          "title": "Robot",
+          "type": "string"
+        }
+      },
+      "required": [
+        "robot"
+      ],
+      "title": "VerifyParams",
+      "type": "object"
+    },
+    "name": "verify",
+    "output_schema": {
+      "properties": {
+        "allow_motion": {
+          "title": "Allow Motion",
+          "type": "boolean"
+        },
+        "anchor": {
+          "description": "Stable anchor of this run in `docs/verification/<profile_id>.md`. A profile cites it as `verified(run='docs/verification/<profile_id>.md#<anchor>')`",
+          "title": "Anchor",
+          "type": "string"
+        },
+        "ended_at": {
+          "format": "date-time",
+          "title": "Ended At",
+          "type": "string"
+        },
+        "id": {
+          "title": "Id",
+          "type": "integer"
+        },
+        "profile_id": {
+          "title": "Profile Id",
+          "type": "string"
+        },
+        "report": {
+          "description": "The run as markdown, for `docs/verification/<profile_id>.md`",
+          "title": "Report",
+          "type": "string"
+        },
+        "results": {
+          "items": {
+            "properties": {
+              "capability": {
+                "title": "Capability",
+                "type": "string"
+              },
+              "evidence": {
+                "title": "Evidence",
+                "type": "string"
+              },
+              "result": {
+                "enum": [
+                  "pass",
+                  "fail",
+                  "skipped"
+                ],
+                "title": "Result",
+                "type": "string"
+              }
+            },
+            "required": [
+              "capability",
+              "result",
+              "evidence"
+            ],
+            "title": "CheckResult",
+            "type": "object"
+          },
+          "title": "Results",
+          "type": "array"
+        },
+        "robot_id": {
+          "title": "Robot Id",
+          "type": "string"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "robot_id",
+        "profile_id",
+        "anchor",
+        "started_at",
+        "ended_at",
+        "allow_motion",
+        "results",
+        "report"
+      ],
+      "title": "VerificationRun",
+      "type": "object"
+    }
+  }
+]

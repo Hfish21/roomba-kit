@@ -1,0 +1,945 @@
+$ roomba-kit --help
+Usage: roomba-kit [OPTIONS] COMMAND [ARGS]...
+
+  Roomba Kit: local-first control for iRobot robots.
+
+  Most commands talk to the background service (`roomba-kit service start`). Lifecycle and token
+  commands work without it.
+
+Options:
+  --json             Machine output: the HTTP JSON body.
+  --service-url URL  The service to talk to. Default: http://127.0.0.1:<server.port> from
+                     config.toml (http://127.0.0.1:8765). Env: ROOMBA_KIT_SERVICE_URL.
+  -q, --quiet        Suppress non-essential output.
+  -h, --help         Show this message and exit.
+
+Commands:
+  capabilities  What the robot's model supports, each with `verified` (exercised on real...
+  clean         Start cleaning the whole home.
+  cloud         The optional iRobot account: login, status, passwords.
+  config        Where the kit keeps its files, and what's in them.
+  coverage      Where a finished mission cleaned: covered points, dirt detections and clutter,...
+  discover      Find iRobot robots on the local network: ID, name, SKU, firmware, address,...
+  dock          Send the robot back to its dock.
+  evac          Empty the bin into the Clean Base.
+  events
+  find          Play the locate sound so you can find the robot.
+  floor-plan    The robot's stored map from the iRobot cloud: its rooms with names, types and...
+  health        Whether the service is up, and its version.
+  mcp           Run an MCP server on stdin/stdout for local agent clients.
+  missions
+  pause         Pause the current mission.
+  position      Where the robot is now: x/y in metres from the dock and heading in radians,...
+  reboot        Soft-reboot the robot.
+  resume        Resume a paused mission.
+  robots        Add, list, pair and remove robots.
+  rooms
+  serve         Run the service in the foreground on `server.host`:`server.port`.
+  service       Run the service in the background and manage it.
+  settings      Read and change robot settings (read back).
+  setup         Guided setup: find robots, pair them, and optionally add an iRobot account.
+  state         Get a robot's full live state: battery, activity, current mission, last...
+  stop          End the current mission where the robot is.
+  token         Create, list and revoke API tokens (local file ops).
+  train         Start a mapping run with no cleaning.
+  verify        Check capabilities against the real robot and record the run: settings are...
+  version       Print the kit version.
+
+$ roomba-kit capabilities --help
+Usage: roomba-kit capabilities [OPTIONS] ROBOT
+
+  What the robot's model supports, each with `verified` (exercised on real hardware) or
+  `unverified`. Empty for a model without a profile.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit clean --help
+Usage: roomba-kit clean [OPTIONS] ROBOT
+
+  Start cleaning the whole home. Confirmed when the robot reports cleaning.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+  With --room, clean only those rooms, in the order given (`clean_rooms`; see `roomba-kit rooms
+  clean --help`).
+
+Options:
+  --room NAME_OR_ID  A room to clean, by name or ID. Repeat for several, in cleaning order.
+  --unordered        Let the robot choose the room order.
+  -h, --help         Show this message and exit.
+
+$ roomba-kit cloud --help
+Usage: roomba-kit cloud [OPTIONS] COMMAND [ARGS]...
+
+  The optional iRobot account: login, status, passwords.
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  history   The robot's recent missions as the iRobot cloud recorded them (it keeps about 30),...
+  login     Add or change the iRobot account login.
+  logout    Remove the stored iRobot account login and disconnect from the cloud.
+  password  Fetch a robot's local password from the iRobot account, check it by connecting, and...
+  status    The cloud subsystem's status: `connected`, `unavailable` (with a reason) or...
+
+$ roomba-kit cloud history --help
+Usage: roomba-kit cloud history [OPTIONS] ROBOT
+
+  The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A
+  running mission appears only minutes after the robot docks. While the cloud is unavailable, the
+  last copy fetched is returned.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `limit`: int (default: 30) — Most recent missions to return
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  --limit INTEGER  Most recent missions to return  [default: (30)]
+  -h, --help       Show this message and exit.
+
+$ roomba-kit cloud login --help
+Usage: roomba-kit cloud login [OPTIONS]
+
+  Add or change the iRobot account login. It's checked by logging in and saved only if that works.
+  Optional: it adds room names, floor plans, cloud history, coverage, the live mission timeline and
+  password retrieval; local control never needs it.
+
+  Parameters:
+  - `username`: str — iRobot account email
+  - `password`: str — iRobot account password. The CLI prompts for it; it is never echoed, returned or logged.
+  - `country`: str (default: 'US') — The account's country code, e.g. US, GB, DE
+
+Options:
+  --username TEXT  iRobot account email  [required]
+  --country TEXT   The account's country code, e.g. US, GB, DE  [default: (US)]
+  -h, --help       Show this message and exit.
+
+$ roomba-kit cloud logout --help
+Usage: roomba-kit cloud logout [OPTIONS]
+
+  Remove the stored iRobot account login and disconnect from the cloud. Credentials supplied by
+  environment variables still apply.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit cloud password --help
+Usage: roomba-kit cloud password [OPTIONS] ROBOT
+
+  Fetch a robot's local password from the iRobot account, check it by connecting, and store it. For
+  models or robots that won't release it locally. The password is never returned.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit cloud status --help
+Usage: roomba-kit cloud status [OPTIONS]
+
+  The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not_configured`, and
+  when it last worked.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit config --help
+Usage: roomba-kit config [OPTIONS] COMMAND [ARGS]...
+
+  Where the kit keeps its files, and what's in them.
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  path  Print the config and state directories.
+  show  The effective configuration (files plus environment overrides), with every secret shown...
+
+$ roomba-kit config path --help
+Usage: roomba-kit config path [OPTIONS]
+
+  Print the config and state directories.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit config show --help
+Usage: roomba-kit config show [OPTIONS]
+
+  The effective configuration (files plus environment overrides), with every secret shown as
+  `"***"`.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit coverage --help
+Usage: roomba-kit coverage [OPTIONS] ROBOT MISSION_ID
+
+  Where a finished mission cleaned: covered points, dirt detections and clutter, in metres from the
+  dock. The cloud publishes it minutes after the robot docks; until then this returns
+  `cloud_unavailable` with reason `not_yet_published`. Clutter is given as the vertices of each
+  clutter area's outline.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `mission_id`: str — The kit mission ID (the robot's own mission ID) or the cloud mission ref
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit discover --help
+Usage: roomba-kit discover [OPTIONS]
+
+  Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the model is
+  supported, and whether it's already configured.
+
+  Parameters:
+  - `broadcast`: str | None (default: None) — Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml
+  - `timeout_s`: float (default: 8.0) — How long to listen
+
+Options:
+  --broadcast TEXT   Where to send the discovery datagram: your subnet's broadcast address (e.g.
+                     192.0.2.255) when a VPN owns the default route, or one robot's IP. Default:
+                     `[discovery] broadcast` in config.toml
+  --timeout-s FLOAT  How long to listen  [default: (8.0)]
+  -h, --help         Show this message and exit.
+
+$ roomba-kit dock --help
+Usage: roomba-kit dock [OPTIONS] ROBOT
+
+  Send the robot back to its dock. Confirmed when it reports returning, docked or charging.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit evac --help
+Usage: roomba-kit evac [OPTIONS] ROBOT
+
+  Empty the bin into the Clean Base. Confirmed when the robot reports emptying.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: roomba_i5
+
+  Verification: roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit events --help
+Usage: roomba-kit events [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  list   List recorded events, oldest first, after `since`.
+  wait   Wait for events after `since` and return them as soon as any arrive, or an empty list...
+  watch  Follow events live, one line each (`--json`: one envelope per line).
+
+$ roomba-kit events list --help
+Usage: roomba-kit events list [OPTIONS]
+
+  List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text/event-stream` to
+  get the same events as a live SSE stream that resumes with `Last-Event-ID`.
+
+  Parameters:
+  - `since`: int | None (default: None) — Return events with a seq greater than this; omit for the oldest
+  - `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)
+  - `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types
+  - `limit`: int (default: 100) — Most events to return
+
+Options:
+  --since INTEGER                 Return events with a seq greater than this; omit for the oldest
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --types [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types
+  --limit INTEGER                 Most events to return  [default: (100)]
+  -h, --help                      Show this message and exit.
+
+$ roomba-kit events wait --help
+Usage: roomba-kit events wait [OPTIONS]
+
+  Wait for events after `since` and return them as soon as any arrive, or an empty list at the
+  timeout. Call again with `next` to keep following.
+
+  Parameters:
+  - `since`: int — Wait for events with a seq greater than this
+  - `robot`: str | None (default: None) — Only this robot (ID or unambiguous name)
+  - `types`: list[roomba_kit.core.events.EventType] | None (default: None) — Only these event types
+  - `timeout_s`: float (default: 30) — Seconds to wait before returning no events
+
+Options:
+  --since INTEGER                 Wait for events with a seq greater than this  [required]
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --types [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types
+  --timeout-s FLOAT               Seconds to wait before returning no events  [default: (30)]
+  -h, --help                      Show this message and exit.
+
+$ roomba-kit events watch --help
+Usage: roomba-kit events watch [OPTIONS]
+
+  Follow events live, one line each (`--json`: one envelope per line). Ctrl-C to stop.
+
+Options:
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --type [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types (repeatable)
+  --since INTEGER                 Replay events after this seq first
+  -h, --help                      Show this message and exit.
+
+$ roomba-kit find --help
+Usage: roomba-kit find [OPTIONS] ROBOT
+
+  Play the locate sound so you can find the robot. It doesn't move. Confirmed when the robot echoes
+  the command.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit floor-plan --help
+Usage: roomba-kit floor-plan [OPTIONS] ROBOT
+
+  The robot's stored map from the iRobot cloud: its rooms with names, types and outlines (rings of
+  [x, y] metres, outer ring first). While the cloud is unavailable, the last copy fetched is
+  returned with its `retrieved_at`.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit health --help
+Usage: roomba-kit health [OPTIONS]
+
+  Whether the service is up, and its version. Needs no API token over HTTP.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit mcp --help
+Usage: roomba-kit mcp [OPTIONS]
+
+  Run an MCP server on stdin/stdout for local agent clients.
+
+  Every tool is proxied to the running service with the CLI's token (`roomba-kit token create cli`),
+  so the service must be running. While it isn't, every tool call fails with `service_unavailable`.
+  Point your MCP client's stdio command at `roomba-kit mcp`.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit missions --help
+Usage: roomba-kit missions [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  list  List the missions recorded in local history, newest first: robot, start and end,...
+  show  Get one mission from local history by its ID.
+  wait  Wait until a robot's mission ends and return it with its outcome.
+
+$ roomba-kit missions list --help
+Usage: roomba-kit missions list [OPTIONS]
+
+  List the missions recorded in local history, newest first: robot, start and end, outcome, rooms
+  requested (empty means the whole home), who started it, duration and errors. History is kept
+  indefinitely and includes the mission in progress.
+
+  Parameters:
+  - `robot`: str | None (default: None) — Only this robot's missions (ID or unambiguous name). A removed robot's missions are still found by its ID.
+  - `since`: datetime.datetime | None (default: None) — Only missions started at or after this time (ISO 8601; UTC if no offset)
+  - `until`: datetime.datetime | None (default: None) — Only missions started before this time (ISO 8601; UTC if no offset)
+  - `outcome`: roomba_kit.core.models.MissionOutcome | None (default: None) — Only missions with this outcome
+  - `limit`: int (default: 50) — Most missions to return
+
+Options:
+  --robot TEXT                    Only this robot's missions (ID or unambiguous name). A removed
+                                  robot's missions are still found by its ID.
+  --since TEXT                    Only missions started at or after this time (ISO 8601; UTC if no
+                                  offset)
+  --until TEXT                    Only missions started before this time (ISO 8601; UTC if no
+                                  offset)
+  --outcome [in_progress|completed|cancelled|stuck|failed|manually_docked|unknown]
+                                  Only missions with this outcome
+  --limit INTEGER                 Most missions to return  [default: (50)]
+  -h, --help                      Show this message and exit.
+
+$ roomba-kit missions show --help
+Usage: roomba-kit missions show [OPTIONS] MISSION_ID
+
+  Get one mission from local history by its ID.
+
+  Parameters:
+  - `mission_id`: str — Mission ID, as listed by `list_missions`
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit missions wait --help
+Usage: roomba-kit missions wait [OPTIONS] ROBOT
+
+  Wait until a robot's mission ends and return it with its outcome. Without `mission_id` it waits
+  for the current mission, or the next one if none is running. Returns `{timeout: true, mission}` if
+  it hasn't ended in time.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `mission_id`: str | None (default: None) — The mission to wait for; omit for the current or next mission
+  - `timeout_s`: float (default: 1800) — Seconds to wait for the mission to end
+
+Options:
+  --mission-id TEXT  The mission to wait for; omit for the current or next mission
+  --timeout-s FLOAT  Seconds to wait for the mission to end  [default: (1800)]
+  -h, --help         Show this message and exit.
+
+$ roomba-kit pause --help
+Usage: roomba-kit pause [OPTIONS] ROBOT
+
+  Pause the current mission. Confirmed when the robot reports paused.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit position --help
+Usage: roomba-kit position [OPTIONS] ROBOT
+
+  Where the robot is now: x/y in metres from the dock and heading in radians, with the map it's on.
+  `{no_fix: true}` when it has no fix (for example while docked); that is not an error. During
+  missions the same fixes stream as `position` events.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+
+  Supported on: braava_m6
+
+  Verification: braava_m6: verified
+
+  With --watch, print the current answer, then every fix as it arrives (Ctrl-C to stop). Fixes
+  arrive while the robot is cleaning or returning.
+
+Options:
+  --watch     Follow live position fixes.
+  -h, --help  Show this message and exit.
+
+$ roomba-kit reboot --help
+Usage: roomba-kit reboot [OPTIONS] ROBOT
+
+  Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit resume --help
+Usage: roomba-kit resume [OPTIONS] ROBOT
+
+  Resume a paused mission. Confirmed when the robot reports cleaning again.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit robots --help
+Usage: roomba-kit robots [OPTIONS] COMMAND [ARGS]...
+
+  Add, list, pair and remove robots.
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  add           Add the robot at an IP address, for when discovery can't reach it.
+  list          List every configured robot: ID, name, model, SKU, firmware, address,...
+  password      Pair a robot: retrieve its password while you hold HOME, or --manual to type it.
+  remove        Remove a robot: stop its connection and delete its config and password.
+  set-password  Store a robot's local password you already know, after checking that the robot...
+  show          One robot's details: ID, name, model, SKU, firmware, address, connection state...
+
+$ roomba-kit robots add --help
+Usage: roomba-kit robots add [OPTIONS] ADDRESS
+
+  Add the robot at an IP address, for when discovery can't reach it. The robot must answer there.
+  Next, give it a password with `retrieve_password`.
+
+  Parameters:
+  - `address`: str — The robot's IP address
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit robots list --help
+Usage: roomba-kit robots list [OPTIONS]
+
+  List every configured robot: ID, name, model, SKU, firmware, address, connection state and
+  capabilities with their verification status. Robots without a model profile are listed with
+  `supported=false` (see docs/guides/adding-a-model.md).
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit robots password --help
+Usage: roomba-kit robots password [OPTIONS] ROBOT
+
+  Pair a robot: retrieve its password while you hold HOME, or --manual to type it.
+
+  Either way it's verified by connecting before it's stored, and never shown.
+
+Options:
+  --manual           Type the password instead of retrieving it.
+  --timeout-s FLOAT  How long to keep retrying (default 60).
+  -h, --help         Show this message and exit.
+
+$ roomba-kit robots remove --help
+Usage: roomba-kit robots remove [OPTIONS] ROBOT
+
+  Remove a robot: stop its connection and delete its config and password. Other robots and the cloud
+  login are untouched.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit robots set-password --help
+Usage: roomba-kit robots set-password [OPTIONS] ROBOT
+
+  Store a robot's local password you already know, after checking that the robot accepts it. Nothing
+  is saved if the robot rejects it or can't be reached.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `password`: str — The robot's local password. The CLI prompts for it; it is never echoed, returned or logged.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit robots show --help
+Usage: roomba-kit robots show [OPTIONS] ROBOT
+
+  One robot's details: ID, name, model, SKU, firmware, address, connection state and capabilities.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit rooms --help
+Usage: roomba-kit rooms [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  clean   Clean only the given rooms, in order, by name or ID.
+  import  Import the robot's room IDs and names from its stored map in the iRobot cloud.
+  list    List the robot's rooms: imported from the cloud, named locally, or learned from room...
+  name    Give a room on the robot's current map a local name.
+
+$ roomba-kit rooms clean --help
+Usage: roomba-kit rooms clean [OPTIONS] ROBOT
+
+  Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names
+  come from an older map version, and with `room_not_found` (listing the valid rooms) when a room
+  isn't on the current map. Confirmed when the robot reports cleaning.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `rooms`: list[str] — Rooms to clean, by name or ID, in the order to clean them. Must not be empty (the robot would clean the whole home).
+  - `ordered`: bool (default: True) — Clean in the given order; false lets the robot choose.
+  - `room_options`: dict[str, roomba_kit.service.operations.rooms.RoomOptions] | None (default: None) — Per-room options keyed by an entry of `rooms`, e.g. {"Office": {"passes": "two"}}. On the CLI, pass it as JSON.
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: verified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  --rooms TEXT              Rooms to clean, by name or ID, in the order to clean them. Must not be
+                            empty (the robot would clean the whole home).  [required]
+  --ordered / --no-ordered  Clean in the given order; false lets the robot choose.  [default:
+                            (True)]
+  --room-options TEXT       Per-room options keyed by an entry of `rooms`, e.g. {"Office":
+                            {"passes": "two"}}. On the CLI, pass it as JSON.
+  -h, --help                Show this message and exit.
+
+$ roomba-kit rooms import --help
+Usage: roomba-kit rooms import [OPTIONS] ROBOT
+
+  Import the robot's room IDs and names from its stored map in the iRobot cloud. Replaces rooms
+  stored for older map versions; local names on the same map version are kept. The result is cached,
+  so rooms stay usable while the cloud is down.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: verified, roomba_i5: verified
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit rooms list --help
+Usage: roomba-kit rooms list [OPTIONS] ROBOT
+
+  List the robot's rooms: imported from the cloud, named locally, or learned from room cleans the
+  robot reported (including ones started by other apps). Works without the cloud. Unnamed rooms are
+  shown as `Room <id>`.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit rooms name --help
+Usage: roomba-kit rooms name [OPTIONS] ROBOT ROOM_ID NAME
+
+  Give a room on the robot's current map a local name. Works without the cloud, for imported and
+  learned rooms alike. Names apply to one map version.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+  - `room_id`: str — The room's ID on the robot's current map
+  - `name`: str — The local name. Unique per map, ignoring case; it overrides the cloud name.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit serve --help
+Usage: roomba-kit serve [OPTIONS]
+
+  Run the service in the foreground on `server.host`:`server.port`.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit service --help
+Usage: roomba-kit service [OPTIONS] COMMAND [ARGS]...
+
+  Run the service in the background and manage it.
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  install    Start the service automatically: a launchd agent on macOS, a systemd user unit on...
+  logs       Show the background service's log.
+  start      Start the service in the background.
+  status     Show the pid, health and `service_status`.
+  stop       Stop the background service.
+  uninstall  Stop the installed service and remove it, so it no longer starts automatically.
+
+$ roomba-kit service install --help
+Usage: roomba-kit service install [OPTIONS]
+
+  Start the service automatically: a launchd agent on macOS, a systemd user unit on Linux.
+
+  It runs `serve` with this Python and pins the current config and state dirs. Logs go to
+  `<state>/service.log`. Exits 69 if it's installed but not healthy within the timeout.
+
+Options:
+  --print          Print the unit; install nothing.
+  --timeout FLOAT  Seconds to wait for health.  [default: 10.0]
+  -h, --help       Show this message and exit.
+
+$ roomba-kit service logs --help
+Usage: roomba-kit service logs [OPTIONS]
+
+  Show the background service's log.
+
+Options:
+  -n, --lines INTEGER  Lines of history to show.  [default: 50]
+  -f, --follow         Keep printing new lines.
+  -h, --help           Show this message and exit.
+
+$ roomba-kit service start --help
+Usage: roomba-kit service start [OPTIONS]
+
+  Start the service in the background.
+
+  Waits until `/v1/health` answers. Logs go to `<state>/service.log`.
+
+Options:
+  --timeout FLOAT  Seconds to wait for health.  [default: 10.0]
+  -h, --help       Show this message and exit.
+
+$ roomba-kit service status --help
+Usage: roomba-kit service status [OPTIONS]
+
+  Show the pid, health and `service_status`.
+
+  Exits 69 when the service isn't answering.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit service stop --help
+Usage: roomba-kit service stop [OPTIONS]
+
+  Stop the background service.
+
+  Sends SIGTERM, then SIGKILL if it is still running after the timeout.
+
+Options:
+  --timeout FLOAT  Seconds before SIGKILL.  [default: 10.0]
+  -h, --help       Show this message and exit.
+
+$ roomba-kit service uninstall --help
+Usage: roomba-kit service uninstall [OPTIONS]
+
+  Stop the installed service and remove it, so it no longer starts automatically.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit settings --help
+Usage: roomba-kit settings [OPTIONS] COMMAND [ARGS]...
+
+  Read and change robot settings (read back).
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  set   Change one setting.
+  show  Read the robot's settings: every setting its model supports, null when the robot hasn't...
+
+$ roomba-kit settings set --help
+Usage: roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE
+
+  Change one setting. It is reported applied only once the robot reports the new value; otherwise
+  the error is `not_applied` with the value the robot holds.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap
+  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit settings show --help
+Usage: roomba-kit settings show [OPTIONS] ROBOT
+
+  Read the robot's settings: every setting its model supports, null when the robot hasn't reported
+  it.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit setup --help
+Usage: roomba-kit setup [OPTIONS]
+
+  Guided setup: find robots, pair them, and optionally add an iRobot account.
+
+  Re-run it any time to add, re-pair or remove robots, or change the account.
+
+Options:
+  --broadcast ADDR  Discovery broadcast address, e.g. under a VPN.
+  -h, --help        Show this message and exit.
+
+$ roomba-kit state --help
+Usage: roomba-kit state [OPTIONS] ROBOT
+
+  Get a robot's full live state: battery, activity, current mission, last command, error and not-
+  ready codes with readable text, Wi-Fi signal, stored map, robot schedules, lifetime counters,
+  settings, and the bin, Clean Base, pad, tank and lid where the model has them. `at` is when the
+  robot last reported; while it's offline this is the last state it reported.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit stop --help
+Usage: roomba-kit stop [OPTIONS] ROBOT
+
+  End the current mission where the robot is. Confirmed when no mission is active.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit token --help
+Usage: roomba-kit token [OPTIONS] COMMAND [ARGS]...
+
+  Create, list and revoke API tokens (local file ops).
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  create  Create an API token and show it once.
+  list    List API tokens: name, created and last used.
+  revoke  Revoke an API token.
+
+$ roomba-kit token create --help
+Usage: roomba-kit token create [OPTIONS] NAME
+
+  Create an API token and show it once. The `cli` token is also saved for the CLI.
+
+  Parameters:
+  - `name`: str — Token name, e.g. `cli` or `home-assistant`
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit token list --help
+Usage: roomba-kit token list [OPTIONS]
+
+  List API tokens: name, created and last used. Token values are never shown.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit token revoke --help
+Usage: roomba-kit token revoke [OPTIONS] NAME
+
+  Revoke an API token. The service rejects it from its next request.
+
+  Parameters:
+  - `name`: str — Token name, e.g. `cli` or `home-assistant`
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit train --help
+Usage: roomba-kit train [OPTIONS] ROBOT
+
+  Start a mapping run with no cleaning. Confirmed when the robot reports mapping. ⚠ This can re-
+  create the stored map and change room IDs, which breaks room names and room-clean requests that
+  use the old IDs.
+
+  Parameters:
+  - `robot`: str — Robot ID or unambiguous name
+
+  Supported on: braava_m6, roomba_i5
+
+  Verification: braava_m6: unverified, roomba_i5: unverified
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+Options:
+  -h, --help  Show this message and exit.
+
+$ roomba-kit verify --help
+Usage: roomba-kit verify [OPTIONS] ROBOT [CAPABILITIES]...
+
+  Check capabilities against the real robot and record the run: settings are written, read back and
+  restored; commands are issued and confirmed (only `find` without allow_motion). Returns each
+  result with evidence, plus a markdown report for `docs/verification/<profile>.md`.
+
+  Parameters:
+  - `robot`: str — Robot ID or name
+  - `capabilities`: list[str] | None (default: None) — Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here)
+  - `allow_motion`: bool (default: False) — Run checks that act on the robot (every command except `find`). Without it they are skipped
+
+  ⚠ Moves the robot: it will physically start, stop or drive.
+
+  With --allow-motion the command asks before moving the robot (skip with --yes).
+
+Options:
+  --allow-motion / --no-allow-motion
+                                  Run checks that act on the robot (every command except `find`).
+                                  Without it they are skipped  [default: (False)]
+  --write-report                  Append the report to docs/verification/<profile>.md (run from the
+                                  repo).
+  -y, --yes                       Don't prompt before motion checks.
+  -h, --help                      Show this message and exit.
+
+$ roomba-kit version --help
+Usage: roomba-kit version [OPTIONS]
+
+  Print the kit version.
+
+Options:
+  -h, --help  Show this message and exit.

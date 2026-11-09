@@ -628,7 +628,7 @@ clean/pause/resume/stop/dock/find.
 
 **Independent Test**: quickstart V4 and the contract test suite.
 
-- [ ] T062 [P] [US4] Snapshot tests, with snapshots in `tests/contract/snapshots/`:
+- [x] T062 [P] [US4] Snapshot tests, with snapshots in `tests/contract/snapshots/`:
   - `tests/contract/test_openapi_snapshot.py`
   - `tests/contract/test_mcp_tools_snapshot.py`, covering names, descriptions and schemas
   - `tests/contract/test_cli_help_snapshot.py`
