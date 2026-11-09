@@ -9,7 +9,13 @@ from typing import Any
 from roomba_kit.core.capabilities import Capability, CapabilityStatus, Verification
 from roomba_kit.core.models import RobotState
 
-DEFAULT_PROTOCOL_COMMANDS: dict[str, str] = {"clean": "start", "clean_rooms": "start"}
+DEFAULT_PROTOCOL_COMMANDS: dict[str, str] = {
+    "clean": "start",
+    "clean_rooms": "start",
+    # HW-1: an i5 silently ignored `reboot`; the firmware command is `reset` (iRobot's app
+    # logs "Sending reset command to reboot robot"; roombapy-prime CommandType.RESET).
+    "reboot": "reset",
+}
 """Kit command name -> protocol command, where they differ. Everything else is sent as-is."""
 
 Reported = Mapping[str, Any]
@@ -59,6 +65,8 @@ class ModelProfile:
     error_texts: dict[int, str] = field(default_factory=dict)
     not_ready_texts: dict[int, str] = field(default_factory=dict)
     protocol_commands: dict[str, str] = field(default_factory=dict)
+    dock_needs_pause: bool = False
+    """The firmware ignores `dock` while actively cleaning; the kit pauses first."""
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[a-z][a-z0-9_]*", self.id):

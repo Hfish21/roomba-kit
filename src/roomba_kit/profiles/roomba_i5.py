@@ -95,6 +95,9 @@ PROFILE = ModelProfile(
             _UNVERIFIED,
         ),
     },
+    # HW-1 (docs/verification/roomba_i5.md): `dock` sent while cleaning was echoed but
+    # ignored; from `paused` it worked.
+    dock_needs_pause=True,
     settings={
         "passes": _mapping(_read_passes, _write_passes, "noAutoPasses", "twoPass"),
         "edge_clean": _flag("openOnly", inverted=True),

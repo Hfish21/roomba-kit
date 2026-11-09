@@ -344,3 +344,72 @@ async def test_a_quiet_docked_robot_is_left_alone(bus, factory):
         assert fake.connect_calls == calls
     finally:
         await s.stop()
+
+
+async def test_reboot_is_sent_as_reset(bus, factory):
+    """HW-1: the i5 ignored `reboot`; the firmware command is `reset`."""
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        from roomba_kit.profiles.base import CommandSpec
+        from roomba_kit.service import confirm
+
+        original = confirm.DEFAULT_SPECS["reboot"]
+        confirm.DEFAULT_SPECS["reboot"] = CommandSpec(original.predicate, 0.05)
+        try:
+            await s.execute("reboot")
+        finally:
+            confirm.DEFAULT_SPECS["reboot"] = original
+        assert factory.get(I5).sent_commands[-1][0] == "reset"
+    finally:
+        await s.stop()
+
+
+async def test_i5_dock_while_cleaning_pauses_first(bus, factory):
+    """HW-1: an i5 echoed `dock` sent while cleaning but kept cleaning; from paused it docked."""
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        await s.execute("clean")
+        result = await s.execute("dock")
+        assert result.outcome == "confirmed"
+        assert [c for c, _ in factory.get(I5).sent_commands] == ["start", "pause", "dock"]
+    finally:
+        await s.stop()
+
+
+async def test_m6_dock_while_cleaning_does_not_pause(bus, factory):
+    s = _session(bus, factory, robot_id=M6, profile="braava_m6")
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        await s.execute("clean")
+        await s.execute("dock")
+        assert [c for c, _ in factory.get(M6).sent_commands] == ["start", "dock"]
+    finally:
+        await s.stop()
+
+
+async def test_a_command_with_no_reaction_at_all_reconnects(bus, factory):
+    """HW-1: an i5 link stayed "connected" but delivered nothing; commands vanished."""
+    from roomba_kit.profiles.base import CommandSpec
+    from roomba_kit.service import confirm
+
+    fake = factory.get(I5)
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        fake.drop_all_commands = True  # sent, but no echo and no state change
+        calls = fake.connect_calls
+        original = confirm.DEFAULT_SPECS["find"]
+        confirm.DEFAULT_SPECS["find"] = CommandSpec(original.predicate, 0.1)
+        try:
+            assert (await s.execute("find")).outcome == "unconfirmed"
+        finally:
+            confirm.DEFAULT_SPECS["find"] = original
+        await _until(lambda: fake.connect_calls > calls)
+    finally:
+        await s.stop()
