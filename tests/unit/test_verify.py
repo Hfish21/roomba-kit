@@ -1,4 +1,4 @@
-"""T074: `verify` against the fake robots."""
+"""T074: `verify` against the fake robots, and the CLI's motion prompt and `--write-report`."""
 
 import asyncio
 import json
@@ -6,13 +6,19 @@ from collections.abc import AsyncIterator
 from pathlib import Path
 from types import SimpleNamespace
 
+import httpx
 import pytest
+from click.testing import CliRunner
 
+from roomba_kit.cli import main
+from roomba_kit.cli.client import CliState
+from roomba_kit.core import registry
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.models import Activity, PositionFix
 from roomba_kit.service import confirm, settings
 from roomba_kit.service import verify as checks
 from roomba_kit.service.app import ServiceContext
+from roomba_kit.service.operations import load_operations
 from roomba_kit.transport.fake import FakeCloud, FakeTransportFactory
 from tests.integration.test_us5_settings import FIXTURES, I5, M6, build_kit, connected
 
@@ -303,3 +309,76 @@ async def test_10_passes_restore_keeps_the_latent_two_pass_key(kit, factory):
     assert by_cap(run)["setting.passes"][0] == "pass"
     await fake.settle()
     assert (fake.reported["noAutoPasses"], fake.reported["twoPass"]) == (False, True)
+
+
+async def test_9_operation_rejects_an_empty_capability_list(kit):
+    load_operations()
+    with pytest.raises(KitError) as exc:
+        await registry.invoke(registry.get("verify"), kit, {"robot": I5, "capabilities": []})
+    assert exc.value.code is ErrorCode.INVALID_REQUEST
+
+
+# -- CLI ---------------------------------------------------------------------------------------
+
+RUN = {
+    "id": 1,
+    "robot_id": I5,
+    "profile_id": "roomba_i5",
+    "anchor": "run-20261108-010203",
+    "started_at": "2026-11-08T01:02:03Z",
+    "ended_at": "2026-11-08T01:02:09Z",
+    "allow_motion": True,
+    "results": [{"capability": "clean", "result": "pass", "evidence": "confirmed"}],
+    "report": '<a id="run-20261108-010203"></a>\n\n### run\n',
+}
+
+
+class Service:
+    def __init__(self) -> None:
+        self.requests: list[httpx.Request] = []
+
+    def __call__(self, request: httpx.Request) -> httpx.Response:
+        self.requests.append(request)
+        return httpx.Response(200, json=RUN)
+
+
+def run_cli(args, service, **kwargs):
+    obj = CliState(transport=httpx.MockTransport(service))
+    return CliRunner().invoke(main.build_cli(), args, obj=obj, **kwargs)
+
+
+def test_cli_prompts_before_motion(tmp_kit_home):
+    service = Service()
+    refused = run_cli(["verify", "Vacuum", "clean", "--allow-motion"], service, input="n\n")
+    assert refused.exit_code == 1 and "This will move the robot" in refused.output
+    assert service.requests == []
+    agreed = run_cli(["verify", "Vacuum", "clean", "--allow-motion"], service, input="y\n")
+    assert agreed.exit_code == 0, agreed.output
+    sent = json.loads(service.requests[0].content)
+    assert service.requests[0].url.path == "/v1/robots/Vacuum/verify"
+    assert sent == {"capabilities": ["clean"], "allow_motion": True}
+    assert run_cli(["verify", "Vacuum", "find"], service).exit_code == 0  # no motion, no prompt
+
+
+def test_cli_write_report_appends_in_the_repo(tmp_kit_home, monkeypatch):
+    repo = tmp_kit_home / "repo"
+    (repo / "docs").mkdir(parents=True)
+    (repo / "pyproject.toml").write_text('[project]\nname = "roomba-kit"\n')
+    monkeypatch.chdir(repo)
+    for _ in range(2):
+        result = run_cli(
+            ["verify", "Vacuum", "clean", "--allow-motion", "-y", "--write-report"], Service()
+        )
+        assert result.exit_code == 0, result.output
+    text = (repo / "docs/verification/roomba_i5.md").read_text()
+    assert text.startswith("# Verification: `roomba_i5`")
+    assert text.count('<a id="run-20261108-010203"></a>') == 2
+    assert "docs/verification/roomba_i5.md#run-20261108-010203" in result.output
+
+
+def test_cli_write_report_refuses_outside_the_repo(tmp_kit_home, monkeypatch):
+    monkeypatch.chdir(tmp_kit_home)
+    service = Service()
+    result = run_cli(["verify", "Vacuum", "--write-report"], service)
+    assert result.exit_code == 2 and "run it from the repo root" in result.output
+    assert service.requests == []
