@@ -535,7 +535,7 @@ clean/pause/resume/stop/dock/find.
 
 **Independent Test**: quickstart V2, or `tests/integration/test_us2_state_events.py`.
 
-- [ ] T048 [P] [US2] Integration test `tests/integration/test_us2_state_events.py`:
+- [x] T048 [P] [US2] Integration test `tests/integration/test_us2_state_events.py`:
   - A replayed mission produces `mission.started` → `activity.changed(cleaning)` →
     `activity.changed(returning)` → `robot.docked` → `mission.finished`.
   - A drop and restore produces `connection.changed` events.
@@ -559,10 +559,10 @@ clean/pause/resume/stop/dock/find.
   - stuck → `stuck`;
   - error → `failed`;
   - otherwise `completed`.
-- [ ] T051 [P] [US2] Implement `src/roomba_kit/service/alerts.py`: when activity has been
+- [x] T051 [P] [US2] Implement `src/roomba_kit/service/alerts.py`: when activity has been
   `returning` longer than `alerts.dock_search_minutes` (default 5), publish
   `alert.dock_search_timeout {mission_id, minutes}`, once per mission.
-- [ ] T052 [P] [US2] Implement `src/roomba_kit/service/operations/events.py`:
+- [x] T052 [P] [US2] Implement `src/roomba_kit/service/operations/events.py`:
   - `events_list(since?, robot?, types?, limit=100)`.
   - `events_wait(since, robot?, types?, timeout_s=30, max 300)`.
   - `mission_wait(robot, mission_id?, timeout_s=1800)`. Returns the terminal `Mission`, or
@@ -573,7 +573,7 @@ clean/pause/resume/stop/dock/find.
 - [ ] T054 [P] [US2] Implement `src/roomba_kit/cli/events_watch.py` (`roomba-kit events watch
   [--robot] [--type …]`): consume SSE and render one line per event, or JSON lines with
   `--json`.
-- [ ] T055 [P] [US2] Create `src/roomba_kit/profiles/texts.py`, a shared readable-text table for
+- [x] T055 [P] [US2] Create `src/roomba_kit/profiles/texts.py`, a shared readable-text table for
   error and not-ready codes. Source it from roombapy `const.py` and `vendor_errors.py`. Include
   i3/i5-class `notReady` 68 = "Robot is off the dock", and 23 and 39 as transient lifecycle
   states. `normalize.py` uses profile overrides first, then this table.
