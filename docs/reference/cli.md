@@ -23,7 +23,7 @@ Options:
 Commands:
   capabilities  What the robot's model supports, each with `verified` (exercised on...
   clean         Start cleaning the whole home.
-  cloud
+  cloud         The optional iRobot account: login, status, passwords.
   config        Where the kit keeps its files, and what's in them.
   discover      Find iRobot robots on the local network: ID, name, SKU, firmware,...
   dock          Send the robot back to its dock.
@@ -36,10 +36,11 @@ Commands:
   position      Where the robot is now: x/y in metres from the dock and heading in...
   reboot        Soft-reboot the robot.
   resume        Resume a paused mission.
-  robots
+  robots        Add, list, pair and remove robots.
   serve         Run the service in the foreground on `server.host`:`server.port`.
   service       Run the service in the background and manage it.
   settings
+  setup         Guided setup: find robots, pair them, and optionally add an iRobot...
   state         Get a robot's full live state: battery, activity, current mission,...
   stop          End the current mission where the robot is.
   token         Create, list and revoke API tokens (local file ops).
@@ -86,6 +87,8 @@ Options:
 
 ```text
 Usage: roomba-kit cloud [OPTIONS] COMMAND [ARGS]...
+
+  The optional iRobot account: login, status, passwords.
 
 Options:
   -h, --help  Show this message and exit.
@@ -487,13 +490,15 @@ Options:
 ```text
 Usage: roomba-kit robots [OPTIONS] COMMAND [ARGS]...
 
+  Add, list, pair and remove robots.
+
 Options:
   -h, --help  Show this message and exit.
 
 Commands:
   add           Add the robot at an IP address, for when discovery can't reach it.
   list          List every configured robot: ID, name, model, SKU, firmware,...
-  password      Retrieve the robot's local password over the network while you hold...
+  password      Pair a robot: retrieve its password while you hold HOME, or...
   remove        Remove a robot: stop its connection and delete its config and...
   set-password  Store a robot's local password you already know, after checking...
   show          One robot's details: ID, name, model, SKU, firmware, address,...
@@ -532,15 +537,13 @@ Options:
 ```text
 Usage: roomba-kit robots password [OPTIONS] ROBOT
 
-  Retrieve the robot's local password over the network while you hold HOME on the docked
-  robot, verify it by connecting, and store it. The password is never returned.
+  Pair a robot: retrieve its password while you hold HOME, or --manual to type it.
 
-  Parameters:
-  - `robot`: str — Robot ID or unambiguous name
-  - `timeout_s`: float (default: 60.0) — How long to keep retrying (every 2 s)
+  Either way it's verified by connecting before it's stored, and never shown.
 
 Options:
-  --timeout-s FLOAT  How long to keep retrying (every 2 s)  [default: (60.0)]
+  --manual           Type the password instead of retrieving it.
+  --timeout-s FLOAT  How long to keep retrying (default 60).
   -h, --help         Show this message and exit.
 ```
 
@@ -746,6 +749,20 @@ Usage: roomba-kit settings show [OPTIONS] ROBOT
 
 Options:
   -h, --help  Show this message and exit.
+```
+
+## `roomba-kit setup`
+
+```text
+Usage: roomba-kit setup [OPTIONS]
+
+  Guided setup: find robots, pair them, and optionally add an iRobot account.
+
+  Re-run it any time to add, re-pair or remove robots, or change the account.
+
+Options:
+  --broadcast ADDR  Discovery broadcast address, e.g. under a VPN.
+  -h, --help        Show this message and exit.
 ```
 
 ## `roomba-kit state`
