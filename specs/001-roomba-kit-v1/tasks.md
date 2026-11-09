@@ -726,12 +726,12 @@ unverified capabilities.
   other. Look for disconnect/reconnect loops in roombapy-prime logs. Record the result in
   `specs/001-roomba-kit-v1/research.md` under R12. Pick per-robot sessions, or one session
   subscribed to both robots' timeline topics.
-- [ ] T077 [P] [US6] Integration test `tests/integration/test_us6_cloud.py`, using FakeCloud:
+- [x] T077 [P] [US6] Integration test `tests/integration/test_us6_cloud.py`, using FakeCloud:
   - Timeline dicts become `cloud.timeline` events.
   - `get_coverage` returns `cloud_unavailable(not_yet_published)` and then points.
   - Cloud failure → local ops unaffected, and cloud ops return `cloud_unavailable(reason)`.
   - The cached floor plan is served with `retrieved_at` while the cloud is down.
-- [ ] T078 [US6] Implement `src/roomba_kit/service/cloud_data.py`:
+- [x] T078 [US6] Implement `src/roomba_kit/service/cloud_data.py`:
   - Timeline watchers, using the T076 strategy, per robot with `cloud.timeline` capability.
     Parse `event[]` / `finEvents[]` types (`start`, `travel{dest, rid}`, `room`,
     `traversal{rid}`, `evac`, `fin`) into `cloud.timeline {mission_id, kind, room_id?, dest?,
@@ -740,7 +740,7 @@ unverified capabilities.
   - Coverage: find the mission in `mission_history` (`pmaps_info[0].pmap_id/pmapv_id`), then
     fetch UMF and extract the `coverage`, `dirt` and `clutter` layers.
   - Cache results in `cloud_cache`. Every failure → `cloud_unavailable(reason)`.
-- [ ] T079 [US6] Implement `src/roomba_kit/service/operations/cloud_data.py`:
+- [x] T079 [US6] Implement `src/roomba_kit/service/operations/cloud_data.py`:
   - `get_floor_plan(robot)`
   - `cloud_history(robot, limit=30)`
   - `get_coverage(robot, mission_id)`

@@ -1,13 +1,16 @@
-"""The cloud timeline parser and the watchers' restart rules (T078)."""
+"""Cloud data parsing and the timeline watchers' restart rules (T078)."""
 
 import asyncio
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import pytest
 
 from roomba_kit.config.credentials import CredentialStore
 from roomba_kit.config.settings import ConfigModel, RobotEntry, load_settings, save_config
+from roomba_kit.core.errors import ErrorCode, KitError
+from roomba_kit.core.models import Initiator, MissionOutcome
 from roomba_kit.service import cloud, cloud_data
 from roomba_kit.service.app import ServiceContext
 from roomba_kit.service.cloud_data import TimelineParser
@@ -56,14 +59,47 @@ def test_a_new_mission_resets_and_malformed_entries_are_skipped():
     assert parser.feed({"event": None, "finEvents": None}) == []
 
 
+def test_cloud_mission_shape():
+    record = json.loads((FIXTURES / "i5_mission_history.json").read_text())[1]
+    mission = cloud_data._cloud_mission(I5, record, datetime.now(UTC))
+    assert mission is not None
+    assert mission.mission_ref == "01M0J6GSQ8MB898573DF8CCQNN"
+    assert mission.outcome is MissionOutcome.CANCELLED
+    assert mission.initiator is Initiator.SCHEDULE
+    assert mission.duration_s == 156 * 60 and mission.number == 547
+    assert mission.area_m2 == pytest.approx(406 * 0.0929, abs=0.1)
+    assert cloud_data._cloud_mission(I5, {"done": "ok"}, datetime.now(UTC)) is None
+
+
+def test_clutter_polygons_flatten_to_outer_ring_vertices():
+    square = [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 0.0)]
+    hole = [(0.2, 0.2), (0.3, 0.2), (0.2, 0.2)]
+    assert cloud_data._outer_vertices([[square, hole], [[(5.0, 5.0)]], []]) == [
+        (0.0, 0.0),
+        (1.0, 0.0),
+        (1.0, 1.0),
+        (5.0, 5.0),
+    ]
+
+
 class Accounts:
     """A cloud factory making a fresh FakeCloud per login, so a new login is a new transport."""
 
     def __init__(self) -> None:
         self.made: list[FakeCloud] = []
+        self.history_error: KitError | None = None
 
     def __call__(self, username: str, password: str, country: str) -> FakeCloud:
-        fake = FakeCloud.from_fixtures(FIXTURES)
+        accounts = self
+
+        class Cloud(FakeCloud):
+            async def mission_history(self, blid):
+                if accounts.history_error is not None:
+                    raise accounts.history_error
+                return await super().mission_history(blid)
+
+        fake = Cloud.from_fixtures(FIXTURES)
+        fake.pmaps_by_robot[I5] = []
         self.made.append(fake)
         return fake
 
@@ -106,3 +142,15 @@ async def test_watchers_rebind_when_the_login_changes(ctx):
     await until(lambda: ctx.cloud.transport() is not first)
     await until(lambda: watchers._tasks.get(I5, (None,))[0] is ctx.cloud.transport())
     assert watchers.watching() == {I5}
+
+
+async def test_no_stored_map_and_rejected_login(ctx):
+    await until(lambda: ctx.cloud.status().status == "connected")
+    with pytest.raises(KitError) as exc:
+        await cloud_data.floor_plan(ctx, I5)
+    assert exc.value.code is ErrorCode.NO_MAP
+    ctx.accounts.history_error = KitError(ErrorCode.AUTH_FAILED, "rejected")
+    with pytest.raises(KitError) as exc:
+        await cloud_data.cloud_history(ctx, I5, 30)
+    assert exc.value.code is ErrorCode.CLOUD_UNAVAILABLE
+    assert exc.value.details == {"reason": "auth_failed"}
