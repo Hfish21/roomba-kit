@@ -807,12 +807,12 @@ unverified capabilities.
 
 **Independent Test**: quickstart V9.
 
-- [ ] T089 [P] [US9] Implement `src/roomba_kit/lifecycle/launchd.py` and
+- [x] T089 [P] [US9] Implement `src/roomba_kit/lifecycle/launchd.py` and
   `deploy/launchd.plist.j2`:
   - Install to `~/Library/LaunchAgents/com.roomba-kit.service.plist` with `RunAtLoad` and
     `KeepAlive`, logging to `<state>/service.log`.
   - `install` / `uninstall` use `launchctl bootstrap|bootout gui/$UID`.
-- [ ] T090 [P] [US9] Implement `src/roomba_kit/lifecycle/systemd.py` and
+- [x] T090 [P] [US9] Implement `src/roomba_kit/lifecycle/systemd.py` and
   `deploy/roomba-kit.service.j2`:
   - A `systemd --user` unit with `Restart=on-failure`.
   - `install` runs `daemon-reload` and `enable --now`, and tells the user about
@@ -826,9 +826,9 @@ unverified capabilities.
     - `server.host=0.0.0.0` set via env.
   - `deploy/compose.yaml`: `network_mode: host` (required for discovery), volumes, an env file
     reference, `restart: unless-stopped`.
-- [ ] T092 [US9] Add `service install` and `service uninstall` to
+- [x] T092 [US9] Add `service install` and `service uninstall` to
   `src/roomba_kit/cli/lifecycle.py`, dispatching to launchd on macOS and systemd on Linux.
-- [ ] T093 [P] [US9] Unit test `tests/unit/test_lifecycle_templates.py`: rendered plist and unit
+- [x] T093 [P] [US9] Unit test `tests/unit/test_lifecycle_templates.py`: rendered plist and unit
   contents (paths, `KeepAlive`, `Restart`).
 - [ ] T094 [P] [US9] Write `docs/deployment.md`, covering:
   - a Linux always-on host;
