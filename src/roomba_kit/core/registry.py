@@ -10,6 +10,7 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import cached_property
 from typing import Any, Literal, Protocol
+from urllib.parse import quote
 
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
@@ -192,3 +193,32 @@ def isolated() -> Iterator[None]:
     finally:
         _REGISTRY.clear()
         _REGISTRY.update(saved)
+
+
+@dataclass(frozen=True)
+class HttpRequest:
+    method: HttpMethod
+    path: str
+    query: dict[str, Any]
+    body: dict[str, Any] | None
+
+
+def http_request(op: Operation, params: Mapping[str, Any]) -> HttpRequest:
+    """How `params` travel over HTTP for `op` — the one mapping the API and its clients share.
+
+    Path params fill `{name}` segments (URL-quoted); GET/DELETE send the rest as query
+    parameters (lists repeat the key); POST/PUT send the rest as a JSON body. `None` values
+    are omitted so server-side defaults apply.
+    """
+    if op.http is None:
+        raise ValueError(f"operation {op.name!r} has no HTTP binding")
+    path = op.http.path
+    rest: dict[str, Any] = {}
+    for key, value in params.items():
+        if key in op.http.path_params:
+            path = path.replace("{" + key + "}", quote(str(value), safe=""))
+        elif value is not None:
+            rest[key] = value
+    if op.http.method in ("GET", "DELETE"):
+        return HttpRequest(op.http.method, path, rest, None)
+    return HttpRequest(op.http.method, path, {}, rest)
