@@ -57,6 +57,10 @@ MISSION_SILENCE_S = 120.0
 """During a mission, a link that has delivered no state this long is reconnected to fetch a
 fresh snapshot. HW-1: an i5's link stayed up but carried nothing for 30 min of cleaning."""
 
+IDLE_SILENCE_S = 600.0
+"""Any link that has delivered nothing this long is reconnected. HW-1: a docked m6's link
+stayed "connected" for 70 min while delivering nothing, and commands vanished."""
+
 REDISCOVER_AFTER = 3
 """Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
 
@@ -97,6 +101,7 @@ class RobotSession:
         backoff_max: float = BACKOFF_MAX_S,
         first_state_timeout_s: float = FIRST_STATE_TIMEOUT_S,
         mission_silence_s: float = MISSION_SILENCE_S,
+        idle_silence_s: float = IDLE_SILENCE_S,
         coalesce_s: float = 1.0,
     ) -> None:
         self.robot_id = entry.id
@@ -114,6 +119,7 @@ class RobotSession:
         self._backoff_max = backoff_max
         self._first_state_timeout = first_state_timeout_s
         self._mission_silence = mission_silence_s
+        self._idle_silence = idle_silence_s
         self._last_fragment = 0.0
         self._fragment_count = 0
         self._got_state = asyncio.Event()
@@ -450,17 +456,17 @@ class RobotSession:
             await self._pause(self._backoff_min)
             return
         if not await self._hold_link():
-            log.warning(
-                "robot %s: no state for %gs mid-mission; reconnecting",
-                self.robot_id,
-                self._mission_silence,
-            )
+            log.warning("robot %s: link silent; reconnecting", self.robot_id)
             with contextlib.suppress(Exception):
                 await transport.disconnect()
             await self._set_connection(ConnectionState.OFFLINE, "silent")
             return
         if self._stopping:
             return
+        # Tear the transport down whatever the reason: a link the kit declared dead is still
+        # open on the transport, and `connect()` on an open transport is a no-op.
+        with contextlib.suppress(Exception):
+            await transport.disconnect()
         reason = self._lost_reason
         if reason == ErrorCode.AUTH_FAILED.value:
             await self._set_connection(ConnectionState.AUTH_FAILED, reason)
@@ -480,12 +486,15 @@ class RobotSession:
         loop = asyncio.get_running_loop()
         while True:
             try:
-                await asyncio.wait_for(self._link_lost.wait(), self._mission_silence / 4)
+                await asyncio.wait_for(
+                    self._link_lost.wait(), min(self._mission_silence, self._idle_silence) / 4
+                )
                 return True
             except TimeoutError:
                 pass
             mission = self._state is not None and self._state.mission is not None
-            if mission and loop.time() - self._last_fragment > self._mission_silence:
+            limit = self._mission_silence if mission else self._idle_silence
+            if loop.time() - self._last_fragment > limit:
                 return False
 
     async def _first_state_arrives(self) -> bool:
