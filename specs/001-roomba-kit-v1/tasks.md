@@ -151,7 +151,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   group, confirm)`, `CommandSpec(predicate, window_s)`) and `src/roomba_kit/profiles/loader.py`
   (load `roomba_kit.profiles` entry points, `match_profile(sku) -> ModelProfile | None` by regex
   `sku_patterns`) per `contracts/model-profile.md`.
-- [ ] T014 [P] Create `src/roomba_kit/profiles/roomba_i5.py`:
+- [x] T014 [P] Create `src/roomba_kit/profiles/roomba_i5.py`:
   - `PROFILE`: id `roomba_i5`, display name "Roomba i5/i5+", `sku_patterns=[r"^i5"]`.
   - Capabilities exactly as in the `roomba_i5` column of the data-model table:
     - **verified**: `clean`, `pause`, `resume`, `dock`, `find`, `clean_rooms`, `evac`,
@@ -162,7 +162,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
       `setting.schedule_hold`.
     - **not declared**: `live_position`, `setting.carpet_boost`.
   - Leave `settings={}` (filled in T070).
-- [ ] T015 [P] Create `src/roomba_kit/profiles/braava_m6.py`:
+- [x] T015 [P] Create `src/roomba_kit/profiles/braava_m6.py`:
   - `PROFILE`: id `braava_m6`, display name "Braava jet m6", `sku_patterns=[r"^m6"]`.
   - Capabilities per the `braava_m6` column:
     - **verified**: `clean`, `pause`, `resume`, `dock`, `find`, `state.pad`, `state.tank`,
