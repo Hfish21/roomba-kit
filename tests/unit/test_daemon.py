@@ -21,8 +21,13 @@ FAKE_SERVER = textwrap.dedent(
         signal.signal(signal.SIGTERM, signal.SIG_IGN)
     class H(http.server.BaseHTTPRequestHandler):
         def do_GET(self):
-            body = json.dumps({"status": "ok", "version": "fake"}).encode()
-            self.send_response(200 if self.path == "/v1/health" else 404)
+            if self.path == "/v1/service_status":
+                body = (b'{"version":"fake","uptime_s":1,"robots":[],'
+                        b'"cloud":{"status":"not_configured"}}')
+            else:
+                body = json.dumps({"status": "ok", "version": "fake"}).encode()
+            ok = self.path in ("/v1/health", "/v1/service_status")
+            self.send_response(200 if ok else 404)
             self.end_headers()
             self.wfile.write(body)
         def log_message(self, *a):
@@ -120,9 +125,14 @@ def test_cli_lifecycle(server, monkeypatch):
     assert started.exit_code == 0, started.output
     pid = json.loads(started.stdout)["pid"]
 
-    status = run(main.cli, ["--json", "service", "status"])
-    assert status.exit_code == 0
-    assert json.loads(status.stdout)["pid"] == pid
+    status = run(main.cli, ["service", "status"])
+    assert status.exit_code == 0 and str(pid) in status.stdout
+    # FR-047: --json is the service_status HTTP body, byte for byte.
+    as_json = run(main.cli, ["--json", "service", "status"])
+    assert as_json.exit_code == 0, as_json.output
+    assert as_json.stdout.strip() == (
+        '{"version":"fake","uptime_s":1,"robots":[],"cloud":{"status":"not_configured"}}'
+    )
 
     assert "Already running" in run(main.cli, ["service", "start"]).stdout
     assert "fake service up" in run(main.cli, ["service", "logs"]).stdout
@@ -130,6 +140,7 @@ def test_cli_lifecycle(server, monkeypatch):
     stopped = run(main.cli, ["service", "stop"])
     assert stopped.stdout == f"Service stopped (pid {pid}).\n"
     assert run(main.cli, ["service", "status"]).exit_code == 69
+    assert run(main.cli, ["--json", "service", "status"]).exit_code == 69
 
 
 def test_config_path_and_version(tmp_kit_home):

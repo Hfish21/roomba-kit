@@ -1,13 +1,14 @@
 """The HTTP API: a FastAPI app generated from the registry, with the MCP server at `/mcp`."""
 
 import importlib
+import json
 import pkgutil
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 from starlette.exceptions import HTTPException
 from starlette.routing import Route
 from starlette.types import ASGIApp, Receive, Scope, Send
@@ -83,8 +84,9 @@ def create_app(ctx: ServiceContext | None = None) -> FastAPI:
     app = FastAPI(
         title="Roomba Kit",
         version=context.version,
-        openapi_url=f"{API_PREFIX}/openapi.json",
-        docs_url=f"{API_PREFIX}/docs",
+        # Served below behind bearer auth: FR-048 exempts only the health check.
+        openapi_url=None,
+        docs_url=None,
         redoc_url=None,
         lifespan=lifespan,
     )
@@ -93,4 +95,39 @@ def create_app(ctx: ServiceContext | None = None) -> FastAPI:
     app.add_exception_handler(RequestValidationError, _validation_error)
     _add_routes(app, registry.on("http"))
     app.router.routes.append(Route(MCP_PATH, BearerGuard(mcp_app, context)))
+    _add_doc_routes(app, context)
     return app
+
+
+_SWAGGER = """<!doctype html>
+<html><head><meta charset="utf-8"><title>Roomba Kit API</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui.css">
+</head><body><div id="ui"></div>
+<script src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+<script>SwaggerUIBundle({spec: __SPEC__, dom_id: "#ui"});</script>
+</body></html>"""
+
+
+def _deny(request: Request, ctx: ServiceContext) -> Response | None:
+    try:
+        authenticate(request.headers.raw, ctx)
+    except KitError as err:
+        return error_response(err)
+    return None
+
+
+def _add_doc_routes(app: FastAPI, ctx: ServiceContext) -> None:
+    """OpenAPI JSON and Swagger UI, both behind bearer auth (FR-048). The UI embeds the spec
+    inline, so it works once the page itself was fetched with a token."""
+
+    async def openapi_json(request: Request) -> Response:
+        return _deny(request, ctx) or JSONResponse(app.openapi())
+
+    async def docs(request: Request) -> Response:
+        if (denied := _deny(request, ctx)) is not None:
+            return denied
+        spec = json.dumps(app.openapi()).replace("</", "<\\/")
+        return HTMLResponse(_SWAGGER.replace("__SPEC__", spec))
+
+    app.router.routes.append(Route(f"{API_PREFIX}/openapi.json", openapi_json, methods=["GET"]))
+    app.router.routes.append(Route(f"{API_PREFIX}/docs", docs, methods=["GET"]))
