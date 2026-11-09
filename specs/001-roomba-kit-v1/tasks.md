@@ -567,17 +567,17 @@ clean/pause/resume/stop/dock/find.
   - `events_wait(since, robot?, types?, timeout_s=30, max 300)`.
   - `mission_wait(robot, mission_id?, timeout_s=1800)`. Returns the terminal `Mission`, or
     `{timeout:true, mission}`.
-- [ ] T053 [P] [US2] Implement `src/roomba_kit/api/sse.py` and register it in
+- [x] T053 [P] [US2] Implement `src/roomba_kit/api/sse.py` and register it in
   `stream_presenters` for `events_list`: with `Accept: text/event-stream`, stream frames with
   `id=<seq>` and `event=<type>`, honouring `Last-Event-ID` (sse-starlette).
-- [ ] T054 [P] [US2] Implement `src/roomba_kit/cli/events_watch.py` (`roomba-kit events watch
+- [x] T054 [P] [US2] Implement `src/roomba_kit/cli/events_watch.py` (`roomba-kit events watch
   [--robot] [--type …]`): consume SSE and render one line per event, or JSON lines with
   `--json`.
 - [x] T055 [P] [US2] Create `src/roomba_kit/profiles/texts.py`, a shared readable-text table for
   error and not-ready codes. Source it from roombapy `const.py` and `vendor_errors.py`. Include
   i3/i5-class `notReady` 68 = "Robot is off the dock", and 23 and 39 as transient lifecycle
   states. `normalize.py` uses profile overrides first, then this table.
-- [ ] T056 [P] [US2] Write `docs/state-and-events.md`: state fields, activity semantics, event
+- [x] T056 [P] [US2] Write `docs/state-and-events.md`: state fields, activity semantics, event
   types with examples, resuming with `since` / `Last-Event-ID`, and alerts.
 
 ---
