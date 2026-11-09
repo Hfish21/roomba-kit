@@ -1,0 +1,83 @@
+[importlinter]
+root_package = roomba_kit
+include_external_packages = True
+
+[importlinter:contract:core-is-leaf]
+name = core imports no other roomba_kit package
+type = forbidden
+source_modules =
+    roomba_kit.core
+forbidden_modules =
+    roomba_kit.profiles
+    roomba_kit.transport
+    roomba_kit.service
+    roomba_kit.config
+    roomba_kit.api
+    roomba_kit.mcp
+    roomba_kit.cli
+    roomba_kit.lifecycle
+
+[importlinter:contract:profiles-core-only]
+name = profiles import only core
+type = forbidden
+source_modules =
+    roomba_kit.profiles
+forbidden_modules =
+    roomba_kit.transport
+    roomba_kit.service
+    roomba_kit.config
+    roomba_kit.api
+    roomba_kit.mcp
+    roomba_kit.cli
+    roomba_kit.lifecycle
+
+[importlinter:contract:transport-core-only]
+name = transport imports only core
+type = forbidden
+source_modules =
+    roomba_kit.transport
+forbidden_modules =
+    roomba_kit.profiles
+    roomba_kit.service
+    roomba_kit.config
+    roomba_kit.api
+    roomba_kit.mcp
+    roomba_kit.cli
+    roomba_kit.lifecycle
+
+[importlinter:contract:surfaces-no-transport]
+name = api, mcp and cli never import transport directly
+type = forbidden
+source_modules =
+    roomba_kit.api
+    roomba_kit.mcp
+    roomba_kit.cli
+forbidden_modules =
+    roomba_kit.transport
+allow_indirect_imports = True
+
+[importlinter:contract:roombapy-only-in-local]
+name = only transport.local imports roombapy
+type = forbidden
+source_modules =
+    roomba_kit
+forbidden_modules =
+    roombapy
+ignore_imports =
+    roomba_kit.transport.local -> roombapy
+    roomba_kit.transport.local -> roombapy.**
+unmatched_ignore_imports_alerting = none
+allow_indirect_imports = True
+
+[importlinter:contract:prime-only-in-cloud]
+name = only transport.cloud imports roombapy_prime
+type = forbidden
+source_modules =
+    roomba_kit
+forbidden_modules =
+    roombapy_prime
+ignore_imports =
+    roomba_kit.transport.cloud -> roombapy_prime
+    roomba_kit.transport.cloud -> roombapy_prime.**
+allow_indirect_imports = True
+unmatched_ignore_imports_alerting = none
