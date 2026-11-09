@@ -1,17 +1,17 @@
 """The iRobot cloud adapter over roombapy-prime 0.8.3, and the only module importing it.
 
-One `CloudAccount` login per account, shared by every robot (R12). The live timeline uses one
-cloud MQTT session per robot for now; `_TimelineSource` is the seam where a single shared session
-subscribed to several robots' topics can replace it. This adapter only subscribes: it never
+One `CloudAccount` login per account, shared by every robot (R12), and one cloud MQTT session
+per account carrying every robot's timeline subscription. This adapter only subscribes: it never
 publishes, least of all to `.../req`, which AWS policy answers by dropping the session.
 """
 
+import asyncio
 import contextlib
 import json
 import logging
 from collections.abc import AsyncGenerator, AsyncIterator, Iterator
 from dataclasses import dataclass, field
-from typing import Any, Protocol, cast
+from typing import Any, cast
 from uuid import uuid4
 
 import aiohttp
@@ -105,50 +105,68 @@ def _mapped() -> Iterator[None]:
         raise _kit_error(err) from None
 
 
-class _TimelineSource(Protocol):
-    def stream(self, blid: str) -> AsyncIterator[dict[str, Any]]: ...
+class _SharedTimeline:
+    """One cloud MQTT session for the whole account, one timeline subscription per robot.
 
-
-class _PerRobotTimeline:
-    """One cloud MQTT session per robot, subscribed to its `mission/timeline/report` topic."""
+    Two PrimeRobot sessions under one login evict each other (R12 spike: 105 drops in 90 s), so
+    the session is created once, from the first robot watched, and every later robot's topic is
+    added to it. Never open a second one.
+    """
 
     def __init__(self, cloud: "IRobotCloud") -> None:
         self._cloud = cloud
+        self._robot: Any = None
+        self._lock = asyncio.Lock()
+
+    async def _session(self, blid: str) -> Any:
+        async with self._lock:
+            if self._robot is None:
+                account, session = await self._cloud.account()
+                with _mapped():
+                    robot = await PrimeFactory.create_prime_robot(
+                        session,
+                        self._cloud.username,
+                        self._cloud.password,
+                        self._cloud.country,
+                        blid=blid,
+                        login_result=account.login_result,
+                        relogin=account.relogin,
+                    )
+                    try:
+                        await robot.connect()
+                    except BaseException:
+                        with contextlib.suppress(Exception):
+                            await robot.disconnect()
+                        raise
+                self._robot = robot
+            return self._robot
 
     async def stream(self, blid: str) -> AsyncGenerator[dict[str, Any]]:
-        account, session = await self._cloud.account()
-        with _mapped():
-            result = account.login_result
-            prefix = result.irbt_topic_prefix_for(blid)
-            if prefix is None:
-                raise KitError(
-                    ErrorCode.CLOUD_UNAVAILABLE,
-                    "iRobot cloud gave no topic prefix for this robot.",
-                    details={"reason": "response_malformed"},
-                )
-            robot = await PrimeFactory.create_prime_robot(
-                session,
-                self._cloud.username,
-                self._cloud.password,
-                self._cloud.country,
-                blid=blid,
-                login_result=result,
-                relogin=account.relogin,
+        account, _ = await self._cloud.account()
+        prefix = account.login_result.irbt_topic_prefix_for(blid)
+        if prefix is None:
+            raise KitError(
+                ErrorCode.CLOUD_UNAVAILABLE,
+                "iRobot cloud gave no topic prefix for this robot.",
+                details={"reason": "response_malformed"},
             )
-        try:
-            topic = f"{prefix}/things/{blid}/mission/timeline/report"
-            with _mapped():
-                await robot.connect()
-                raw = cast(AsyncGenerator[Any], robot.watch_raw_topic(topic))
-                async with contextlib.aclosing(raw) as reports:
-                    async for report in reports:
-                        payload = report.payload
-                        if isinstance(payload, str):
-                            with contextlib.suppress(ValueError):
-                                payload = json.loads(payload)
-                        if isinstance(payload, dict):
-                            yield payload
-        finally:
+        robot = await self._session(blid)
+        topic = f"{prefix}/things/{blid}/mission/timeline/report"
+        with _mapped():
+            raw = cast(AsyncGenerator[Any], robot.watch_raw_topic(topic))
+            async with contextlib.aclosing(raw) as reports:
+                async for report in reports:
+                    payload = report.payload
+                    if isinstance(payload, str):
+                        with contextlib.suppress(ValueError):
+                            payload = json.loads(payload)
+                    if isinstance(payload, dict):
+                        yield payload
+
+    async def close(self) -> None:
+        async with self._lock:
+            robot, self._robot = self._robot, None
+        if robot is not None:
             with contextlib.suppress(Exception):
                 await robot.disconnect()
 
@@ -164,7 +182,7 @@ class IRobotCloud:
         self._session: aiohttp.ClientSession | None = None
         self._account: CloudAccount | None = None
         self._rest: ClassicRestClient | None = None
-        self._timeline: _TimelineSource = _PerRobotTimeline(self)
+        self._timeline = _SharedTimeline(self)
 
     def __repr__(self) -> str:
         return f"IRobotCloud(country={self.country!r}, logged_in={self._account is not None})"
@@ -215,6 +233,7 @@ class IRobotCloud:
         return self._timeline.stream(blid)
 
     async def close(self) -> None:
+        await self._timeline.close()
         session, self._session = self._session, None
         self._account = self._rest = None
         if session is not None:
