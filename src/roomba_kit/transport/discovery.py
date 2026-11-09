@@ -114,7 +114,7 @@ async def _exchange(
             raise KitError(
                 ErrorCode.INVALID_REQUEST,
                 f"Could not send discovery to {target}: {err.strerror or err}. If a VPN owns "
-                "the default route, pass the subnet broadcast address (e.g. 192.168.1.255).",
+                "the default route, pass the subnet broadcast address (e.g. 192.0.2.255).",
                 details={"address": target, "errno": err.errno},
             )
 

@@ -20,8 +20,8 @@ from roomba_kit.core import registry
 from roomba_kit.transport.fake import FakeTransportFactory
 from tests.integration._us4 import FIXTURES, I5, M6, Served, make_ctx, serving
 
-# FastAPI's own schema and docs pages: no robot data, and the published API description (FR-048).
-DOC_PATHS = {"/v1/openapi.json", "/v1/docs", "/docs/oauth2-redirect"}
+# FR-048: everything but the health check needs a token, the schema and docs pages included.
+DOC_PATHS: set[str] = set()
 BAD_HEADERS = [{}, {"Authorization": "Bearer rk_not-a-real-token"}, {"Authorization": "Basic x"}]
 
 

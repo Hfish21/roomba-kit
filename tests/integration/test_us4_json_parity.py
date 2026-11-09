@@ -24,10 +24,7 @@ from tests.integration._us4 import FIXTURES, Served, make_ctx, sample_params, se
 
 # CLI commands that a lifecycle extra replaces with a local composite, so their output isn't
 # the operation's body by design.
-COMPOSITES = {
-    "service_status": "`service status` is the lifecycle composite {pid, url, health, "
-    "service_status}: it works without the service, so it can't be the HTTP body",
-}
+COMPOSITES: dict[str, str] = {}  # `service status --json` now prints the HTTP body (FR-047)
 
 
 def read_ops() -> list[Operation]:

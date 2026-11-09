@@ -196,7 +196,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     - `close()`
 - [x] T017 [P] Implement `src/roomba_kit/transport/discovery.py`:
   - Discovery: UDP broadcast of `b"irobotmcs"` to port 5678. The broadcast address defaults to
-    `255.255.255.255`, or a caller-supplied address (e.g. `192.168.1.255`, needed when a VPN
+    `255.255.255.255`, or a caller-supplied address (e.g. `192.0.2.255`, needed when a VPN
     owns the default route). Re-send every 1 s until `timeout_s`.
   - Parse the JSON replies (`robotid`, `robotname`, `ip`, `mac`, `sw`, `sku`, `cap`, `ver`) and
     dedupe by `robotid`.

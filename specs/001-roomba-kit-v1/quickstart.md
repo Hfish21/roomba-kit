@@ -30,7 +30,7 @@ uv run roomba-kit pause <vacuum> && uv run roomba-kit dock <vacuum>
 Pass when a fresh user completes this in under 15 min using only `docs/getting-started.md`.
 
 Variants:
-- `setup` with a VPN active: discovery is empty. Rerun with `--broadcast 192.168.1.255`, or use
+- `setup` with a VPN active: discovery is empty. Rerun with `--broadcast 192.0.2.255`, or use
   `robots add <ip>` (FR-002).
 - Decline cloud credentials: `cloud status` → `not_configured`, while local commands still work.
 

@@ -218,3 +218,14 @@ def test_token_ops_run_locally_without_the_service(tmp_kit_home):
     assert json.loads(revoked.stdout) == {"name": "cli", "revoked": True}
     assert not paths.cli_token_file().exists()
     assert service.requests == []
+
+
+def test_tables_summarise_nested_capability_lists():
+    from roomba_kit.cli.output import render
+
+    caps = [
+        {"capability": "clean", "verification": {"status": "verified", "run": "r"}},
+        {"capability": "train", "verification": {"status": "unverified", "run": None}},
+    ]
+    text = render([{"name": "Vacuum", "capabilities": caps}])
+    assert "2 (1 verified)" in text and "verification" not in text
