@@ -1,0 +1,125 @@
+[
+ {
+  "pmap_id": "FbKwAujERSazAALZRD_rEg",
+  "create_time": 1704045102,
+  "robot_pmapv_id": "261108T205633",
+  "user_pmapv_id": "231231T204559",
+  "state": "active",
+  "merged_pmap_ids": [],
+  "active_pmapv_id": "231231T204559",
+  "visible": true,
+  "shared": 0,
+  "last_pmapv_ts": 1794171468,
+  "sku": "I557020",
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0002",
+  "robot_ids": [
+   "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0002"
+  ],
+  "active_pmapv_details": {
+   "active_pmapv": {
+    "pmap_id": "FbKwAujERSazAALZRD_rEg",
+    "pmapv_id": "231231T204559",
+    "create_time": 1704055560,
+    "proc_state": "OK_Processed",
+    "creator": "user",
+    "learning_percentage": 100,
+    "last_user_pmapv_id": "231231T204559",
+    "last_user_ts": 1704055559,
+    "shareability": 5
+   },
+   "map_header": {
+    "id": "FbKwAujERSazAALZRD_rEg",
+    "version": "231231T204559",
+    "name": "Main Floor",
+    "learning_percentage": 100,
+    "create_time": 1704055560,
+    "resolution": 0.1049,
+    "user_orientation_rad": 1.6605,
+    "robot_orientation_rad": 0.0898,
+    "area": 85.4981
+   },
+   "regions": [
+    {
+     "id": "1",
+     "name": "Living Room",
+     "region_type": "living_room",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "3",
+     "name": "Den",
+     "region_type": "den",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "4",
+     "name": "Office",
+     "region_type": "office",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "5",
+     "name": "Primary Bathroom",
+     "region_type": "primary_bathroom",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "6",
+     "name": "Primary Bedroom",
+     "region_type": "primary_bedroom",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "7",
+     "name": "Laundry Room",
+     "region_type": "laundry_room",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "8",
+     "name": "Guest Bathroom",
+     "region_type": "guest_bathroom",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    }
+   ],
+   "zones": [],
+   "keepoutzones": [],
+   "observed_zones": []
+  }
+ }
+]
