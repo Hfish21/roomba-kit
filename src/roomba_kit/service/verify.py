@@ -36,9 +36,11 @@ SETTLE_S = 180.0
 NOT_READY_WAIT_S = 120.0
 """How long to wait for a not-ready condition to clear before cleaning. HW-1: an i5 reports
 not-ready 68 for ~1.5 min after a bin evacuation and refuses to start."""
-CLEAN_HOLD_S = 8.0
-"""`clean` only passes if the robot is still cleaning this long after confirmation. HW-1: an
-i5 reported `cleaning` for 1 s, then aborted."""
+CLEAN_HOLD_S = 30.0
+"""`clean` only passes if the robot is still cleaning this long after confirmation, and the
+next step waits for it. HW-1: an i5 reported `cleaning` for 1 s, then aborted; and a `pause`
+sent 9 s into a clean (still leaving the dock) ended the mission instead of pausing it,
+while one sent 30 s in paused normally."""
 STOP_TO_DOCK_S = 5.0
 """Pause between `stop` and the closing `dock`. HW-1: an i5 ignored a dock sent ~3 s after
 stop, and accepted one sent later."""
