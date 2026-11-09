@@ -318,8 +318,17 @@ async def test_lifespan_starts_and_stops_context(ctx):
     assert not ctx.running
 
 
-async def test_openapi_documents_real_schemas(client):
-    resp = await client.get("/v1/openapi.json")
+async def test_openapi_and_docs_require_a_token(client, auth):
+    for path in ("/v1/openapi.json", "/v1/docs"):
+        denied = await client.get(path)
+        assert denied.status_code == 401 and denied.json()["error"]["code"] == "unauthorized"
+        assert (await client.get(path, headers=auth)).status_code == 200
+    page = (await client.get("/v1/docs", headers=auth)).text
+    assert "SwaggerUIBundle" in page and '"openapi"' in page
+
+
+async def test_openapi_documents_real_schemas(client, auth):
+    resp = await client.get("/v1/openapi.json", headers=auth)
     assert resp.status_code == 200
     doc = resp.json()
     paths = doc["paths"]
@@ -345,7 +354,7 @@ async def test_openapi_documents_real_schemas(client):
     schemas = doc["components"]["schemas"]
     assert {"Echo", "CommandResult", "StateSummary", "ErrorEnvelope"} <= set(schemas)
     assert doc["components"]["securitySchemes"]["bearer"]["scheme"] == "bearer"
-    assert (await client.get("/v1/docs")).status_code == 200
+    assert (await client.get("/v1/docs", headers=auth)).status_code == 200
 
 
 async def test_stream_presenter_hook(client, auth):

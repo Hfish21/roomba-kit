@@ -10,9 +10,9 @@ from typing import Any
 import click
 
 from roomba_kit import __version__
-from roomba_kit.cli.client import CliState, fail, local_service_url
+from roomba_kit.cli.client import NOT_RUNNING, CliState, fail, local_service_url
 from roomba_kit.cli.generate import group_for
-from roomba_kit.cli.output import render, wire_json
+from roomba_kit.cli.output import emit_response, render, wire_json
 from roomba_kit.config import paths
 from roomba_kit.config.settings import load_settings
 from roomba_kit.core import registry
@@ -110,6 +110,13 @@ def service_status(state: CliState) -> None:
     """
     url = state.url()
     healthy = daemon.health(url)
+    if state.json:
+        # FR-047: `--json` is byte-identical to the `service_status` HTTP body.
+        if healthy is None:
+            fail(ErrorCode.SERVICE_UNAVAILABLE, NOT_RUNNING)
+        with state.client() as client:
+            emit_response(state, client.call(registry.get("service_status"), {}))
+        return
     data: dict[str, Any] = {
         "pid": daemon.running_pid(paths.pid_file()),
         "url": url,
