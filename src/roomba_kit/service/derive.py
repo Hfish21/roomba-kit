@@ -65,6 +65,9 @@ ON_DOCK = frozenset({Activity.DOCKED, Activity.CHARGING})
 RUNNING = frozenset(
     {Activity.CLEANING, Activity.MAPPING, Activity.PAUSED, Activity.RETURNING, Activity.STUCK}
 )
+STARTS = frozenset({Activity.CLEANING, Activity.MAPPING})
+"""A new mission needs actual cleaning or mapping. HW-1: an i5 driving home after a
+cancelled mission (and an evac flip on arrival) was logged as two extra missions."""
 CANCEL_COMMANDS = frozenset({"stop", "dock"})
 ECHO_SLACK = timedelta(minutes=2)
 """A room-clean echo counts for a mission when it's at most this much older than the start."""
@@ -228,6 +231,8 @@ class Deriver:
                         e for e in track.errors if e not in track.mission.errors
                     ]
                     track.mission.errors = list(track.errors)
+                    return None
+                if after.activity not in STARTS:
                     return None
                 if r.resume is not None:
                     self._abandon(r, out)

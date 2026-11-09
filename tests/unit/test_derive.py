@@ -204,3 +204,16 @@ async def test_m6_capture_replay(bus, ids):
     assert tos[:4] == ["cleaning", "paused", "cleaning", "paused"]
     assert "returning" in tos and tos[-1] in ("docked", "charging")
     assert bus.types().index(EventType.ROBOT_DOCKED) < bus.types().index(EventType.MISSION_FINISHED)
+
+
+async def test_driving_home_after_a_cancel_is_not_a_mission(robot, bus):
+    """HW-1: an i5 sent `dock` after a cancelled clean drove home with an open `dock` cycle,
+    evacuated and flipped returning/docked on arrival; that was logged as two missions."""
+    await robot.emit()
+    await robot.emit(phase="stop", cycle="none", missionId="M1")
+    await robot.emit(phase="hmUsrDock", cycle="dock", missionId="M1")
+    await robot.emit(phase="evac", cycle="evac", missionId="M1")
+    await robot.emit(phase="hmUsrDock", cycle="dock", missionId="M1")
+    await robot.emit(phase="charge", cycle="none", missionId="M1")
+    assert EventType.MISSION_STARTED not in bus.types()
+    assert EventType.MISSION_FINISHED not in bus.types()
