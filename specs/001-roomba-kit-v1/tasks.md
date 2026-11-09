@@ -770,10 +770,10 @@ unverified capabilities.
   - Run at 0.5 Hz with a 2 s timeout.
   - Stop for the mission after 3 consecutive timeouts on a robot that has never answered.
   - Publish `position` events.
-- [ ] T083 [P] [US7] Implement `src/roomba_kit/service/operations/position.py` (`get_position`)
+- [x] T083 [P] [US7] Implement `src/roomba_kit/service/operations/position.py` (`get_position`)
   and `src/roomba_kit/cli/position_watch.py` (`roomba-kit position ROBOT --watch`, which
   renders the stream).
-- [ ] T084 [P] [US7] Write `docs/position.md`: which models support it, coordinate frame (metres
+- [x] T084 [P] [US7] Write `docs/position.md`: which models support it, coordinate frame (metres
   from the dock, heading in radians that wraps at π), `no_fix`, and the cloud timeline as the
   room-level alternative.
 
