@@ -126,8 +126,9 @@ Options:
   -h, --help  Show this message and exit.
 
 Commands:
-  list  List recorded events, oldest first, after `since`.
-  wait  Wait for events after `since` and return them as soon as any arrive, or an...
+  list   List recorded events, oldest first, after `since`.
+  wait   Wait for events after `since` and return them as soon as any arrive, or an...
+  watch  Follow events live, one line each (`--json`: one envelope per line).
 ```
 
 ## `roomba-kit events list`
@@ -177,6 +178,21 @@ Options:
                                   Only these event types
   --timeout-s FLOAT               Seconds to wait before returning no events  [default:
                                   (30)]
+  -h, --help                      Show this message and exit.
+```
+
+## `roomba-kit events watch`
+
+```text
+Usage: roomba-kit events watch [OPTIONS]
+
+  Follow events live, one line each (`--json`: one envelope per line). Ctrl-C to stop.
+
+Options:
+  --robot TEXT                    Only this robot (ID or unambiguous name)
+  --type [state.changed|activity.changed|mission.started|mission.finished|robot.docked|robot.stuck|bin.full|error.raised|error.cleared|connection.changed|setting.changed|cloud.status|cloud.timeline|position|alert.dock_search_timeout]
+                                  Only these event types (repeatable)
+  --since INTEGER                 Replay events after this seq first
   -h, --help                      Show this message and exit.
 ```
 
