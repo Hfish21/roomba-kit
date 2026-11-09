@@ -1053,3 +1053,38 @@ Type: `CommandResult`
 | `outcome` | "confirmed" \| "unconfirmed" | yes |  |
 | `state` | StateSummary | yes |  |
 | `waited_ms` | int | yes |  |
+
+## `verify`
+
+Check capabilities against the real robot and record the run: settings are written, read back and restored; commands are issued and confirmed (only `find` without allow_motion). Returns each result with evidence, plus a markdown report for `docs/verification/<profile>.md`.
+⚠ Moves the robot: it will physically start, stop or drive.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/verify` |
+| MCP | tool `verify` |
+| CLI | `roomba-kit verify [OPTIONS] ROBOT [CAPABILITIES]...` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or name |
+| `capabilities` | list[str] \| None | no | null | Capabilities to check, e.g. `setting.passes find`. Default: every one the model declares (`train` is only ever run when named here) |
+| `allow_motion` | bool | no | false | Run checks that act on the robot (every command except `find`). Without it they are skipped |
+
+**Result**
+
+Type: `VerificationRun`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | int | yes |  |
+| `robot_id` | str | yes |  |
+| `profile_id` | str | yes |  |
+| `anchor` | str | yes | Stable anchor of this run in `docs/verification/<profile_id>.md`. A profile cites it as `verified(run='docs/verification/<profile_id>.md#<anchor>')` |
+| `started_at` | datetime | yes |  |
+| `ended_at` | datetime | yes |  |
+| `allow_motion` | bool | yes |  |
+| `results` | list[CheckResult] | yes |  |
+| `report` | str | yes | The run as markdown, for `docs/verification/<profile_id>.md` |
