@@ -595,7 +595,7 @@ clean/pause/resume/stop/dock/find.
   - Unknown name → `room_not_found` with `valid`.
   - Changed map version → `map_changed`.
   - Learned rooms are captured from `lastCommand.regions` without the cloud.
-- [ ] T058 [US3] Implement `src/roomba_kit/service/rooms.py`:
+- [x] T058 [US3] Implement `src/roomba_kit/service/rooms.py`:
   - Room queries on the store.
   - The effective-name rule.
   - Case-insensitive unique names per robot and map version.
