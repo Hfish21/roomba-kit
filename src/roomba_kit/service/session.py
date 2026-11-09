@@ -38,6 +38,9 @@ To act on a change, publish an event or spawn a task.
 Rediscover = Callable[[str], Awaitable[str | None]]
 """BLID -> the robot's current address, or None when it can't be found."""
 
+BACKOFF_MAX_S = 50.0
+"""Backoff cap. Below 60 s so the worst-case reconnect (cap + connect time) meets SC-006."""
+
 REDISCOVER_AFTER = 3
 """Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
 
@@ -75,7 +78,7 @@ class RobotSession:
         rediscover: Rediscover | None = None,
         on_address: Callable[[str, str], None] | None = None,
         backoff_min: float = 1.0,
-        backoff_max: float = 60.0,
+        backoff_max: float = BACKOFF_MAX_S,
         coalesce_s: float = 1.0,
     ) -> None:
         self.robot_id = entry.id
@@ -322,9 +325,13 @@ class RobotSession:
         )
         await self._bump()
 
-    async def _pause(self, delay: float) -> None:
-        """Sleep for a backoff delay; credentials changing or `stop()` cuts it short."""
-        self.backoff_history.append(delay)
+    async def _pause(self, delay: float, nominal: float | None = None) -> None:
+        """Sleep for a backoff delay; credentials changing or `stop()` cuts it short.
+
+        `backoff_history` records the scheduled (`nominal`) delay, even when time already
+        spent (rediscovery) shortens the actual sleep.
+        """
+        self.backoff_history.append(delay if nominal is None else nominal)
         with contextlib.suppress(TimeoutError):
             await asyncio.wait_for(self._wake.wait(), delay)
 
@@ -371,11 +378,16 @@ class RobotSession:
             held = exc.code is ErrorCode.CONNECTION_HELD_ELSEWHERE
             state = ConnectionState.HELD_ELSEWHERE if held else ConnectionState.OFFLINE
             await self._set_connection(state, exc.code.value)
+            delay = nominal = self._bump_backoff()
             if not held:
                 self._offline_attempts += 1
                 if self._offline_attempts % REDISCOVER_AFTER == 0:
+                    # Rediscovery takes seconds; it counts toward this pause, not on top of it.
+                    loop = asyncio.get_running_loop()
+                    began = loop.time()
                     await self._relocate()
-            await self._pause(self._bump_backoff())
+                    delay = max(0.0, delay - (loop.time() - began))
+            await self._pause(delay, nominal)
             return
 
         self._offline_attempts = 0
