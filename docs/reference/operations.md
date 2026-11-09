@@ -4,6 +4,37 @@
 
 Every capability, as it appears on HTTP, MCP and the CLI.
 
+## `add_robot`
+
+Add the robot at an IP address, for when discovery can't reach it. The robot must answer there. Next, give it a password with `retrieve_password`.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots` |
+| MCP | tool `add_robot` |
+| CLI | `roomba-kit robots add [OPTIONS] ADDRESS` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `address` | str | yes |  | The robot's IP address |
+
+**Result**
+
+Type: `DiscoveredRobot`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes |  |
+| `name` | str | yes |  |
+| `sku` | str | yes |  |
+| `firmware` | str | yes |  |
+| `address` | str | yes |  |
+| `supported` | bool | yes |  |
+| `profile_id` | str \| None | no |  |
+| `configured` | bool | no |  |
+
 ## `clean`
 
 Start cleaning the whole home. Confirmed when the robot reports cleaning.
@@ -163,6 +194,38 @@ Type: `ConfigView`
 | `cloud` | CloudView | yes |  |
 | `robots` | list[RobotView] | yes |  |
 | `tokens` | list[TokenView] | yes | Names only; token values are never shown |
+
+## `discover_robots`
+
+Find iRobot robots on the local network: ID, name, SKU, firmware, address, whether the model is supported, and whether it's already configured.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `GET /v1/discover_robots` |
+| MCP | tool `discover_robots` |
+| CLI | `roomba-kit discover [OPTIONS]` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `broadcast` | str \| None | no | null | Where to send the discovery datagram: your subnet's broadcast address (e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. Default: `[discovery] broadcast` in config.toml |
+| `timeout_s` | float | no | 8.0 | How long to listen |
+
+**Result**
+
+Type: `list[DiscoveredRobot]`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `id` | str | yes |  |
+| `name` | str | yes |  |
+| `sku` | str | yes |  |
+| `firmware` | str | yes |  |
+| `address` | str | yes |  |
+| `supported` | bool | yes |  |
+| `profile_id` | str \| None | no |  |
+| `configured` | bool | no |  |
 
 ## `dock`
 
@@ -592,6 +655,30 @@ Type: `CommandResult`
 | `state` | StateSummary | yes |  |
 | `waited_ms` | int | yes |  |
 
+## `remove_robot`
+
+Remove a robot: stop its connection and delete its config and password. Other robots and the cloud login are untouched.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `DELETE /v1/robots/{robot}` |
+| MCP | tool `remove_robot` |
+| CLI | `roomba-kit robots remove [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+
+**Result**
+
+Type: `Removed`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `removed` | bool | yes |  |
+
 ## `resume`
 
 Resume a paused mission. Confirmed when the robot reports cleaning again.
@@ -622,6 +709,32 @@ Type: `CommandResult`
 | `outcome` | "confirmed" \| "unconfirmed" | yes |  |
 | `state` | StateSummary | yes |  |
 | `waited_ms` | int | yes |  |
+
+## `retrieve_password`
+
+Retrieve the robot's local password over the network while you hold HOME on the docked robot, verify it by connecting, and store it. The password is never returned.
+
+| Surface | Usage |
+|---|---|
+| HTTP | `POST /v1/robots/{robot}/password/retrieve` |
+| MCP | tool `retrieve_password` |
+| CLI | `roomba-kit robots password [OPTIONS] ROBOT` |
+
+**Parameters**
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `robot` | str | yes |  | Robot ID or unambiguous name |
+| `timeout_s` | float | no | 60.0 | How long to keep retrying (every 2 s) |
+
+**Result**
+
+Type: `PasswordRetrieval`
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `outcome` | "stored" \| "timeout" \| "cloud_only" | yes | `stored`: retrieved, verified and saved. `timeout`: the robot never answered. `cloud_only`: it answered but didn't release a password; retry with HOME held, or use `cloud_retrieve_password`. |
+| `steps` | list[str] | yes | What to do at the robot |
 
 ## `service_status`
 
