@@ -1,4 +1,5 @@
-"""Setup operations: robot passwords (contracts/operations.md, "System & setup").
+"""Setup operations: discovery, adding and removing robots, and their passwords
+(contracts/operations.md, "System & setup"; FR-001–FR-006).
 
 Every robot password is verified by connecting before it's kept (FR-006). The check runs
 through the robot's own session, not a second connection: robots accept one local client, so a
@@ -7,13 +8,15 @@ the session reconnects with it, and the previous password is put back unless it 
 """
 
 import asyncio
+import ipaddress
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
+from roomba_kit.config.settings import RobotEntry
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import Event, EventType
-from roomba_kit.core.models import ConnectionState, KitModel
+from roomba_kit.core.models import ConnectionState, DiscoveredRobot, KitModel
 from roomba_kit.core.registry import Cli, Http, operation
 from roomba_kit.service.app import ServiceContext
 from roomba_kit.service.session import RobotSession
@@ -22,6 +25,16 @@ VERIFY_TIMEOUT_S = 20.0
 """How long a new password gets to connect before the robot counts as unreachable."""
 SETTLE_S = 0.25
 """A connect result counts once no new attempt follows it within this long (see `_attempt`)."""
+
+RETRY_S = 2.0
+"""Pause between local password retrieval attempts."""
+ATTEMPT_S = 10.0
+"""The longest one retrieval attempt may wait for the robot."""
+PASSWORD_STEPS = [
+    "Place the robot on its dock",
+    "Press and hold HOME for about 2 seconds until it chimes",
+    "Release — retrieving…",
+]
 
 _locks: dict[str, asyncio.Lock] = {}
 
@@ -163,3 +176,152 @@ async def set_robot_password(ctx: ServiceContext, params: RobotPassword) -> Pass
     if await store_verified_password(ctx, session, params.password) is ConnectionState.AUTH_FAILED:
         return PasswordStored(outcome="auth_failed")
     return PasswordStored(outcome="stored")
+
+
+class Discover(BaseModel):
+    broadcast: str | None = Field(
+        default=None,
+        description="Where to send the discovery datagram: your subnet's broadcast address "
+        "(e.g. 192.0.2.255) when a VPN owns the default route, or one robot's IP. "
+        "Default: `[discovery] broadcast` in config.toml",
+    )
+    timeout_s: float = Field(default=8.0, gt=0, le=60, description="How long to listen")
+
+    @field_validator("broadcast")
+    @classmethod
+    def _address(cls, value: str | None) -> str | None:
+        if value is not None:
+            ipaddress.ip_address(value)
+        return value
+
+
+@operation(
+    description="Find iRobot robots on the local network: ID, name, SKU, firmware, address, "
+    "whether the model is supported, and whether it's already configured.",
+    params=Discover,
+    result=list[DiscoveredRobot],
+    read_only=True,
+    http=Http("GET", "/discover_robots"),
+    cli=Cli((), "discover"),
+)
+async def discover_robots(ctx: ServiceContext, params: Discover) -> list[DiscoveredRobot]:
+    return await ctx.discover(params.broadcast, params.timeout_s)
+
+
+class Address(BaseModel):
+    address: str = Field(description="The robot's IP address")
+
+    @field_validator("address")
+    @classmethod
+    def _address(cls, value: str) -> str:
+        ipaddress.ip_address(value)
+        return value
+
+
+@operation(
+    description="Add the robot at an IP address, for when discovery can't reach it. The robot "
+    "must answer there. Next, give it a password with `retrieve_password`.",
+    params=Address,
+    result=DiscoveredRobot,
+    http=Http("POST", "/robots"),
+    cli=Cli(("robots",), "add", args=("address",)),
+)
+async def add_robot(ctx: ServiceContext, params: Address) -> DiscoveredRobot:
+    found = await ctx.probe(params.address)
+    if found is None:
+        raise KitError(
+            ErrorCode.ROBOT_OFFLINE,
+            f"No robot answered at {params.address}. Check the address and that the robot is "
+            "on the same network.",
+        )
+    entry = RobotEntry(
+        id=found.id,
+        name=found.name,
+        address=found.address,
+        profile=found.profile_id,
+        sku=found.sku,
+        firmware=found.firmware,
+    )
+    await ctx.add_robot(entry)
+    return found.model_copy(update={"configured": True})
+
+
+class RetrieveParams(BaseModel):
+    robot: str = Field(description="Robot ID or unambiguous name")
+    timeout_s: float = Field(
+        default=60.0, gt=0, le=600, description="How long to keep retrying (every 2 s)"
+    )
+
+
+class PasswordRetrieval(KitModel):
+    outcome: Literal["stored", "timeout", "cloud_only"] = Field(
+        description="`stored`: retrieved, verified and saved. `timeout`: the robot never "
+        "answered. `cloud_only`: it answered but didn't release a password; retry with HOME "
+        "held, or use `cloud_retrieve_password`."
+    )
+    steps: list[str] = Field(description="What to do at the robot")
+
+
+@operation(
+    description="Retrieve the robot's local password over the network while you hold HOME on "
+    "the docked robot, verify it by connecting, and store it. The password is never returned.",
+    params=RetrieveParams,
+    result=PasswordRetrieval,
+    http=Http("POST", "/robots/{robot}/password/retrieve"),
+    cli=Cli(("robots",), "password", args=("robot",)),
+)
+async def retrieve_password(ctx: ServiceContext, params: RetrieveParams) -> PasswordRetrieval:
+    session = ctx.resolve_robot(params.robot)
+    if not session.address:
+        code, message = _UNREACHABLE[ConnectionState.NOT_CONFIGURED]
+        raise KitError(code, message, session.robot_id)
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + params.timeout_s
+    last: ErrorCode | None = None
+    while (remaining := deadline - loop.time()) > 0:
+        try:
+            password = await ctx.password_retriever.retrieve(
+                session.address, min(remaining, ATTEMPT_S)
+            )
+        except KitError as err:
+            # The robot says nothing until HOME is held, and that silence looks the same as a
+            # model that never serves it locally, so keep trying for the whole window.
+            last = err.code
+            await asyncio.sleep(min(RETRY_S, max(deadline - loop.time(), 0)))
+            continue
+        if await store_verified_password(ctx, session, password) is ConnectionState.AUTH_FAILED:
+            raise KitError(
+                ErrorCode.AUTH_FAILED,
+                "The robot released a password but then rejected it; nothing was saved. Retry.",
+                session.robot_id,
+            )
+        return PasswordRetrieval(outcome="stored", steps=PASSWORD_STEPS)
+    if last is ErrorCode.PASSWORD_UNAVAILABLE:
+        return PasswordRetrieval(outcome="cloud_only", steps=PASSWORD_STEPS)
+    return PasswordRetrieval(outcome="timeout", steps=PASSWORD_STEPS)
+
+
+class RobotRef(BaseModel):
+    robot: str = Field(description="Robot ID or unambiguous name")
+
+
+class Removed(KitModel):
+    removed: bool
+
+
+@operation(
+    description="Remove a robot: stop its connection and delete its config and password. "
+    "Other robots and the cloud login are untouched.",
+    params=RobotRef,
+    result=Removed,
+    http=Http("DELETE", "/robots/{robot}"),
+    cli=Cli(("robots",), "remove", args=("robot",)),
+)
+async def remove_robot(ctx: ServiceContext, params: RobotRef) -> Removed:
+    try:
+        robot_id = ctx.resolve_robot(params.robot).robot_id
+    except KitError as err:
+        if err.code is not ErrorCode.ROBOT_NOT_FOUND:
+            raise
+        robot_id = params.robot  # leftovers in the files are still cleaned up
+    return Removed(removed=await ctx.remove_robot(robot_id))

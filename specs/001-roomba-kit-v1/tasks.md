@@ -455,7 +455,7 @@ clean/pause/resume/stop/dock/find.
 **Independent Test**: quickstart V1 (hardware), or `tests/integration/test_us1_setup_and_commands.py`
 (fake).
 
-- [ ] T040 [P] [US1] Integration test `tests/integration/test_us1_setup_and_commands.py`, using
+- [x] T040 [P] [US1] Integration test `tests/integration/test_us1_setup_and_commands.py`, using
   FakeTransport:
   - `discover_robots` lists both fixtures with `supported=true`, and an unknown SKU gives
     `supported=false`.
@@ -464,7 +464,7 @@ clean/pause/resume/stop/dock/find.
   - `add_robot` by address.
   - `clean`/`pause`/`resume`/`stop`/`dock`/`find` → `confirmed`.
   - With cloud declined, `cloud_status` → `not_configured`.
-- [ ] T041 [P] [US1] Implement `src/roomba_kit/service/operations/setup.py`:
+- [x] T041 [P] [US1] Implement `src/roomba_kit/service/operations/setup.py`:
   - `discover_robots(broadcast?, timeout_s=8)`, marking `configured` and `supported`.
   - `add_robot(address)`.
   - `retrieve_password(robot, timeout_s=60)`:
