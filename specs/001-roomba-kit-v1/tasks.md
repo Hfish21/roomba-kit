@@ -632,13 +632,13 @@ clean/pause/resume/stop/dock/find.
   - `tests/contract/test_openapi_snapshot.py`
   - `tests/contract/test_mcp_tools_snapshot.py`, covering names, descriptions and schemas
   - `tests/contract/test_cli_help_snapshot.py`
-- [ ] T063 [P] [US4] Integration test `tests/integration/test_us4_auth.py`:
+- [x] T063 [P] [US4] Integration test `tests/integration/test_us4_auth.py`:
   - Every non-health route and `/mcp` returns 401 / `unauthorized` without a token.
   - A token revoked via the CLI stops working without a service restart (mtime reload).
-- [ ] T064 [P] [US4] Integration test `tests/integration/test_us4_json_parity.py`: for every read
+- [x] T064 [P] [US4] Integration test `tests/integration/test_us4_json_parity.py`: for every read
   operation, `roomba-kit … --json` stdout equals the HTTP response body byte for byte (Click
   `CliRunner` against an in-process app).
-- [ ] T065 [P] [US4] Implement `src/roomba_kit/mcp/stdio.py` (`roomba-kit mcp`): a stdio FastMCP
+- [x] T065 [P] [US4] Implement `src/roomba_kit/mcp/stdio.py` (`roomba-kit mcp`): a stdio FastMCP
   server whose tools are generated from the same registry and proxy to the service HTTP API with
   the CLI token. When the service is down, every call returns `service_unavailable`.
 - [ ] T066 [P] [US4] Integration test `tests/integration/test_us4_mcp_agent_flow.py`, using the
