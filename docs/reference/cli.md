@@ -83,8 +83,14 @@ Usage: roomba-kit clean [OPTIONS] ROBOT
 
   ⚠ Moves the robot: it will physically start, stop or drive.
 
+  With --room, clean only those rooms, in the order given (`clean_rooms`; see `roomba-
+  kit rooms clean --help`).
+
 Options:
-  -h, --help  Show this message and exit.
+  --room NAME_OR_ID  A room to clean, by name or ID. Repeat for several, in cleaning
+                     order.
+  --unordered        Let the robot choose the room order.
+  -h, --help         Show this message and exit.
 ```
 
 ## `roomba-kit cloud`
