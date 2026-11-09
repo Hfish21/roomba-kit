@@ -1,5 +1,7 @@
 """Human/LLM-facing descriptions of operations, shared by MCP tools and the generated docs."""
 
+from typing import Any
+
 from roomba_kit.core.capabilities import Capability
 from roomba_kit.core.registry import Operation
 from roomba_kit.profiles.loader import load_profiles
@@ -16,10 +18,21 @@ def support(capability: Capability) -> dict[str, str]:
     }
 
 
+def type_name(annotation: Any) -> str:
+    """A stable, readable type name. Plain classes by name; generics and unions via `str()`.
+
+    (Don't use `__name__` for unions: on Python 3.14 it is `"Union"`, so docs would differ
+    between interpreter versions.)
+    """
+    if isinstance(annotation, type) and not getattr(annotation, "__args__", None):
+        return annotation.__name__
+    return str(annotation).replace("typing.", "")
+
+
 def param_docs(op: Operation) -> list[str]:
     lines = []
     for name, field in op.params.model_fields.items():
-        kind = getattr(field.annotation, "__name__", None) or str(field.annotation)
+        kind = type_name(field.annotation)
         default = "" if field.is_required() else f" (default: {field.get_default()!r})"
         text = f" — {field.description}" if field.description else ""
         lines.append(f"- `{name}`: {kind}{default}{text}")
