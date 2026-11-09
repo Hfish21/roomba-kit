@@ -1,0 +1,1952 @@
+[
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1770132660,
+   "params": {
+    "team": {
+     "team_id": "Z_1N4n8Y"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "cncl",
+  "doneM": 0,
+  "durationM": 92,
+  "eDock": 0,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KGJ21RR8K1V4NGR7YWWF5Y8W",
+  "nMssn": 179,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 90,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260203T170436"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "260203T170436",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260203T170436"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 2,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 15,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1770132661,
+  "timeline": {
+   "mission_id": "01KGJ21RR8K1V4NGR7YWWF5Y8W",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1770132660,
+    "params": {
+     "team": {
+      "team_id": "Z_1N4n8Y"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1770138232
+    }
+   ],
+   "nMssn": 179,
+   "finEvents": [
+    {
+     "type": "room",
+     "ets": 1770138232,
+     "room": {
+      "pmapvId": "260128T162258",
+      "area": 803,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 5,
+      "passArea": 14
+     },
+     "ts": 1770132677
+    },
+    {
+     "type": "pause",
+     "ets": 1770138232,
+     "ts": 1770132831
+    },
+    {
+     "type": "cmd",
+     "ts": 1770132831,
+     "cmd": {
+      "command": "pause",
+      "initiator": "manual",
+      "time": 1770132831
+     }
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "260128T162258",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1770132677
+    },
+    {
+     "type": "start",
+     "ts": 1770132661
+    }
+   ]
+  },
+  "timestamp": 1770138287,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "cncl"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1769614639,
+   "params": {
+    "team": {
+     "team_id": "LJbczwIi"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "stuck",
+  "doneM": 0,
+  "durationM": 44,
+  "eDock": 0,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KG2M0ZWRVY9PKY14D87K8354",
+  "nMssn": 178,
+  "numTanks": 1,
+  "pauseId": 1010,
+  "pauseM": 0,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260128T162258"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "260128T162258",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260128T162258"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 44,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 25,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1769614639,
+  "timeline": {
+   "mission_id": "01KG2M0ZWRVY9PKY14D87K8354",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1769614639,
+    "params": {
+     "team": {
+      "team_id": "LJbczwIi"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1769617332
+    }
+   ],
+   "nMssn": 178,
+   "finEvents": [
+    {
+     "type": "error",
+     "error": {
+      "value": 1010
+     },
+     "ets": 1769617314,
+     "ts": 1769617314
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 1,
+      "status": 1
+     },
+     "ets": 1769617314,
+     "ts": 1769616593
+    },
+    {
+     "type": "explore",
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1769616593,
+     "ts": 1769616593
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 8,
+      "status": 0
+     },
+     "ets": 1769616580,
+     "ts": 1769616158
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 4
+     },
+     "ets": 1769616158,
+     "ts": 1769616118
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1769616118,
+     "ts": 1769616057
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1769616057,
+     "ts": 1769616057
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1769616057,
+     "ts": 1769616057
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "260103T020936",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1769616057,
+     "ts": 1769615865
+    },
+    {
+     "type": "room",
+     "ets": 1769615865,
+     "room": {
+      "pmapvId": "260103T020936",
+      "area": 803,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 0,
+      "passArea": 17
+     },
+     "ts": 1769614895
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "260103T020936",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1769614711
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "260103T020936",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "260103T020936"
+     },
+     "type": "tentativeLoc",
+     "ets": 1769614684,
+     "ts": 1769614684
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "",
+      "confPmapId": "sjSjOQtDTM6--_uEYKKD9Q",
+      "pmapId": "sjSjOQtDTM6--_uEYKKD9Q"
+     },
+     "type": "tentativeLoc",
+     "ets": 1769614684,
+     "ts": 1769614684
+    },
+    {
+     "type": "start",
+     "ts": 1769614639
+    }
+   ]
+  },
+  "timestamp": 1769617391,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "stuck"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1767362677,
+   "params": {
+    "team": {
+     "team_id": "v/ZK_J/,"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "empty",
+  "doneM": 0,
+  "durationM": 724,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KDZGCJ88C0XJWY2MTGEXE817",
+  "nMssn": 177,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 720,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260103T020936"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "260103T020936",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260103T020936"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 4,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 17,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1767362677,
+  "timeline": {
+   "mission_id": "01KDZGCJ88C0XJWY2MTGEXE817",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1767362677,
+    "params": {
+     "team": {
+      "team_id": "v/ZK_J/,"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1767406137
+    }
+   ],
+   "nMssn": 177,
+   "finEvents": [
+    {
+     "type": "room",
+     "ets": 1767406137,
+     "room": {
+      "pmapvId": "260101T142739",
+      "area": 802,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 6,
+      "passArea": 17
+     },
+     "ts": 1767362692
+    },
+    {
+     "type": "tankEmpty",
+     "ets": 1767406137,
+     "ts": 1767362876
+    },
+    {
+     "type": "charge",
+     "ets": 1767406137,
+     "ts": 1767362931
+    },
+    {
+     "type": "pause",
+     "ets": 1767406137,
+     "ts": 1767362931
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 5,
+      "status": 0
+     },
+     "ets": 1767362921,
+     "ts": 1767362880
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "260101T142739",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1767362692
+    },
+    {
+     "type": "start",
+     "ts": 1767362677
+    }
+   ]
+  },
+  "timestamp": 1767406188,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "empty"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1767276255,
+   "params": {
+    "team": {
+     "team_id": "J35/EuGB"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "ok",
+  "doneM": 0,
+  "durationM": 22,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KDWXZ6R06358GWQYFSN482MB",
+  "nMssn": 176,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 0,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260101T142739"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "260101T142739",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "260101T142739"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 22,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 36,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1767276256,
+  "timeline": {
+   "mission_id": "01KDWXZ6R06358GWQYFSN482MB",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1767276255,
+    "params": {
+     "team": {
+      "team_id": "J35/EuGB"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1767277620
+    }
+   ],
+   "nMssn": 176,
+   "finEvents": [
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 1,
+      "status": 0
+     },
+     "ets": 1767277612,
+     "ts": 1767277567
+    },
+    {
+     "type": "explore",
+     "ets": 1767277567,
+     "ts": 1767277567
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1767277567,
+     "ts": 1767277567
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767277567,
+     "ts": 1767277567
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767277567,
+     "ts": 1767277567
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767277567,
+     "ts": 1767277567
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1767277566,
+     "ts": 1767277455
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767277455,
+     "ts": 1767277371
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767277371,
+     "ts": 1767277305
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767277305,
+     "ts": 1767277263
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767277263,
+     "ts": 1767277263
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767277263,
+     "ts": 1767277215
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 8,
+      "status": 0
+     },
+     "ets": 1767277213,
+     "ts": 1767277202
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 4
+     },
+     "ets": 1767277202,
+     "ts": 1767277123
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767277123,
+     "ts": 1767277066
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767277066,
+     "ts": 1767277066
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767277066,
+     "ts": 1767277066
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251231T142658",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767277066,
+     "ts": 1767277066
+    },
+    {
+     "type": "room",
+     "ets": 1767277066,
+     "room": {
+      "pmapvId": "251231T142658",
+      "area": 803,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 0,
+      "passArea": 34
+     },
+     "ts": 1767276270
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "251231T142658",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1767276270
+    },
+    {
+     "type": "start",
+     "ts": 1767276256
+    }
+   ]
+  },
+  "timestamp": 1767277672,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "ok"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1767189895,
+   "params": {
+    "team": {
+     "team_id": "LJbczwIi"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "ok",
+  "doneM": 0,
+  "durationM": 21,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KDTBKPT0R15N99XMKGW0BMAJ",
+  "nMssn": 175,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 0,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251231T142658"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "251231T142658",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251231T142658"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 21,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 35,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1767189896,
+  "timeline": {
+   "mission_id": "01KDTBKPT0R15N99XMKGW0BMAJ",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1767189895,
+    "params": {
+     "team": {
+      "team_id": "LJbczwIi"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1767191179
+    }
+   ],
+   "nMssn": 175,
+   "finEvents": [
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 1,
+      "status": 0
+     },
+     "ets": 1767191170,
+     "ts": 1767191126
+    },
+    {
+     "type": "explore",
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767191126,
+     "ts": 1767191126
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767191124,
+     "ts": 1767191030
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767191030,
+     "ts": 1767190945
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767190945,
+     "ts": 1767190880
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767190880,
+     "ts": 1767190843
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 8,
+      "status": 0
+     },
+     "ets": 1767190842,
+     "ts": 1767190830
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 4
+     },
+     "ets": 1767190830,
+     "ts": 1767190786
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767190786,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251230T142824",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767190703,
+     "ts": 1767190703
+    },
+    {
+     "type": "room",
+     "ets": 1767190703,
+     "room": {
+      "pmapvId": "251230T142824",
+      "area": 802,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 0,
+      "passArea": 33
+     },
+     "ts": 1767189911
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "251230T142824",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1767189911
+    },
+    {
+     "type": "start",
+     "ts": 1767189896
+    }
+   ]
+  },
+  "timestamp": 1767191230,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "ok"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1767103490,
+   "params": {
+    "team": {
+     "team_id": "Z_1N4n8Y"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "ok",
+  "doneM": 0,
+  "durationM": 22,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KDQS6TXR2A57X6ETBT654KP7",
+  "nMssn": 174,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 0,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251230T142824"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "251230T142824",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251230T142824"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 22,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 34,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1767103491,
+  "timeline": {
+   "mission_id": "01KDQS6TXR2A57X6ETBT654KP7",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1767103490,
+    "params": {
+     "team": {
+      "team_id": "Z_1N4n8Y"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1767104862
+    }
+   ],
+   "nMssn": 174,
+   "finEvents": [
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 1,
+      "status": 0
+     },
+     "ets": 1767104851,
+     "ts": 1767104811
+    },
+    {
+     "type": "explore",
+     "ets": 1767104811,
+     "ts": 1767104776
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 1
+     },
+     "ets": 1767104776,
+     "ts": 1767104775
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767104775,
+     "ts": 1767104775
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767104775,
+     "ts": 1767104775
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767104775,
+     "ts": 1767104679
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767104679,
+     "ts": 1767104630
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 8,
+      "status": 0
+     },
+     "ets": 1767104629,
+     "ts": 1767104616
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "5",
+      "status": 4
+     },
+     "ets": 1767104616,
+     "ts": 1767104556
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "1",
+      "status": 1
+     },
+     "ets": 1767104556,
+     "ts": 1767104476
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "3",
+      "status": 1
+     },
+     "ets": 1767104476,
+     "ts": 1767104476
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "4",
+      "status": 1
+     },
+     "ets": 1767104476,
+     "ts": 1767104476
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "2",
+      "status": 1
+     },
+     "ets": 1767104476,
+     "ts": 1767104320
+    },
+    {
+     "type": "room",
+     "ets": 1767104320,
+     "room": {
+      "pmapvId": "251017T132652",
+      "area": 801,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 0,
+      "passArea": 31
+     },
+     "ts": 1767103508
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "dest": "room",
+      "rid": "0",
+      "status": 0
+     },
+     "ets": 1767104027,
+     "ts": 1767104023
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "251017T132652"
+     },
+     "type": "tentativeLoc",
+     "ets": 1767104022,
+     "ts": 1767104022
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "0FTklJSZQy65coKlHtvGwg",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw"
+     },
+     "type": "tentativeLoc",
+     "ets": 1767104021,
+     "ts": 1767103903
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "251017T132652"
+     },
+     "type": "tentativeLoc",
+     "ets": 1767103903,
+     "ts": 1767103851
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "251017T132652"
+     },
+     "type": "tentativeLoc",
+     "ets": 1767103851,
+     "ts": 1767103491
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "251017T132652",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1767103508
+    },
+    {
+     "type": "start",
+     "ts": 1767103491
+    }
+   ]
+  },
+  "timestamp": 1767104916,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "ok"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1767017165,
+   "params": {
+    "team": {
+     "team_id": "T2qof+Ra"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "ok",
+  "doneM": 0,
+  "durationM": 15,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01KDN6WC68BE2SX8QMMB500MV3",
+  "nMssn": 173,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 0,
+  "pmaps": [
+   {
+    "q8tVuWyVTBGrTuyYyxd_pA": "251229T142134"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "251229T142134",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "q8tVuWyVTBGrTuyYyxd_pA"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "q8tVuWyVTBGrTuyYyxd_pA": "251229T142134"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 15,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 35,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1767017165,
+  "timeline": {
+   "mission_id": "01KDN6WC68BE2SX8QMMB500MV3",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1767017165,
+    "params": {
+     "team": {
+      "team_id": "T2qof+Ra"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1767018093
+    }
+   ],
+   "nMssn": 173,
+   "finEvents": [
+    {
+     "type": "room",
+     "ets": 1767018093,
+     "room": {
+      "pmapvId": "251017T132652",
+      "area": 805,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 6,
+      "passArea": 26
+     },
+     "ts": 1767017183
+    },
+    {
+     "type": "travel",
+     "travel": {
+      "dest": "dock",
+      "reason": 1,
+      "status": 0
+     },
+     "ets": 1767018092,
+     "ts": 1767018038
+    },
+    {
+     "type": "disc",
+     "ets": 1767018038,
+     "ts": 1767017688
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "",
+      "confPmapId": "q8tVuWyVTBGrTuyYyxd_pA",
+      "pmapId": "q8tVuWyVTBGrTuyYyxd_pA"
+     },
+     "type": "tentativeLoc",
+     "ets": 1767017688,
+     "ts": 1767017688
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "251017T132652",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1767017183
+    },
+    {
+     "type": "start",
+     "ts": 1767017166
+    }
+   ]
+  },
+  "timestamp": 1767018097,
+  "wifiChannel": 1,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "ok"
+ },
+ {
+  "chrgM": 0,
+  "chrgs": 0,
+  "cmd": {
+   "time": 1762783388,
+   "params": {
+    "team": {
+     "team_id": "T2qof+Ra"
+    }
+   },
+   "command": "start",
+   "initiator": "team"
+  },
+  "detectedPad": "reusableWet",
+  "dockedAtStart": true,
+  "done": "cncl",
+  "doneM": 0,
+  "durationM": 99,
+  "eDock": 1,
+  "evacs": 0,
+  "flags": 1024,
+  "initiator": "team",
+  "missionId": "01K9Q17SA87EV1WCM7HGPR94RF",
+  "nMssn": 172,
+  "numTanks": 1,
+  "pauseId": 0,
+  "pauseM": 90,
+  "pmaps": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251110T154310"
+   }
+  ],
+  "pmaps_info": [
+   {
+    "pmapv_id": "251110T154310",
+    "umf_layer_deltas": {
+     "changelog": {
+      "changes": {},
+      "deletes": {},
+      "adds": {}
+     },
+     "layer_type": "deltas"
+    },
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw"
+   }
+  ],
+  "pmaps_robot": [
+   {
+    "5brjBHI-RtKr1Yt7JzFjDw": "251110T154310"
+   }
+  ],
+  "rankOverlap": 67,
+  "runM": 9,
+  "saves": 0,
+  "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+  "sqft": 37,
+  "startEndWlBars": [
+   2,
+   2
+  ],
+  "startTime": 1762783389,
+  "timeline": {
+   "mission_id": "01K9Q17SA87EV1WCM7HGPR94RF",
+   "ver": "2.10.0",
+   "cmd": {
+    "time": 1762783388,
+    "params": {
+     "team": {
+      "team_id": "T2qof+Ra"
+     }
+    },
+    "command": "start",
+    "initiator": "team"
+   },
+   "event": [
+    {
+     "type": "fin",
+     "ts": 1762789348
+    }
+   ],
+   "nMssn": 172,
+   "finEvents": [
+    {
+     "type": "pause",
+     "ets": 1762789348,
+     "ts": 1762783937
+    },
+    {
+     "type": "charge",
+     "ets": 1762789348,
+     "ts": 1762783945
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw"
+     },
+     "type": "tentativeLoc",
+     "ets": 1762789348,
+     "ts": 1762783946
+    },
+    {
+     "type": "kidnap",
+     "ets": 1762783945,
+     "ts": 1762783939
+    },
+    {
+     "type": "kidnap",
+     "ets": 1762783938,
+     "ts": 1762783938
+    },
+    {
+     "type": "kidnap",
+     "ets": 1762783938,
+     "ts": 1762783936
+    },
+    {
+     "type": "room",
+     "ets": 1762783937,
+     "room": {
+      "pmapvId": "251017T132652",
+      "area": 802,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "rid": "0",
+      "passCount": 1,
+      "status": 4,
+      "passArea": 33
+     },
+     "ts": 1762783401
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "251017T132652"
+     },
+     "type": "tentativeLoc",
+     "ets": 1762783425,
+     "ts": 1762783425
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "lHJgvEsoTGOB2OnUvQtXnQ",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw"
+     },
+     "type": "tentativeLoc",
+     "ets": 1762783425,
+     "ts": 1762783390
+    },
+    {
+     "type": "plan",
+     "plan": {
+      "pmapvId": "251017T132652",
+      "ordered": 0,
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "type": "all",
+      "upcoming": []
+     },
+     "ts": 1762783401
+    },
+    {
+     "tentativeLoc": {
+      "pmapvId": "251017T132652",
+      "confPmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "pmapId": "5brjBHI-RtKr1Yt7JzFjDw",
+      "confPmapvId": "251017T132652"
+     },
+     "type": "tentativeLoc",
+     "ets": 1762783390,
+     "ts": 1762783389
+    },
+    {
+     "type": "start",
+     "ts": 1762783389
+    }
+   ]
+  },
+  "timestamp": 1762789402,
+  "wifiChannel": 11,
+  "wlBars": [
+   0,
+   0,
+   100,
+   0,
+   0
+  ],
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "done_raw": "plcDoc"
+ }
+]

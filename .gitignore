@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+dist/
+build/
+*.egg-info/
+
+# Docs build
+site/
+
+# Local secrets & state — never commit
+*.env
+*.token
+credentials.toml
+state.db
+
+# OS
+.DS_Store

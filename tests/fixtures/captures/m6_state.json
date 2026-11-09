@@ -1,0 +1,311 @@
+{
+ "state": {
+  "reported": {
+   "audio": {
+    "volume": 100
+   },
+   "batPct": 90,
+   "batteryType": "F12432784",
+   "batAuthEnable": null,
+   "bbchg": {
+    "nChatters": 36,
+    "nKnockoffs": 105,
+    "nLithF": 5,
+    "nChgOk": 206,
+    "aborts": [
+     26,
+     20,
+     26
+    ],
+    "chgErr": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "smberr": 58624,
+    "nChgErr": 0
+   },
+   "bbchg3": {
+    "estCap": 1772,
+    "nAvail": 393,
+    "hOnDock": 20750,
+    "avgMin": 95
+   },
+   "bbmssn": {
+    "aCycleM": 99,
+    "nMssnF": 134,
+    "nMssnC": 23,
+    "nMssnOk": 22,
+    "aMssnM": 228,
+    "nMssn": 179
+   },
+   "bbnav": {
+    "aMtrack": 0,
+    "nGoodLmrks": 0,
+    "aGain": 0,
+    "aExpo": 0
+   },
+   "bbpause": {
+    "pauses": [
+     46,
+     46,
+     46,
+     46,
+     46,
+     46,
+     1010,
+     1010,
+     1010,
+     19
+    ]
+   },
+   "bbrstinfo": {
+    "nNavRst": 110,
+    "nMapLoadRst": 0,
+    "nMobRst": 110,
+    "nSafRst": 15,
+    "safCauses": [
+     18,
+     18,
+     21,
+     18,
+     21,
+     21,
+     21,
+     21,
+     21,
+     20
+    ]
+   },
+   "bbrun": {
+    "nOvertemps": 0,
+    "nCBump": 3,
+    "nWStll": 4,
+    "nPicks": 237,
+    "nPanics": 1180,
+    "nStuck": 70,
+    "nCliffsF": 2274,
+    "nCliffsR": 0
+   },
+   "bbswitch": {
+    "nBumper": 537661,
+    "nDrops": 675,
+    "nDock": 14,
+    "nSpot": 9,
+    "nClean": 251
+   },
+   "bbsys": {
+    "min": 53,
+    "hr": 21284
+   },
+   "behaviorFwk": null,
+   "cap": {
+    "oMode": 4,
+    "edge": 0,
+    "maps": 3,
+    "pmaps": 10,
+    "mc": 2,
+    "tHold": 1,
+    "tLine": 2,
+    "area": 1,
+    "eco": 1,
+    "multiPass": 2,
+    "team": 1,
+    "pp": 0,
+    "pose": 2,
+    "lang": 2,
+    "5ghz": 1,
+    "prov": 3,
+    "sched": 2,
+    "svcConf": 1,
+    "ota": 2,
+    "log": 2,
+    "langOta": 0,
+    "ns": 1,
+    "tileScan": 1
+   },
+   "childLock": false,
+   "chrgLrPtrn": 0,
+   "cleanMissionStatus": {
+    "cycle": "none",
+    "phase": "charge",
+    "expireM": 0,
+    "rechrgM": 0,
+    "error": 0,
+    "notReady": 0,
+    "condNotReady": [],
+    "mssnM": 0,
+    "expireTm": 0,
+    "rechrgTm": 0,
+    "mssnStrtTm": 0,
+    "operatingMode": 0,
+    "initiator": "manual",
+    "nMssn": 179,
+    "missionId": "01KGJ21RR8K1V4NGR7YWWF5Y8W"
+   },
+   "cleanSchedule2": [
+    {
+     "enabled": false,
+     "type": 0,
+     "start": {
+      "day": [
+       0,
+       1,
+       3,
+       5
+      ],
+      "hour": 14,
+      "min": 0
+     },
+     "cmdStr": "{'command': 'start', 'params': {'padWetness': {'disposable': 2, 'reusable': 2}, 'rankOverlap': 67}}"
+    }
+   ],
+   "connected": true,
+   "deploymentState": 0,
+   "detectedPad": "reusableWet",
+   "dock": {
+    "known": true
+   },
+   "ecoCharge": false,
+   "featureFlags": {
+    "pmapSharing": 0,
+    "reachableSpaceFlags": 0,
+    "stratParams": 0,
+    "childLockEnable": 1,
+    "covHybridPlan": 0,
+    "trainingStrategy": 1,
+    "covPlan": 0,
+    "chrgLrPtrnEnable": 1,
+    "clearHaz": true
+   },
+   "hwPartsRev": {
+    "mobBrd": 12,
+    "imuPartNo": "BMI088",
+    "lrDrv": "AW21024",
+    "NavBrd": 1
+   },
+   "lastCommand": {
+    "command": "find",
+    "initiator": "localApp",
+    "time": 1794163196
+   },
+   "lastDisconnect": 4,
+   "lidOpen": false,
+   "mapUploadAllowed": true,
+   "missionTelemetry": {
+    "aux_comms": 1,
+    "bat_stats": 1,
+    "behaviors_report": 1,
+    "camera_settings": 1,
+    "coverage_report": 1,
+    "map_hypotheses": 1,
+    "map_load": 1,
+    "map_save": 1,
+    "pmap_navigability": 1,
+    "roomseg_report": 1,
+    "sensor_stats": 1,
+    "tumor_classifier_report": 1,
+    "visual_stasis_report": 1,
+    "vital_stats": 1,
+    "vslam_report": 1
+   },
+   "name": "Mop",
+   "noAutoPasses": false,
+   "openOnly": false,
+   "optFeats": {
+    "pmaps": null
+   },
+   "padWetness": {
+    "disposable": 3,
+    "reusable": 3
+   },
+   "pmapLearningAllowed": true,
+   "pmaps": [
+    {
+     "5brjBHI-RtKr1Yt7JzFjDw": "260128T162258"
+    }
+   ],
+   "pmapCL": true,
+   "pmapSGen": 4,
+   "pmapShare": {
+    "copy": [
+     1,
+     2,
+     3,
+     4,
+     6
+    ],
+    "share": null
+   },
+   "rankOverlap": 67,
+   "reflexSettings": {
+    "rlWheelDrop": {
+     "enabled": 0
+    }
+   },
+   "runtimeStats": {
+    "min": 27,
+    "sqft": 2,
+    "hr": 173
+   },
+   "sceneRecog": null,
+   "schedHold": false,
+   "secureBoot": {
+    "log": 2,
+    "flip": 0,
+    "sbl1Ver": "B3.2.03_PPUB",
+    "stublVer": "B3.2.03_PPUB",
+    "efuse": 1,
+    "blType": 1,
+    "enforce": 2,
+    "lastRst": "200000000040",
+    "recov": "linux+3.8.6.3+sanmarino-release-rt121+17",
+    "idSwitch": 0,
+    "permReq": 0,
+    "perm": "none"
+   },
+   "sku": "m611020",
+   "softwareVer": "sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321",
+   "subModSwVer": {
+    "nav": "sanmarino-nav+22.29.6+ubuntu-HEAD-82f3372a65c+2321",
+    "mob": "22.29.6+ubuntu-HEAD-82f3372a65c+2321",
+    "pwr": "0.3.0+ubuntu-HEAD-82f3372a65c+2321",
+    "sft": "1.4.0+ubuntu-HEAD-9a9a5d0c891+29",
+    "mobBtl": "4.3",
+    "linux": "linux+4.20.0+Firmware-Build+2321",
+    "con": "3.14.4-tags/release-3.14.4@050d359d/ubuntu"
+   },
+   "tankLvl": 100,
+   "tankPresent": true,
+   "tls": {
+    "tzbChk": 1,
+    "privKType": 2,
+    "lcCiphers": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     50380848,
+     50380847
+    ]
+   },
+   "twoPass": false,
+   "signal": {
+    "rssi": -49,
+    "snr": 29,
+    "noise": -78
+   },
+   "wifistat": {
+    "cloud": 14,
+    "wifi": 1,
+    "uap": false
+   }
+  }
+ }
+}

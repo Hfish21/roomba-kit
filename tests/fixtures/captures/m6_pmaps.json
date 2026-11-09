@@ -1,0 +1,185 @@
+[
+ {
+  "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw",
+  "create_time": 1703994056,
+  "robot_pmapv_id": "261108T185002",
+  "user_pmapv_id": "240105T193803",
+  "state": "active",
+  "merged_pmap_ids": [],
+  "active_pmapv_id": "260128T162258",
+  "visible": true,
+  "shared": 0,
+  "last_pmapv_ts": 1794163817,
+  "sku": "m611020",
+  "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003",
+  "robot_ids": [
+   "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003"
+  ],
+  "active_pmapv_details": {
+   "active_pmapv": {
+    "pmap_id": "5brjBHI-RtKr1Yt7JzFjDw",
+    "pmapv_id": "260128T162258",
+    "create_time": 1769617394,
+    "proc_state": "OK_Processed",
+    "creator": "robot",
+    "nMssn": 178,
+    "mission_id": "01KG2M0ZWRVY9PKY14D87K8354",
+    "learning_percentage": 100,
+    "last_user_pmapv_id": "240105T193803",
+    "last_user_ts": 1704483483,
+    "shareability": 3,
+    "robot_cap": {
+     "maps": 3,
+     "pmaps": 10,
+     "tHold": 1
+    },
+    "robot_id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0003"
+   },
+   "map_header": {
+    "id": "5brjBHI-RtKr1Yt7JzFjDw",
+    "version": "260128T162258",
+    "name": "Main Floor",
+    "learning_percentage": 100,
+    "create_time": 1769617394,
+    "resolution": 0.0773,
+    "user_orientation_rad": 6.2828,
+    "robot_orientation_rad": 1.5707,
+    "area": 75.348,
+    "nmssn": 178,
+    "mission_id": "01KG2M0ZWRVY9PKY14D87K8354"
+   },
+   "regions": [
+    {
+     "id": "0",
+     "name": "",
+     "region_type": "unspecified",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "1",
+     "name": "Kitchen",
+     "region_type": "kitchen",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "2",
+     "name": "",
+     "region_type": "unspecified",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "3",
+     "name": "",
+     "region_type": "unspecified",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "4",
+     "name": "",
+     "region_type": "unspecified",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    },
+    {
+     "id": "5",
+     "name": "",
+     "region_type": "unspecified",
+     "policies": {
+      "odoa_mode": 0,
+      "odoa_feats": {},
+      "disabled_operating_modes": 0,
+      "override_operating_modes": 0
+     }
+    }
+   ],
+   "zones": [],
+   "keepoutzones": [],
+   "observed_zones": [
+    {
+     "id": "834312757",
+     "extent_type": "front_of_dishwasher",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "834312757"
+     ]
+    },
+    {
+     "id": "1374211889",
+     "extent_type": "around_bed",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "1374211889"
+     ]
+    },
+    {
+     "id": "1393182188",
+     "extent_type": "around_bed",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "1393182188"
+     ]
+    },
+    {
+     "id": "1416750111",
+     "extent_type": "around_toilet",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "1416750111"
+     ]
+    },
+    {
+     "id": "1701419467",
+     "extent_type": "around_sofa",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "1701419467"
+     ]
+    },
+    {
+     "id": "1745156878",
+     "extent_type": "around_dining_table",
+     "quality": {
+      "confidence": 100
+     },
+     "related_objects": [
+      "1745156878"
+     ]
+    }
+   ]
+  }
+ }
+]

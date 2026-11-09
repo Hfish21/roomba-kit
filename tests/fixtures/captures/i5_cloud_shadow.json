@@ -1,0 +1,1428 @@
+{
+ "state": {
+  "reported": {
+   "migrated": true,
+   "accountControl": true,
+   "batPct": 94,
+   "batteryType": "F12432832R",
+   "batAuthEnable": true,
+   "bbchg": {
+    "nChatters": 29,
+    "nKnockoffs": 144,
+    "nLithF": 7,
+    "nChgOk": 429,
+    "aborts": [
+     0,
+     26,
+     26
+    ],
+    "chgErr": [
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "smberr": 57344,
+    "nChgErr": 0
+   },
+   "bbchg3": {
+    "estCap": 1650,
+    "nAvail": 5639,
+    "hOnDock": 13030,
+    "avgMin": 139
+   },
+   "bbmssn": {
+    "aCycleM": 100,
+    "nMssnF": 186,
+    "nMssnC": 100,
+    "nMssnOk": 264,
+    "aMssnM": 271,
+    "nMssn": 550
+   },
+   "bbnav": {
+    "aMtrack": 0,
+    "nGoodLmrks": 0,
+    "aGain": 0,
+    "aExpo": 0
+   },
+   "bbpause": {
+    "pauses": [
+     46,
+     46,
+     46,
+     46,
+     46,
+     18,
+     46,
+     18,
+     46,
+     2
+    ]
+   },
+   "bbrstinfo": {
+    "nNavRst": 154,
+    "nMapLoadRst": 0,
+    "nMobRst": 152,
+    "nSafRst": 3,
+    "safCauses": [
+     18,
+     18,
+     18,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ]
+   },
+   "bbrun": {
+    "nOvertemps": 0,
+    "nCBump": 3,
+    "nWStll": 1,
+    "nMBStll": 8090,
+    "nPanics": 253,
+    "nPicks": 274,
+    "nPiezoDD": 0,
+    "nStuck": 172,
+    "nScrubs": 45,
+    "sqft": 2286,
+    "nEvacs": 758,
+    "min": 24,
+    "nOpticalDD": 41,
+    "hr": 680,
+    "nCliffsF": 13312,
+    "nCliffsR": 0
+   },
+   "bbswitch": {
+    "nBumper": 833052,
+    "nDrops": 6503,
+    "nDock": 15,
+    "nSpot": 30,
+    "nClean": 541
+   },
+   "bbsys": {
+    "min": 13,
+    "hr": 14857
+   },
+   "behaviorFwk": true,
+   "bin": {
+    "present": true,
+    "full": false,
+    "type": "std"
+   },
+   "binPause": true,
+   "cap": {
+    "binFullDetect": 2,
+    "oMode": 2,
+    "dockComm": 1,
+    "edge": 0,
+    "maps": 3,
+    "pmaps": 6,
+    "mc": 0,
+    "tLine": 2,
+    "area": 1,
+    "eco": 1,
+    "multiPass": 3,
+    "team": 1,
+    "pp": 0,
+    "lang": 2,
+    "5ghz": 0,
+    "prov": 3,
+    "sched": 1,
+    "svcConf": 1,
+    "ota": 2,
+    "log": 2,
+    "langOta": 2,
+    "addOnHw": 3
+   },
+   "carpetBoost": false,
+   "childLock": false,
+   "cleanMissionStatus": {
+    "cycle": "none",
+    "phase": "charge",
+    "expireM": 0,
+    "rechrgM": 0,
+    "error": 0,
+    "notReady": 0,
+    "condNotReady": [],
+    "mssnM": 0,
+    "expireTm": 0,
+    "rechrgTm": 0,
+    "mssnStrtTm": 1794173732,
+    "operatingMode": 0,
+    "initiator": "localApp",
+    "nMssn": 550,
+    "missionId": "01M6YHD150QS77BXHGBKRTWEFK"
+   },
+   "cleanSchedule2": [
+    {
+     "enabled": true,
+     "type": 0,
+     "start": {
+      "day": [
+       5
+      ],
+      "hour": 9,
+      "min": 0
+     },
+     "cmd": {
+      "command": "start",
+      "params": {
+       "team": {
+        "team_id": "v/ZK_J/,"
+       }
+      }
+     }
+    },
+    {
+     "enabled": true,
+     "type": 0,
+     "start": {
+      "day": [
+       2
+      ],
+      "hour": 9,
+      "min": 0
+     },
+     "cmd": {
+      "command": "start",
+      "params": {
+       "team": {
+        "team_id": "Z_1N4n8Y"
+       }
+      }
+     }
+    },
+    {
+     "enabled": true,
+     "type": 0,
+     "start": {
+      "day": [
+       1
+      ],
+      "hour": 9,
+      "min": 0
+     },
+     "cmd": {
+      "command": "start",
+      "params": {
+       "team": {
+        "team_id": "T2qof+Ra"
+       }
+      }
+     }
+    },
+    {
+     "enabled": true,
+     "type": 0,
+     "start": {
+      "day": [
+       3
+      ],
+      "hour": 9,
+      "min": 0
+     },
+     "cmd": {
+      "command": "start",
+      "params": {
+       "team": {
+        "team_id": "LJbczwIi"
+       }
+      }
+     }
+    },
+    {
+     "enabled": true,
+     "type": 0,
+     "start": {
+      "day": [
+       4
+      ],
+      "hour": 9,
+      "min": 0
+     },
+     "cmd": {
+      "command": "start",
+      "params": {
+       "team": {
+        "team_id": "J35/EuGB"
+       }
+      }
+     }
+    }
+   ],
+   "connected": true,
+   "deploymentState": 0,
+   "dock": {
+    "known": true,
+    "state": 301,
+    "pn": "4737723",
+    "id": "FFFFFFFFFFFFFFFFFFFFFFFFFFFF0001",
+    "fwVer": "4.8.6",
+    "hwRev": 1,
+    "varID": 9
+   },
+   "evacAllowed": true,
+   "ecoCharge": false,
+   "hwPartsRev": {
+    "csscID": 0,
+    "mobBrd": 4,
+    "imuPartNo": "BMI088",
+    "NavBrd": 2
+   },
+   "lastCommand": {
+    "command": "start",
+    "time": 1794173731,
+    "initiator": "localApp",
+    "pmap_id": "FbKwAujERSazAALZRD_rEg",
+    "user_pmapv_id": "231231T204559",
+    "ordered": 1,
+    "regions": [
+     {
+      "region_id": "7",
+      "type": "rid"
+     }
+    ]
+   },
+   "mapUploadAllowed": true,
+   "missionTelemetry": {
+    "aux_comms": 1,
+    "backup_counts": 1,
+    "bat_stats": 1,
+    "behaviors_report": 1,
+    "camera_settings": 1,
+    "coverage_report": 1,
+    "map_hypotheses": 1,
+    "map_load": 1,
+    "map_save": 1,
+    "mboe_landmark_stats": 1,
+    "mboe_reloc": 1,
+    "mission_stats": 1,
+    "pmap_navigability": 0,
+    "sensor_stats": 1,
+    "tumor_classifier_report": 1,
+    "vital_stats": 1,
+    "vslam_report": 1
+   },
+   "name": "Vacuum",
+   "noAutoPasses": true,
+   "noPP": false,
+   "openOnly": false,
+   "pmapLearningAllowed": true,
+   "pmaps": [
+    {
+     "FbKwAujERSazAALZRD_rEg": "231231T204559"
+    }
+   ],
+   "pmapShare": {
+    "copy": [
+     5
+    ]
+   },
+   "rankOverlap": 15,
+   "reflexSettings": {
+    "rlWheelDrop": {
+     "enabled": 0
+    }
+   },
+   "r2a": {
+    "docking": false,
+    "undocking": false,
+    "odncReport": false,
+    "binStatus": false,
+    "rlSensors": false,
+    "params": {
+     "rlSensors": {
+      "expId": "default",
+      "reflexTriggers": [
+       "REFLEX_WHEEL_DROP",
+       "REFLEX_STUCK",
+       "REFLEX_PANIC"
+      ]
+     }
+    }
+   },
+   "sceneRecog": 1,
+   "schedHold": false,
+   "secureBoot": {
+    "flip": -1,
+    "lastRst": "unknown",
+    "recov": "linux+4.0.4.5+daredevil-release+150",
+    "idSwitch": 0,
+    "TSK": "PRODUCTION",
+    "permReq": 0,
+    "perm": "none"
+   },
+   "sku": "i5G5020",
+   "softwareVer": "daredevil+2.6.0+daredevil-release+163",
+   "subModSwVer": {
+    "nav": "daredevil-nav+2.6.0+ubuntu-HEAD-ec14f84ed0e+163",
+    "mob": "2.6.0+ubuntu-HEAD-ec14f84ed0e+163",
+    "pwr": "0.6.3+ubuntu-HEAD-ec14f84ed0e+163",
+    "sft": "1.1.0+Daredevil-Builds/Daredevil-Certified-Safety/daredevil-safety-71fa0661da6+6",
+    "mobBtl": "4.2",
+    "linux": "linux+4.0.4.8+daredevil-release+163",
+    "con": "3.13.0.6-tags/release-3.13.0.7@e9e317d7/"
+   },
+   "tls": {
+    "tzbChk": 1,
+    "privKType": 2,
+    "lcCiphers": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     50336514,
+     50336513
+    ]
+   },
+   "twoPass": false,
+   "vacHigh": false,
+   "echo": true,
+   "regDate": "2023-12-30",
+   "lastSwUpdate": "2024-06-07 20:31:29+0000",
+   "googleControl": true,
+   "mssnNavStats": {
+    "nMssn": 550,
+    "missionId": "01M6YHD150QS77BXHGBKRTWEFK",
+    "gLmk": 0,
+    "lmk": 2,
+    "reLc": 2,
+    "plnErr": "none",
+    "mTrk": 99,
+    "kdp": 0,
+    "sfkdp": 0,
+    "nmc": 1,
+    "nmmc": 1,
+    "nrmc": 0,
+    "mpSt": "idle",
+    "l_drift": 0,
+    "h_drift": 0,
+    "l_squal": 0,
+    "h_squal": 26
+   },
+   "deploymentId": "swu1703994922",
+   "lastDisconnect": 4,
+   "soldAsSku": "I557020",
+   "binTypeDetect": 2,
+   "lastBinFull": 541,
+   "digiCap": {
+    "appVer": 0
+   },
+   "teaming": {},
+   "featureFlags": {
+    "childLockEnable": 1,
+    "hibLed": 0,
+    "covPlan": 0,
+    "ros2SptLvl": true,
+    "clearHaz": true,
+    "umcsIfNotDrc": 1,
+    "quietNav": true
+   }
+  }
+ },
+ "metadata": {
+  "reported": {
+   "migrated": {
+    "timestamp": 1703990483
+   },
+   "accountControl": {
+    "timestamp": 1703990484
+   },
+   "batPct": {
+    "timestamp": 1794175274
+   },
+   "batteryType": {
+    "timestamp": 1794162865
+   },
+   "batAuthEnable": {
+    "timestamp": 1794162865
+   },
+   "bbchg": {
+    "nChatters": {
+     "timestamp": 1794162865
+    },
+    "nKnockoffs": {
+     "timestamp": 1794162865
+    },
+    "nLithF": {
+     "timestamp": 1794162865
+    },
+    "nChgOk": {
+     "timestamp": 1794162865
+    },
+    "aborts": [
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     }
+    ],
+    "chgErr": [
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     }
+    ],
+    "smberr": {
+     "timestamp": 1794162865
+    },
+    "nChgErr": {
+     "timestamp": 1794162865
+    }
+   },
+   "bbchg3": {
+    "estCap": {
+     "timestamp": 1794162865
+    },
+    "nAvail": {
+     "timestamp": 1794162865
+    },
+    "hOnDock": {
+     "timestamp": 1794162865
+    },
+    "avgMin": {
+     "timestamp": 1794162865
+    }
+   },
+   "bbmssn": {
+    "aCycleM": {
+     "timestamp": 1794174835
+    },
+    "nMssnF": {
+     "timestamp": 1794174835
+    },
+    "nMssnC": {
+     "timestamp": 1794174835
+    },
+    "nMssnOk": {
+     "timestamp": 1794174835
+    },
+    "aMssnM": {
+     "timestamp": 1794174835
+    },
+    "nMssn": {
+     "timestamp": 1794174835
+    }
+   },
+   "bbnav": {
+    "aMtrack": {
+     "timestamp": 1794162865
+    },
+    "nGoodLmrks": {
+     "timestamp": 1794162865
+    },
+    "aGain": {
+     "timestamp": 1794162865
+    },
+    "aExpo": {
+     "timestamp": 1794162865
+    }
+   },
+   "bbpause": {
+    "pauses": [
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     }
+    ]
+   },
+   "bbrstinfo": {
+    "nNavRst": {
+     "timestamp": 1794162865
+    },
+    "nMapLoadRst": {
+     "timestamp": 1794162865
+    },
+    "nMobRst": {
+     "timestamp": 1794162865
+    },
+    "nSafRst": {
+     "timestamp": 1794162865
+    },
+    "safCauses": [
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     }
+    ]
+   },
+   "bbrun": {
+    "nOvertemps": {
+     "timestamp": 1794174835
+    },
+    "nCBump": {
+     "timestamp": 1794174835
+    },
+    "nWStll": {
+     "timestamp": 1794174835
+    },
+    "nMBStll": {
+     "timestamp": 1794174835
+    },
+    "nPanics": {
+     "timestamp": 1794174835
+    },
+    "nPicks": {
+     "timestamp": 1794174835
+    },
+    "nPiezoDD": {
+     "timestamp": 1794174835
+    },
+    "nStuck": {
+     "timestamp": 1794174835
+    },
+    "nScrubs": {
+     "timestamp": 1794174835
+    },
+    "sqft": {
+     "timestamp": 1794174835
+    },
+    "nEvacs": {
+     "timestamp": 1794174835
+    },
+    "min": {
+     "timestamp": 1794174835
+    },
+    "nOpticalDD": {
+     "timestamp": 1794174835
+    },
+    "hr": {
+     "timestamp": 1794174835
+    },
+    "nCliffsF": {
+     "timestamp": 1794174835
+    },
+    "nCliffsR": {
+     "timestamp": 1794174835
+    }
+   },
+   "bbswitch": {
+    "nBumper": {
+     "timestamp": 1794175543
+    },
+    "nDrops": {
+     "timestamp": 1794175543
+    },
+    "nDock": {
+     "timestamp": 1794175543
+    },
+    "nSpot": {
+     "timestamp": 1794175543
+    },
+    "nClean": {
+     "timestamp": 1794175543
+    }
+   },
+   "bbsys": {
+    "min": {
+     "timestamp": 1794175532
+    },
+    "hr": {
+     "timestamp": 1794175532
+    }
+   },
+   "behaviorFwk": {
+    "timestamp": 1794162865
+   },
+   "bin": {
+    "present": {
+     "timestamp": 1794162865
+    },
+    "full": {
+     "timestamp": 1794162865
+    },
+    "type": {
+     "timestamp": 1794162865
+    }
+   },
+   "binPause": {
+    "timestamp": 1794162865
+   },
+   "cap": {
+    "binFullDetect": {
+     "timestamp": 1794162865
+    },
+    "oMode": {
+     "timestamp": 1794162865
+    },
+    "dockComm": {
+     "timestamp": 1794162865
+    },
+    "edge": {
+     "timestamp": 1794162865
+    },
+    "maps": {
+     "timestamp": 1794162865
+    },
+    "pmaps": {
+     "timestamp": 1794162865
+    },
+    "mc": {
+     "timestamp": 1794162865
+    },
+    "tLine": {
+     "timestamp": 1794162865
+    },
+    "area": {
+     "timestamp": 1794162865
+    },
+    "eco": {
+     "timestamp": 1794162865
+    },
+    "multiPass": {
+     "timestamp": 1794162865
+    },
+    "team": {
+     "timestamp": 1794162865
+    },
+    "pp": {
+     "timestamp": 1794162865
+    },
+    "lang": {
+     "timestamp": 1794162865
+    },
+    "5ghz": {
+     "timestamp": 1794162865
+    },
+    "prov": {
+     "timestamp": 1794162865
+    },
+    "sched": {
+     "timestamp": 1794162865
+    },
+    "svcConf": {
+     "timestamp": 1794162865
+    },
+    "ota": {
+     "timestamp": 1794162865
+    },
+    "log": {
+     "timestamp": 1794162865
+    },
+    "langOta": {
+     "timestamp": 1794162865
+    },
+    "addOnHw": {
+     "timestamp": 1794162865
+    }
+   },
+   "carpetBoost": {
+    "timestamp": 1794162865
+   },
+   "childLock": {
+    "timestamp": 1794162865
+   },
+   "cleanMissionStatus": {
+    "cycle": {
+     "timestamp": 1794174980
+    },
+    "phase": {
+     "timestamp": 1794174980
+    },
+    "expireM": {
+     "timestamp": 1794174980
+    },
+    "rechrgM": {
+     "timestamp": 1794174980
+    },
+    "error": {
+     "timestamp": 1794174980
+    },
+    "notReady": {
+     "timestamp": 1794174980
+    },
+    "condNotReady": [],
+    "mssnM": {
+     "timestamp": 1794174980
+    },
+    "expireTm": {
+     "timestamp": 1794174980
+    },
+    "rechrgTm": {
+     "timestamp": 1794174980
+    },
+    "mssnStrtTm": {
+     "timestamp": 1794174980
+    },
+    "operatingMode": {
+     "timestamp": 1794174980
+    },
+    "initiator": {
+     "timestamp": 1794174980
+    },
+    "nMssn": {
+     "timestamp": 1794174980
+    },
+    "missionId": {
+     "timestamp": 1794174980
+    }
+   },
+   "cleanSchedule2": [
+    {
+     "enabled": {
+      "timestamp": 1794162865
+     },
+     "type": {
+      "timestamp": 1794162865
+     },
+     "start": {
+      "day": [
+       {
+        "timestamp": 1794162865
+       }
+      ],
+      "hour": {
+       "timestamp": 1794162865
+      },
+      "min": {
+       "timestamp": 1794162865
+      }
+     },
+     "cmd": {
+      "command": {
+       "timestamp": 1794162865
+      },
+      "params": {
+       "team": {
+        "team_id": {
+         "timestamp": 1794162865
+        }
+       }
+      }
+     }
+    },
+    {
+     "enabled": {
+      "timestamp": 1794162865
+     },
+     "type": {
+      "timestamp": 1794162865
+     },
+     "start": {
+      "day": [
+       {
+        "timestamp": 1794162865
+       }
+      ],
+      "hour": {
+       "timestamp": 1794162865
+      },
+      "min": {
+       "timestamp": 1794162865
+      }
+     },
+     "cmd": {
+      "command": {
+       "timestamp": 1794162865
+      },
+      "params": {
+       "team": {
+        "team_id": {
+         "timestamp": 1794162865
+        }
+       }
+      }
+     }
+    },
+    {
+     "enabled": {
+      "timestamp": 1794162865
+     },
+     "type": {
+      "timestamp": 1794162865
+     },
+     "start": {
+      "day": [
+       {
+        "timestamp": 1794162865
+       }
+      ],
+      "hour": {
+       "timestamp": 1794162865
+      },
+      "min": {
+       "timestamp": 1794162865
+      }
+     },
+     "cmd": {
+      "command": {
+       "timestamp": 1794162865
+      },
+      "params": {
+       "team": {
+        "team_id": {
+         "timestamp": 1794162865
+        }
+       }
+      }
+     }
+    },
+    {
+     "enabled": {
+      "timestamp": 1794162865
+     },
+     "type": {
+      "timestamp": 1794162865
+     },
+     "start": {
+      "day": [
+       {
+        "timestamp": 1794162865
+       }
+      ],
+      "hour": {
+       "timestamp": 1794162865
+      },
+      "min": {
+       "timestamp": 1794162865
+      }
+     },
+     "cmd": {
+      "command": {
+       "timestamp": 1794162865
+      },
+      "params": {
+       "team": {
+        "team_id": {
+         "timestamp": 1794162865
+        }
+       }
+      }
+     }
+    },
+    {
+     "enabled": {
+      "timestamp": 1794162865
+     },
+     "type": {
+      "timestamp": 1794162865
+     },
+     "start": {
+      "day": [
+       {
+        "timestamp": 1794162865
+       }
+      ],
+      "hour": {
+       "timestamp": 1794162865
+      },
+      "min": {
+       "timestamp": 1794162865
+      }
+     },
+     "cmd": {
+      "command": {
+       "timestamp": 1794162865
+      },
+      "params": {
+       "team": {
+        "team_id": {
+         "timestamp": 1794162865
+        }
+       }
+      }
+     }
+    }
+   ],
+   "connected": {
+    "timestamp": 1794162865
+   },
+   "deploymentState": {
+    "timestamp": 1794162865
+   },
+   "dock": {
+    "known": {
+     "timestamp": 1794174834
+    },
+    "state": {
+     "timestamp": 1794174834
+    },
+    "pn": {
+     "timestamp": 1794174834
+    },
+    "id": {
+     "timestamp": 1794174834
+    },
+    "fwVer": {
+     "timestamp": 1794174834
+    },
+    "hwRev": {
+     "timestamp": 1794174834
+    },
+    "varID": {
+     "timestamp": 1794174834
+    }
+   },
+   "evacAllowed": {
+    "timestamp": 1794162865
+   },
+   "ecoCharge": {
+    "timestamp": 1794162865
+   },
+   "hwPartsRev": {
+    "csscID": {
+     "timestamp": 1794162865
+    },
+    "mobBrd": {
+     "timestamp": 1794162865
+    },
+    "imuPartNo": {
+     "timestamp": 1794162865
+    },
+    "NavBrd": {
+     "timestamp": 1794162865
+    }
+   },
+   "lastCommand": {
+    "command": {
+     "timestamp": 1794173733
+    },
+    "time": {
+     "timestamp": 1794173733
+    },
+    "initiator": {
+     "timestamp": 1794173733
+    },
+    "pmap_id": {
+     "timestamp": 1794173733
+    },
+    "user_pmapv_id": {
+     "timestamp": 1794173733
+    },
+    "ordered": {
+     "timestamp": 1794173733
+    },
+    "regions": [
+     {
+      "region_id": {
+       "timestamp": 1794173733
+      },
+      "type": {
+       "timestamp": 1794173733
+      }
+     }
+    ]
+   },
+   "mapUploadAllowed": {
+    "timestamp": 1794162865
+   },
+   "missionTelemetry": {
+    "aux_comms": {
+     "timestamp": 1794162865
+    },
+    "backup_counts": {
+     "timestamp": 1794162865
+    },
+    "bat_stats": {
+     "timestamp": 1794162865
+    },
+    "behaviors_report": {
+     "timestamp": 1794162865
+    },
+    "camera_settings": {
+     "timestamp": 1794162865
+    },
+    "coverage_report": {
+     "timestamp": 1794162865
+    },
+    "map_hypotheses": {
+     "timestamp": 1794162865
+    },
+    "map_load": {
+     "timestamp": 1794162865
+    },
+    "map_save": {
+     "timestamp": 1794162865
+    },
+    "mboe_landmark_stats": {
+     "timestamp": 1794162865
+    },
+    "mboe_reloc": {
+     "timestamp": 1794162865
+    },
+    "mission_stats": {
+     "timestamp": 1794162865
+    },
+    "pmap_navigability": {
+     "timestamp": 1794162865
+    },
+    "sensor_stats": {
+     "timestamp": 1794162865
+    },
+    "tumor_classifier_report": {
+     "timestamp": 1794162865
+    },
+    "vital_stats": {
+     "timestamp": 1794162865
+    },
+    "vslam_report": {
+     "timestamp": 1794162865
+    }
+   },
+   "name": {
+    "timestamp": 1794162865
+   },
+   "noAutoPasses": {
+    "timestamp": 1794162865
+   },
+   "noPP": {
+    "timestamp": 1794162865
+   },
+   "openOnly": {
+    "timestamp": 1794162865
+   },
+   "pmapLearningAllowed": {
+    "timestamp": 1794162865
+   },
+   "pmaps": [
+    {
+     "FbKwAujERSazAALZRD_rEg": {
+      "timestamp": 1794174901
+     }
+    }
+   ],
+   "pmapShare": {
+    "copy": [
+     {
+      "timestamp": 1794162865
+     }
+    ]
+   },
+   "rankOverlap": {
+    "timestamp": 1794162865
+   },
+   "reflexSettings": {
+    "rlWheelDrop": {
+     "enabled": {
+      "timestamp": 1794162865
+     }
+    }
+   },
+   "r2a": {
+    "docking": {
+     "timestamp": 1794160176
+    },
+    "undocking": {
+     "timestamp": 1794160176
+    },
+    "odncReport": {
+     "timestamp": 1794160176
+    },
+    "binStatus": {
+     "timestamp": 1794160176
+    },
+    "rlSensors": {
+     "timestamp": 1794160176
+    },
+    "params": {
+     "rlSensors": {
+      "expId": {
+       "timestamp": 1794160176
+      },
+      "reflexTriggers": [
+       {
+        "timestamp": 1794160176
+       },
+       {
+        "timestamp": 1794160176
+       },
+       {
+        "timestamp": 1794160176
+       }
+      ]
+     }
+    }
+   },
+   "sceneRecog": {
+    "timestamp": 1794162865
+   },
+   "schedHold": {
+    "timestamp": 1794162865
+   },
+   "secureBoot": {
+    "flip": {
+     "timestamp": 1794162865
+    },
+    "lastRst": {
+     "timestamp": 1794162865
+    },
+    "recov": {
+     "timestamp": 1794162865
+    },
+    "idSwitch": {
+     "timestamp": 1794162865
+    },
+    "TSK": {
+     "timestamp": 1794162865
+    },
+    "permReq": {
+     "timestamp": 1794162865
+    },
+    "perm": {
+     "timestamp": 1794162865
+    }
+   },
+   "sku": {
+    "timestamp": 1794162865
+   },
+   "softwareVer": {
+    "timestamp": 1794162865
+   },
+   "subModSwVer": {
+    "nav": {
+     "timestamp": 1794162865
+    },
+    "mob": {
+     "timestamp": 1794162865
+    },
+    "pwr": {
+     "timestamp": 1794162865
+    },
+    "sft": {
+     "timestamp": 1794162865
+    },
+    "mobBtl": {
+     "timestamp": 1794162865
+    },
+    "linux": {
+     "timestamp": 1794162865
+    },
+    "con": {
+     "timestamp": 1794162865
+    }
+   },
+   "tls": {
+    "tzbChk": {
+     "timestamp": 1794162865
+    },
+    "privKType": {
+     "timestamp": 1794162865
+    },
+    "lcCiphers": [
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     },
+     {
+      "timestamp": 1794162865
+     }
+    ]
+   },
+   "twoPass": {
+    "timestamp": 1794162865
+   },
+   "vacHigh": {
+    "timestamp": 1794162865
+   },
+   "echo": {
+    "timestamp": 1730066686
+   },
+   "regDate": {
+    "timestamp": 1703990602
+   },
+   "lastSwUpdate": {
+    "timestamp": 1717792289
+   },
+   "googleControl": {
+    "timestamp": 1704483488
+   },
+   "mssnNavStats": {
+    "nMssn": {
+     "timestamp": 1794174900
+    },
+    "missionId": {
+     "timestamp": 1794174900
+    },
+    "gLmk": {
+     "timestamp": 1794174900
+    },
+    "lmk": {
+     "timestamp": 1794174900
+    },
+    "reLc": {
+     "timestamp": 1794174900
+    },
+    "plnErr": {
+     "timestamp": 1794174900
+    },
+    "mTrk": {
+     "timestamp": 1794174900
+    },
+    "kdp": {
+     "timestamp": 1794174900
+    },
+    "sfkdp": {
+     "timestamp": 1794174900
+    },
+    "nmc": {
+     "timestamp": 1794174900
+    },
+    "nmmc": {
+     "timestamp": 1794174900
+    },
+    "nrmc": {
+     "timestamp": 1794174900
+    },
+    "mpSt": {
+     "timestamp": 1794174900
+    },
+    "l_drift": {
+     "timestamp": 1794174900
+    },
+    "h_drift": {
+     "timestamp": 1794174900
+    },
+    "l_squal": {
+     "timestamp": 1794174900
+    },
+    "h_squal": {
+     "timestamp": 1794174900
+    }
+   },
+   "deploymentId": {
+    "timestamp": 1703994931
+   },
+   "lastDisconnect": {
+    "timestamp": 1794162865
+   },
+   "soldAsSku": {
+    "timestamp": 1703995253
+   },
+   "binTypeDetect": {
+    "timestamp": 1794162865
+   },
+   "lastBinFull": {
+    "timestamp": 1786376911
+   },
+   "digiCap": {
+    "appVer": {
+     "timestamp": 1724936600
+    }
+   },
+   "teaming": {},
+   "featureFlags": {
+    "childLockEnable": {
+     "timestamp": 1794162865
+    },
+    "hibLed": {
+     "timestamp": 1794162865
+    },
+    "covPlan": {
+     "timestamp": 1794162865
+    },
+    "ros2SptLvl": {
+     "timestamp": 1794162865
+    },
+    "clearHaz": {
+     "timestamp": 1794162865
+    },
+    "umcsIfNotDrc": {
+     "timestamp": 1794162865
+    },
+    "quietNav": {
+     "timestamp": 1794162865
+    }
+   }
+  }
+ },
+ "version": 77940,
+ "timestamp": 1794175899
+}
