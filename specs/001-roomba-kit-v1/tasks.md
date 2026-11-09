@@ -135,7 +135,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
   - An `Event` envelope `{schema: "roomba-kit.event/v1", seq, type, robot_id, at, data}`.
   - An `EventType` StrEnum with exactly the types in `contracts/events.md`.
   - Typed `data` models per type.
-- [ ] T012 Implement `src/roomba_kit/core/registry.py`:
+- [x] T012 Implement `src/roomba_kit/core/registry.py`:
   - An `Operation` dataclass with fields `name`, `description`, `params` (pydantic model),
     `result` (model), `capability` (Capability | None), `read_only`, `motion`,
     `http: (method, path)`, `cli: (group path, name, arg hints)` and `surfaces` (default `{"http", "mcp", "cli"}`).
@@ -147,7 +147,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
     imports every module in that package via `pkgutil.walk_packages`, so new modules
     self-register. Surfaces call it at startup.
   - Depends on T008–T011.
-- [ ] T013 Implement `src/roomba_kit/profiles/base.py` (`ModelProfile`, `SettingMapping(read, write,
+- [x] T013 Implement `src/roomba_kit/profiles/base.py` (`ModelProfile`, `SettingMapping(read, write,
   group, confirm)`, `CommandSpec(predicate, window_s)`) and `src/roomba_kit/profiles/loader.py`
   (load `roomba_kit.profiles` entry points, `match_profile(sku) -> ModelProfile | None` by regex
   `sku_patterns`) per `contracts/model-profile.md`.
@@ -174,7 +174,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 
 ### Transport
 
-- [ ] T016 Define `src/roomba_kit/transport/base.py` with the protocols below. Transport
+- [x] T016 Define `src/roomba_kit/transport/base.py` with the protocols below. Transport
   exceptions are raised as `KitError` with codes `robot_offline`, `connection_held_elsewhere`,
   `auth_failed` or `password_unavailable`.
   - **`RobotTransport`**:
