@@ -650,7 +650,7 @@ clean/pause/resume/stop/dock/find.
   consumers. It wraps HTTP with one typed method per registry operation, plus an `events()`
   async iterator over SSE with automatic `since` resume. Export `Client` from
   `src/roomba_kit/__init__.py`.
-- [ ] T068 [P] [US4] Write `docs/guides/building-consumers.md`, covering:
+- [x] T068 [P] [US4] Write `docs/guides/building-consumers.md`, covering:
   - tokens (`token create`);
   - HTTP and SSE resume;
   - Python `Client`;
