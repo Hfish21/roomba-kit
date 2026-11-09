@@ -203,10 +203,8 @@ async def test_state_changed_is_coalesced(bus, factory):
         fake = factory.get(I5)
         for pct in (90, 91, 92, 93):
             fake.emit({"batPct": pct})
-        await asyncio.sleep(0.5)
-        await bus.drain()
+        await _until(lambda: events and events[-1].data["state"]["battery_pct"] == 93, 5)
         assert 1 <= len(events) <= 3
-        assert events[-1].data["state"]["battery_pct"] == 93
     finally:
         await s.stop()
 
