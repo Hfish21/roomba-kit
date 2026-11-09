@@ -496,7 +496,7 @@ clean/pause/resume/stop/dock/find.
   - Each declares `motion=True`, except `find`.
 - [x] T045 [P] [US1] Implement `src/roomba_kit/service/operations/system.py`: `health` (all surfaces;
   the HTTP route needs no auth), `service_status`, and `config_show` (all secrets rendered as `"***"`).
-- [ ] T046 [US1] Implement `src/roomba_kit/cli/setup_wizard.py` (`roomba-kit setup`). It calls
+- [x] T046 [US1] Implement `src/roomba_kit/cli/setup_wizard.py` (`roomba-kit setup`). It calls
   only registry operations through the client, in this order:
   1. Offer `service start` if the service isn't running.
   2. `discover_robots`. If it finds nothing, explain VPN/subnet and prompt for a broadcast
