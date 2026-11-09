@@ -744,7 +744,7 @@ unverified capabilities.
   - `get_floor_plan(robot)`
   - `cloud_history(robot, limit=30)`
   - `get_coverage(robot, mission_id)`
-- [ ] T080 [P] [US6] Write `docs/cloud.md`, covering:
+- [x] T080 [P] [US6] Write `docs/cloud.md`, covering:
   - what cloud credentials add;
   - the unofficial-API caveat;
   - degradation behaviour;
