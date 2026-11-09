@@ -905,14 +905,14 @@ parallel. Each task:
 
 ## Phase 14: Polish & Cross-Cutting Concerns
 
-- [ ] T105 [P] Write `docs/troubleshooting.md`, covering:
+- [x] T105 [P] Write `docs/troubleshooting.md`, covering:
   - `connection_held_elsewhere`: close the iRobot app, or remove other integrations;
   - empty discovery under a VPN (`--broadcast`, add by IP);
   - `dock_search_timeout`: dock placement and clearance, clean the sensors;
   - cloud `auth_failed` / `cloud_unavailable`;
   - `unconfirmed` outcomes;
   - file permission errors.
-- [ ] T106 [P] Finalize `docs/index.md`, the `mkdocs.yml` nav and `README.md` (feature list,
+- [x] T106 [P] Finalize `docs/index.md`, the `mkdocs.yml` nav and `README.md` (feature list,
   support matrix link, quickstart).
 - [ ] T107 [P] Secret-leak test `tests/integration/test_secret_leak.py` (SC-007):
   - Configure canary robot and cloud passwords and a token.
