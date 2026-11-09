@@ -21,11 +21,70 @@ Options:
   -h, --help         Show this message and exit.
 
 Commands:
+  cloud
   config   Where the kit keeps its files, and what's in them.
   serve    Run the service in the foreground on `server.host`:`server.port`.
   service  Run the service in the background and manage it.
   token    Create, list and revoke API tokens (local file ops).
   version  Print the kit version.
+```
+
+## `roomba-kit cloud`
+
+```text
+Usage: roomba-kit cloud [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  -h, --help  Show this message and exit.
+
+Commands:
+  login   Add or change the iRobot account login.
+  logout  Remove the stored iRobot account login and disconnect from the cloud.
+  status  The cloud subsystem's status: `connected`, `unavailable` (with a reason)...
+```
+
+## `roomba-kit cloud login`
+
+```text
+Usage: roomba-kit cloud login [OPTIONS]
+
+  Add or change the iRobot account login. It's checked by logging in and saved only if
+  that works. Optional: it adds room names, floor plans, cloud history, coverage, the
+  live mission timeline and password retrieval; local control never needs it.
+
+  Parameters:
+  - `username`: str — iRobot account email
+  - `password`: str — iRobot account password. The CLI prompts for it; it is never echoed, returned or logged.
+  - `country`: str (default: 'US') — The account's country code, e.g. US, GB, DE
+
+Options:
+  --username TEXT  iRobot account email  [required]
+  --country TEXT   The account's country code, e.g. US, GB, DE  [default: (US)]
+  -h, --help       Show this message and exit.
+```
+
+## `roomba-kit cloud logout`
+
+```text
+Usage: roomba-kit cloud logout [OPTIONS]
+
+  Remove the stored iRobot account login and disconnect from the cloud. Credentials
+  supplied by environment variables still apply.
+
+Options:
+  -h, --help  Show this message and exit.
+```
+
+## `roomba-kit cloud status`
+
+```text
+Usage: roomba-kit cloud status [OPTIONS]
+
+  The cloud subsystem's status: `connected`, `unavailable` (with a reason) or
+  `not_configured`, and when it last worked.
+
+Options:
+  -h, --help  Show this message and exit.
 ```
 
 ## `roomba-kit config`
