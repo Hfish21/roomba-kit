@@ -118,8 +118,9 @@ Commands:
 Usage: roomba-kit cloud history [OPTIONS] ROBOT
 
   The robot's recent missions as the iRobot cloud recorded them (it keeps about 30),
-  newest first. A running mission appears only minutes after the robot docks. While the
-  cloud is unavailable, the last copy fetched is returned.
+  newest first. A running mission appears only minutes after the robot docks. Always
+  fetched live: while the cloud is unavailable this returns `cloud_unavailable` with a
+  reason.
 
   Parameters:
   - `robot`: str — Robot ID or name
@@ -469,7 +470,7 @@ Options:
 
 Commands:
   list  List the missions recorded in local history, newest first: robot, start and...
-  show  Get one mission from local history by its ID.
+  show  Get one mission from local history by its ID, with its activity transitions...
   wait  Wait until a robot's mission ends and return it with its outcome.
 ```
 
@@ -507,7 +508,8 @@ Options:
 ```text
 Usage: roomba-kit missions show [OPTIONS] MISSION_ID
 
-  Get one mission from local history by its ID.
+  Get one mission from local history by its ID, with its activity transitions (cleaning,
+  paused, returning, docked, ...) oldest first.
 
   Parameters:
   - `mission_id`: str — Mission ID, as listed by `list_missions`
@@ -968,8 +970,19 @@ Usage: roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE
 
   Parameters:
   - `robot`: str — Robot ID or name
-  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap
-  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
+  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost
+  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
+
+  Settings, the models that support each, and verification:
+  - `passes`: braava_m6 (verified), roomba_i5 (verified)
+  - `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+  - `always_finish`: roomba_i5 (verified)
+  - `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+  - `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+  - `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+  - `pad_wetness`: braava_m6 (verified)
+  - `spray_overlap`: braava_m6 (verified)
+  - `carpet_boost`: no installed model
 
 Options:
   -h, --help  Show this message and exit.
@@ -985,6 +998,17 @@ Usage: roomba-kit settings show [OPTIONS] ROBOT
 
   Parameters:
   - `robot`: str — Robot ID or name
+
+  Settings, the models that support each, and verification:
+  - `passes`: braava_m6 (verified), roomba_i5 (verified)
+  - `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+  - `always_finish`: roomba_i5 (verified)
+  - `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+  - `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+  - `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+  - `pad_wetness`: braava_m6 (verified)
+  - `spray_overlap`: braava_m6 (verified)
+  - `carpet_boost`: no installed model
 
 Options:
   -h, --help  Show this message and exit.

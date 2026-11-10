@@ -103,7 +103,7 @@ Type: `CommandResult`
 
 ## `cloud_history`
 
-The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.
+The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. Always fetched live: while the cloud is unavailable this returns `cloud_unavailable` with a reason.
 Supported on: braava_m6, roomba_i5
 Verification: braava_m6: verified, roomba_i5: verified
 
@@ -540,7 +540,7 @@ Type: `FloorPlan`
 
 ## `get_mission`
 
-Get one mission from local history by its ID.
+Get one mission from local history by its ID, with its activity transitions (cleaning, paused, returning, docked, ...) oldest first.
 
 | Surface | Usage |
 |---|---|
@@ -556,7 +556,7 @@ Get one mission from local history by its ID.
 
 **Result**
 
-Type: `Mission`
+Type: `MissionDetail`
 
 | Field | Type | Required | Description |
 |---|---|---|---|
@@ -570,6 +570,7 @@ Type: `Mission`
 | `duration_s` | int \| None | no |  |
 | `errors` | list[CodeText] | no |  |
 | `cloud_mission_ref` | str \| None | no |  |
+| `transitions` | list[ActivityTransition] | no | The mission's activity changes, oldest first |
 
 ## `get_position`
 
@@ -630,6 +631,16 @@ Type: `Robot`
 ## `get_settings`
 
 Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.
+Settings, the models that support each, and verification:
+- `passes`: braava_m6 (verified), roomba_i5 (verified)
+- `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+- `always_finish`: roomba_i5 (verified)
+- `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+- `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+- `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+- `pad_wetness`: braava_m6 (verified)
+- `spray_overlap`: braava_m6 (verified)
+- `carpet_boost`: no installed model
 
 | Surface | Usage |
 |---|---|
@@ -1086,6 +1097,16 @@ Type: `PasswordStored`
 ## `set_setting`
 
 Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.
+Settings, the models that support each, and verification:
+- `passes`: braava_m6 (verified), roomba_i5 (verified)
+- `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+- `always_finish`: roomba_i5 (verified)
+- `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+- `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+- `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+- `pad_wetness`: braava_m6 (verified)
+- `spray_overlap`: braava_m6 (verified)
+- `carpet_boost`: no installed model
 
 | Surface | Usage |
 |---|---|
@@ -1098,8 +1119,8 @@ Change one setting. It is reported applied only once the robot reports the new v
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
 | `robot` | str | yes |  | Robot ID or name |
-| `setting` | str | yes |  | Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap |
-| `value` | bool \| int \| str | yes |  | passes: auto\|one\|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true\|false. pad_wetness: 1\|2\|3. spray_overlap: standard\|deep\|extended. |
+| `setting` | str | yes |  | Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost |
+| `value` | bool \| int \| str | yes |  | passes: auto\|one\|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true\|false. pad_wetness: 1\|2\|3. spray_overlap: standard\|deep\|extended. |
 
 **Result**
 
