@@ -179,7 +179,8 @@ docs/
 ├── guides/ (building-consumers.md, adding-a-model.md)
 ├── reference/ (generated: operations.md, errors.md, events.md, support-matrix.md, cli.md)
 └── verification/ (roomba_i5.md, braava_m6.md)
-deploy/ (Dockerfile, compose.yaml, launchd.plist.j2, roomba-kit.service.j2)
+deploy/ (Dockerfile, compose.yaml); install templates ship in the package at
+src/roomba_kit/lifecycle/templates/ (launchd.plist.tmpl, roomba-kit.service.tmpl; decisions.md #43)
 scripts/gen_docs.py, scripts/capture_fixture.py (dev tool; not a kit surface)
 .github/workflows/ci.yml
 .importlinter, ruff.toml/pyproject sections, mkdocs.yml, README.md, CLAUDE.md, LICENSE

@@ -201,3 +201,16 @@ Fields: `robot_id`, `mission_ref`, `map_id`, `map_version`, `points` (list[[x, y
 
 `{code: ErrorCode, message: str, robot_id?: str, details?: object}`. Codes are in
 `contracts/errors.md`.
+
+## VerificationRun (`verify` result)
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | str | Run ID |
+| `robot_id` | str | |
+| `profile_id` | str | |
+| `anchor` | str | `run-YYYYMMDD-HHMMSS`; profiles cite `docs/verification/<profile>.md#<anchor>` |
+| `started_at` / `ended_at` | datetime | |
+| `allow_motion` | bool | |
+| `results` | list[{capability, result: pass \| fail \| skipped, evidence}] | |
+| `report` | str | Markdown appended by `verify --write-report` (no IDs, names or addresses) |
