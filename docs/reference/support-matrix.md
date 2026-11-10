@@ -10,20 +10,20 @@
 | `clean_rooms` | ⚪ | ✅ |
 | `pause` | ✅ | ✅ |
 | `resume` | ✅ | ✅ |
-| `stop` | ⚪ | ⚪ |
+| `stop` | ✅ | ✅ |
 | `dock` | ✅ | ✅ |
 | `find` | ✅ | ✅ |
 | `evac` | — | ✅ |
-| `reboot` | ⚪ | ⚪ |
+| `reboot` | ✅ | ✅ |
 | `train` | ⚪ | ⚪ |
-| `setting.passes` | ⚪ | ⚪ |
-| `setting.edge_clean` | ⚪ | ⚪ |
-| `setting.always_finish` | — | ⚪ |
-| `setting.child_lock` | ⚪ | ⚪ |
-| `setting.eco_charge` | ⚪ | ⚪ |
-| `setting.schedule_hold` | ⚪ | ⚪ |
-| `setting.pad_wetness` | ⚪ | — |
-| `setting.spray_overlap` | ⚪ | — |
+| `setting.passes` | ✅ | ✅ |
+| `setting.edge_clean` | ✅ | ✅ |
+| `setting.always_finish` | — | ✅ |
+| `setting.child_lock` | ✅ | ✅ |
+| `setting.eco_charge` | ✅ | ✅ |
+| `setting.schedule_hold` | ✅ | ✅ |
+| `setting.pad_wetness` | ✅ | — |
+| `setting.spray_overlap` | ✅ | — |
 | `setting.carpet_boost` | — | — |
 | `state.bin` | — | ✅ |
 | `state.clean_base` | — | ✅ |
@@ -43,28 +43,45 @@
 
 ## Verification runs
 
-- `braava_m6` `clean`: session b10c0fbc 2026-11-08
-- `roomba_i5` `clean`: session b10c0fbc 2026-11-08
-- `roomba_i5` `clean_rooms`: session b10c0fbc 2026-11-08
-- `braava_m6` `pause`: session b10c0fbc 2026-11-08
-- `roomba_i5` `pause`: session b10c0fbc 2026-11-08
-- `braava_m6` `resume`: session b10c0fbc 2026-11-08
-- `roomba_i5` `resume`: session b10c0fbc 2026-11-08
-- `braava_m6` `dock`: session b10c0fbc 2026-11-08
-- `roomba_i5` `dock`: session b10c0fbc 2026-11-08
-- `braava_m6` `find`: session b10c0fbc 2026-11-08
-- `roomba_i5` `find`: session b10c0fbc 2026-11-08
-- `roomba_i5` `evac`: session b10c0fbc 2026-11-08
-- `roomba_i5` `state.bin`: session b10c0fbc 2026-11-08
-- `roomba_i5` `state.clean_base`: session b10c0fbc 2026-11-08
-- `braava_m6` `state.pad`: session b10c0fbc 2026-11-08
-- `braava_m6` `state.tank`: session b10c0fbc 2026-11-08
-- `braava_m6` `state.lid`: session b10c0fbc 2026-11-08
-- `braava_m6` `live_position`: session b10c0fbc 2026-11-08
-- `braava_m6` `cloud.rooms`: session b10c0fbc 2026-11-08
-- `roomba_i5` `cloud.rooms`: session b10c0fbc 2026-11-08
-- `braava_m6` `cloud.history`: session b10c0fbc 2026-11-08
-- `roomba_i5` `cloud.history`: session b10c0fbc 2026-11-08
-- `braava_m6` `cloud.coverage`: session b10c0fbc 2026-11-08
-- `roomba_i5` `cloud.coverage`: session b10c0fbc 2026-11-08
-- `roomba_i5` `cloud.timeline`: session b10c0fbc 2026-11-08
+- `braava_m6` `clean`: docs/verification/braava_m6.md#run-20261109-210213
+- `roomba_i5` `clean`: docs/verification/roomba_i5.md#run-20261109-185420
+- `roomba_i5` `clean_rooms`: docs/verification/roomba_i5.md#hw1-laundry-room-clean
+- `braava_m6` `pause`: docs/verification/braava_m6.md#run-20261109-210213
+- `roomba_i5` `pause`: docs/verification/roomba_i5.md#run-20261109-185420
+- `braava_m6` `resume`: docs/verification/braava_m6.md#run-20261109-210213
+- `roomba_i5` `resume`: docs/verification/roomba_i5.md#run-20261109-185420
+- `braava_m6` `stop`: docs/verification/braava_m6.md#run-20261109-210213
+- `roomba_i5` `stop`: docs/verification/roomba_i5.md#run-20261109-185420
+- `braava_m6` `dock`: docs/verification/braava_m6.md#run-20261109-214546
+- `roomba_i5` `dock`: docs/verification/roomba_i5.md#run-20261109-211438
+- `braava_m6` `find`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `find`: docs/verification/roomba_i5.md#run-20261109-141750
+- `roomba_i5` `evac`: docs/verification/roomba_i5.md#run-20261109-142228
+- `braava_m6` `reboot`: docs/verification/braava_m6.md#run-20261109-214817
+- `roomba_i5` `reboot`: docs/verification/roomba_i5.md#run-20261109-194131
+- `braava_m6` `setting.passes`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `setting.passes`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `setting.edge_clean`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `setting.edge_clean`: docs/verification/roomba_i5.md#run-20261109-141750
+- `roomba_i5` `setting.always_finish`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `setting.child_lock`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `setting.child_lock`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `setting.eco_charge`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `setting.eco_charge`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `setting.schedule_hold`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `setting.schedule_hold`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `setting.pad_wetness`: docs/verification/braava_m6.md#run-20261109-141806
+- `braava_m6` `setting.spray_overlap`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `state.bin`: docs/verification/roomba_i5.md#run-20261109-141750
+- `roomba_i5` `state.clean_base`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `state.pad`: docs/verification/braava_m6.md#run-20261109-141806
+- `braava_m6` `state.tank`: docs/verification/braava_m6.md#run-20261109-141806
+- `braava_m6` `state.lid`: docs/verification/braava_m6.md#run-20261109-141806
+- `braava_m6` `live_position`: docs/verification/braava_m6.md#run-20261109-210213
+- `braava_m6` `cloud.rooms`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `cloud.rooms`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `cloud.history`: docs/verification/braava_m6.md#run-20261109-141806
+- `roomba_i5` `cloud.history`: docs/verification/roomba_i5.md#run-20261109-141750
+- `braava_m6` `cloud.coverage`: docs/verification/braava_m6.md#hw1-cloud-coverage
+- `roomba_i5` `cloud.coverage`: docs/verification/roomba_i5.md#hw1-cloud-coverage
+- `roomba_i5` `cloud.timeline`: docs/verification/roomba_i5.md#hw1-laundry-room-clean

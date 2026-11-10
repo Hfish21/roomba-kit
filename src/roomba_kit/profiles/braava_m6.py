@@ -7,7 +7,14 @@ from roomba_kit.core.capabilities import Capability as C
 from roomba_kit.core.capabilities import Verification
 from roomba_kit.profiles.base import ModelProfile, Reported, SettingMapping
 
-_VERIFIED = Verification.verified("session b10c0fbc 2026-11-08")
+_DOC = "docs/verification/braava_m6.md#"
+
+
+def _hw(anchor: str) -> Verification:
+    """Verified on hardware; cites the run in this profile's verification page."""
+    return Verification.verified(_DOC + anchor)
+
+
 _UNVERIFIED = Verification.unverified()
 
 
@@ -91,40 +98,30 @@ PROFILE = ModelProfile(
     dock_needs_pause=True,
     command_windows={"pause": 30, "resume": 30, "stop": 30, "dock": 30},
     capabilities={
-        **dict.fromkeys(
-            (
-                C.CLEAN,
-                C.PAUSE,
-                C.RESUME,
-                C.DOCK,
-                C.FIND,
-                C.STATE_PAD,
-                C.STATE_TANK,
-                C.STATE_LID,
-                C.LIVE_POSITION,
-                C.CLOUD_ROOMS,
-                C.CLOUD_HISTORY,
-                C.CLOUD_COVERAGE,
-            ),
-            _VERIFIED,
-        ),
-        **dict.fromkeys(
-            (
-                C.STOP,
-                C.REBOOT,
-                C.TRAIN,
-                C.CLEAN_ROOMS,
-                C.CLOUD_TIMELINE,
-                C.SETTING_PASSES,
-                C.SETTING_EDGE_CLEAN,
-                C.SETTING_CHILD_LOCK,
-                C.SETTING_ECO_CHARGE,
-                C.SETTING_SCHEDULE_HOLD,
-                C.SETTING_PAD_WETNESS,
-                C.SETTING_SPRAY_OVERLAP,
-            ),
-            _UNVERIFIED,
-        ),
+        C.CLEAN: _hw("run-20261109-210213"),
+        C.PAUSE: _hw("run-20261109-210213"),
+        C.RESUME: _hw("run-20261109-210213"),
+        C.STOP: _hw("run-20261109-210213"),
+        C.DOCK: _hw("run-20261109-214546"),
+        C.FIND: _hw("run-20261109-141806"),
+        C.REBOOT: _hw("run-20261109-214817"),
+        C.LIVE_POSITION: _hw("run-20261109-210213"),
+        C.STATE_PAD: _hw("run-20261109-141806"),
+        C.STATE_TANK: _hw("run-20261109-141806"),
+        C.STATE_LID: _hw("run-20261109-141806"),
+        C.SETTING_PASSES: _hw("run-20261109-141806"),
+        C.SETTING_EDGE_CLEAN: _hw("run-20261109-141806"),
+        C.SETTING_CHILD_LOCK: _hw("run-20261109-141806"),
+        C.SETTING_ECO_CHARGE: _hw("run-20261109-141806"),
+        C.SETTING_SCHEDULE_HOLD: _hw("run-20261109-141806"),
+        C.SETTING_PAD_WETNESS: _hw("run-20261109-141806"),
+        C.SETTING_SPRAY_OVERLAP: _hw("run-20261109-141806"),
+        C.CLOUD_ROOMS: _hw("run-20261109-141806"),
+        C.CLOUD_HISTORY: _hw("run-20261109-141806"),
+        C.CLOUD_COVERAGE: _hw("hw1-cloud-coverage"),
+        C.CLEAN_ROOMS: _UNVERIFIED,  # blocked in HW-1: the robot stopped detecting its water tank
+        C.CLOUD_TIMELINE: _UNVERIFIED,  # needs a mission; blocked with clean_rooms
+        C.TRAIN: _UNVERIFIED,  # needs the owner's OK: it can re-create the map
     },
     settings={
         "passes": _mapping(_read_passes, _write_passes, "noAutoPasses", "twoPass"),

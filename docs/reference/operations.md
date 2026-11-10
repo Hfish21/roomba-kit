@@ -921,7 +921,7 @@ Type: `CommandResult`
 
 Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).
 Supported on: braava_m6, roomba_i5
-Verification: braava_m6: unverified, roomba_i5: unverified
+Verification: braava_m6: verified, roomba_i5: verified
 ⚠ Moves the robot: it will physically start, stop or drive.
 
 | Surface | Usage |
@@ -1113,7 +1113,7 @@ Type: `SettingChange`
 
 End the current mission where the robot is. Confirmed when no mission is active.
 Supported on: braava_m6, roomba_i5
-Verification: braava_m6: unverified, roomba_i5: unverified
+Verification: braava_m6: verified, roomba_i5: verified
 ⚠ Moves the robot: it will physically start, stop or drive.
 
 | Surface | Usage |

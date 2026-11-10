@@ -876,23 +876,23 @@ parallel. Each task:
 2. Commits the report.
 3. Updates `Verification` in the profile file with `run="docs/verification/<profile>.md#<anchor>"`.
 
-- [ ] T098 [P] Re-verify the i5's initially-verified set (SC-010): `clean`, `pause`, `resume`,
+- [x] T098 [P] Re-verify the i5's initially-verified set (SC-010): `clean`, `pause`, `resume`,
   `dock`, `find`, `evac`, `clean_rooms`, state fields and the `cloud.*` capabilities. Results go
   to `docs/verification/roomba_i5.md`.
-- [ ] T099 Verify i5 `stop` and `reboot` with `--allow-motion` → `docs/verification/roomba_i5.md`;
+- [x] T099 Verify i5 `stop` and `reboot` with `--allow-motion` → `docs/verification/roomba_i5.md`;
   update `src/roomba_kit/profiles/roomba_i5.py`.
-- [ ] T100 Verify i5 settings → `docs/verification/roomba_i5.md`, then update
+- [x] T100 Verify i5 settings → `docs/verification/roomba_i5.md`, then update
   `src/roomba_kit/profiles/roomba_i5.py`. The settings are `setting.passes`,
   `setting.edge_clean`, `setting.always_finish`, `setting.child_lock`, `setting.eco_charge`
   and `setting.schedule_hold`. For `schedule_hold`, also confirm that a robot-stored schedule
   does not fire while held.
-- [ ] T101 [P] Re-verify the m6's initially-verified set: `clean`, `pause`, `resume`, `dock`,
+- [x] T101 [P] Re-verify the m6's initially-verified set: `clean`, `pause`, `resume`, `dock`,
   `find`, `live_position`, state fields and the `cloud.*` capabilities. Results go to
   `docs/verification/braava_m6.md`.
-- [ ] T102 Verify m6 `stop`, `reboot`, `clean_rooms` (name a room locally first) and
+- [x] T102 Verify m6 `stop`, `reboot`, `clean_rooms` (name a room locally first) and
   `cloud.timeline` → `docs/verification/braava_m6.md`; update
   `src/roomba_kit/profiles/braava_m6.py`.
-- [ ] T103 Verify m6 settings → `docs/verification/braava_m6.md`, then update
+- [x] T103 Verify m6 settings → `docs/verification/braava_m6.md`, then update
   `src/roomba_kit/profiles/braava_m6.py`. The settings are `setting.passes`,
   `setting.edge_clean`, `setting.child_lock`, `setting.eco_charge`, `setting.schedule_hold`,
   `setting.pad_wetness` and `setting.spray_overlap`.

@@ -1,6 +1,50 @@
 # Verification: Braava jet m6
 
-_This page is written in a later task; see `specs/001-roomba-kit-v1/tasks.md`._
+Hardware: Braava jet m6 (`m611020`, firmware `sanmarino+22.29.6`), verified on 2026-11-09
+(hardware session 1, "HW-1") with `roomba-kit verify … --write-report`. The profile
+(`src/roomba_kit/profiles/braava_m6.py`) cites the run anchors below. Run reports follow
+the summary, oldest first; they contain no robot IDs, names or addresses.
+
+## Summary
+
+| Capability | Status | Evidence |
+|---|---|---|
+| `clean`, `pause`, `resume`, `stop` | ✅ verified | [run-20261109-210213](#run-20261109-210213): clean still cleaning 30 s later; pause 1.1 s; resume 0.5 s; stop 5.8 s |
+| `live_position` | ✅ verified | [run-20261109-210213](#run-20261109-210213): fix at (−0.79, −1.60) m while mopping |
+| `dock` | ✅ verified | [run-20261109-214546](#run-20261109-214546): from mopping (the kit pauses first), 0.5 s |
+| `reboot` | ✅ verified | [run-20261109-214817](#run-20261109-214817): back in 96 s (sent as `reset`) |
+| `find` | ✅ verified | [run-20261109-141806](#run-20261109-141806) |
+| `state.pad`, `state.tank`, `state.lid` | ✅ verified | [run-20261109-141806](#run-20261109-141806); lid open/close also seen live during the tank fault below |
+| `setting.passes`, `edge_clean`, `child_lock`, `eco_charge`, `schedule_hold`, `pad_wetness`, `spray_overlap` | ✅ verified | [run-20261109-141806](#run-20261109-141806): written, read back, restored |
+| `cloud.rooms`, `cloud.history` | ✅ verified | [run-20261109-141806](#run-20261109-141806) |
+| `cloud.coverage` | ✅ verified | [Cloud coverage](#hw1-cloud-coverage) |
+| `clean_rooms` | ⚪ unverified | [Blocked by a tank fault](#hw1-tank-fault) |
+| `cloud.timeline` | ⚪ unverified | Needs a mission; blocked with `clean_rooms` |
+| `train` | ⚪ unverified | Not run: needs the owner's explicit OK |
+| `evac`, `state.bin`, `state.clean_base`, `setting.always_finish`, `setting.carpet_boost` | — not supported | No Clean Base or bin |
+
+Model behaviour the kit now handles (decisions #76, #77): `dock` while mopping is ignored
+until paused; pause/stop/dock can land up to ~15 s after the echo (30 s windows); `dock`
+right after `stop` is ignored for 30–70 s (the kit re-sends it).
+
+<a id="hw1-cloud-coverage"></a>
+## HW-1: Cloud coverage (`cloud.coverage`)
+
+`roomba-kit coverage Eva <mission>` for the day's missions: one returned 2,258 coverage
+points; the two most recent returned `cloud_unavailable(not_yet_published)` as documented.
+
+<a id="hw1-tank-fault"></a>
+## HW-1: Water tank not detected (blocks `clean_rooms`, `cloud.timeline`)
+
+After the day's mopping the m6 reported not-ready 31 ("water tank level low") with
+`tank.present=false, level 0`. The owner refilled and reseated the tank several times and a
+remote `reboot` was sent; the robot never registered the tank, while lid open/close showed up
+live each time (so the kit was reading fresh state). A manual start on the robot failed the
+same way, so this is a robot-side tank-detection fault (inferred: sensor or contacts). Its
+first room clean attempt also correctly hit `map_changed`: the m6 saved a new map version
+(`261109T213701`) during the session, and rooms were re-imported.
+
+## Run reports
 
 <a id="run-20261109-141806"></a>
 
@@ -37,3 +81,96 @@ _This page is written in a later task; see `specs/001-roomba-kit-v1/tasks.md`._
 | `clean_rooms` | skipped | acts on the robot: rerun with allow_motion |
 | `reboot` | skipped | acts on the robot: rerun with allow_motion |
 | `train` | skipped | runs only when named explicitly: it can re-create the map |
+
+<a id="run-20261109-205447"></a>
+
+### 2026-11-09 20:54:47 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 0 pass, 2 fail, 4 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-205447`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `live_position` | fail | no answer within 5 s |
+| `clean` | fail | unconfirmed after 20001 ms (activity docked) |
+| `pause` | skipped | not run: clean didn't pass |
+| `resume` | skipped | not run: clean didn't pass |
+| `stop` | skipped | not run: clean didn't pass |
+| `dock` | skipped | not checked: clean didn't pass |
+
+<a id="run-20261109-205527"></a>
+
+### 2026-11-09 20:55:27 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 0 pass, 2 fail, 4 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-205527`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `live_position` | fail | no answer within 5 s |
+| `clean` | fail | unconfirmed after 20001 ms (activity docked) |
+| `pause` | skipped | not run: clean didn't pass |
+| `resume` | skipped | not run: clean didn't pass |
+| `stop` | skipped | not run: clean didn't pass |
+| `dock` | skipped | not checked: clean didn't pass |
+
+<a id="run-20261109-210213"></a>
+
+### 2026-11-09 21:02:13 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 5 pass, 1 fail, 0 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-210213`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `live_position` | pass | fix at (-0.79, -1.60) m |
+| `clean` | pass | confirmed after 629 ms (activity cleaning); still cleaning 30 s later |
+| `pause` | pass | confirmed after 1069 ms (activity paused) |
+| `resume` | pass | confirmed after 518 ms (activity cleaning) |
+| `stop` | pass | confirmed after 5801 ms (activity unknown) |
+| `dock` | fail | unconfirmed after 10001 ms (activity unknown); WARNING: the robot wasn't back on its dock within 180 s |
+
+<a id="run-20261109-210732"></a>
+
+### 2026-11-09 21:07:32 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 0 pass, 1 fail, 0 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-210732`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `dock` | fail | unconfirmed after 10001 ms (activity cleaning); WARNING: the robot wasn't back on its dock within 180 s |
+
+<a id="run-20261109-214546"></a>
+
+### 2026-11-09 21:45:46 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 1 pass, 0 fail, 0 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-214546`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `dock` | pass | confirmed after 519 ms (activity returning) |
+
+<a id="run-20261109-214817"></a>
+
+### 2026-11-09 21:48:17 UTC · `braava_m6`
+
+- Model: Braava jet m6, SKU `m611020`, firmware `sanmarino+22.29.6+2022-12-01-82f3372a65c+Firmware-Build+2321`
+- Kit 0.1.0; motion allowed: yes
+- 1 pass, 0 fail, 0 skipped
+- Cite as `docs/verification/braava_m6.md#run-20261109-214817`
+
+| Capability | Result | Evidence |
+|---|---|---|
+| `reboot` | pass | confirmed after 96290 ms (activity charging) |
