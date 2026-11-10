@@ -203,10 +203,13 @@ async def test_fake_cloud_fail_everything():
 
 
 async def test_fake_password_retriever():
-    retriever = FakePasswordRetriever({"192.0.2.10": "pw"})
+    retriever = FakePasswordRetriever({"192.0.2.10": "pw"}, cloud_only={"192.0.2.12"})
     assert await retriever.retrieve("192.0.2.10", 1.0) == "pw"
-    with pytest.raises(KitError) as err:
+    with pytest.raises(KitError) as err:  # silent, like the real adapter: HOME not held
         await retriever.retrieve("192.0.2.11", 1.0)
+    assert err.value.code is ErrorCode.TIMEOUT
+    with pytest.raises(KitError) as err:  # answered with the cloud-only reply
+        await retriever.retrieve("192.0.2.12", 1.0)
     assert err.value.code is ErrorCode.PASSWORD_UNAVAILABLE
     slow = FakePasswordRetriever({"192.0.2.10": "pw"}, delay=1.0)
     with pytest.raises(KitError) as err:

@@ -190,18 +190,69 @@ def test_m6_capture_units_pass_through():
     assert fix.at.tzinfo is UTC and fix.at <= datetime.now(UTC)
 
 
-async def test_password_retriever_maps_none(monkeypatch):
-    answers = iter(["s3cret", None])
+class StubWriter:
+    def write(self, data):
+        self.sent = data
 
-    class StubPassword:
-        def __init__(self, ip):
-            pass
+    async def drain(self):
+        pass
 
-        async def get_password(self, timeout):
-            return next(answers)
+    def close(self):
+        pass
 
-    monkeypatch.setattr(local, "RoombaPassword", StubPassword)
+    async def wait_closed(self):
+        pass
+
+
+def robot_answers(monkeypatch, *chunks, refuse=False):
+    """Run roombapy's real `get_password` against a scripted robot (no network)."""
+
+    async def open_connection(host, port, ssl=None):
+        if refuse:
+            raise ConnectionRefusedError
+        reader = asyncio.StreamReader()
+        for chunk in chunks:
+            if chunk is None:  # keep the connection open and silent
+                return reader, StubWriter()
+            reader.feed_data(chunk)
+        reader.feed_eof()
+        return reader, StubWriter()
+
+    monkeypatch.setattr(asyncio, "open_connection", open_connection)
+
+
+PW_FRAME = bytes.fromhex("f00befcc3b2900") + b"s3cret"
+
+
+async def test_password_retriever_returns_the_password(monkeypatch):
+    robot_answers(monkeypatch, PW_FRAME)
     assert await LocalPasswordRetriever().retrieve(ADDR, 1.0) == "s3cret"
+
+
+@pytest.mark.parametrize(
+    "script",
+    [
+        {"refuse": True},  # nothing listening / connection refused
+        {"chunks": (None,)},  # connected, robot silent until the timeout (HOME not held)
+        {"chunks": ()},  # connected, robot closed without a word
+    ],
+    ids=["refused", "silent", "closed"],
+)
+async def test_password_retriever_no_answer_is_timeout(monkeypatch, script):
+    """FR-003: a robot that didn't answer (HOME not held) is `timeout`, not cloud-only."""
+    robot_answers(monkeypatch, *script.get("chunks", ()), refuse=script.get("refuse", False))
+    with pytest.raises(KitError) as err:
+        await LocalPasswordRetriever().retrieve(ADDR, 0.05)
+    assert err.value.code is ErrorCode.TIMEOUT
+
+
+@pytest.mark.parametrize(
+    "reply",
+    [bytes.fromhex("f005efcc3b2903"), bytes.fromhex("f005efcc3b2900")],
+    ids=["cloud_only_magic", "empty_password"],
+)
+async def test_password_retriever_answer_without_password_is_unavailable(monkeypatch, reply):
+    robot_answers(monkeypatch, reply)
     with pytest.raises(KitError) as err:
         await LocalPasswordRetriever().retrieve(ADDR, 1.0)
     assert err.value.code is ErrorCode.PASSWORD_UNAVAILABLE

@@ -127,10 +127,10 @@ See [Setup → Finding robots](setup.md#finding-robots).
 instead of `stored`.
 
 **Cause.** The robot releases its local password only for a short window after you hold HOME.
-`timeout` means the robot never answered in the retry window (60 s by default). `cloud_only`
-means it answered but released no password (internally, `password_unavailable`: "The robot gave
-no password."), either because HOME wasn't held long enough or because the robot serves its
-password only to the iRobot account.
+`timeout` means the robot never answered in the retry window (60 s by default): usually HOME
+wasn't held, or not long enough. `cloud_only` means it answered at least once but released no
+password (internally, `password_unavailable`: "The robot answered but didn't release a
+password."), which usually means the robot serves its password only to the iRobot account.
 
 **Fix.**
 
