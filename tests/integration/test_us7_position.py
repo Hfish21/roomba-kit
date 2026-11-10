@@ -134,6 +134,16 @@ async def test_cleaning_m6_streams_fixes_at_the_poll_interval(client, ctx, facto
     assert mop.position_requests == requests
 
 
+async def test_mapping_run_streams_position(client, ctx, factory):
+    """A `train` mission maps the home while driving it: position streams like a clean."""
+    mop = factory.get(M6)
+    mop.script_positions(*(fix(i / 10) for i in range(10)))
+    seen = collect(ctx)
+    mop.emit({"cleanMissionStatus": {"cycle": "train", "phase": "run", "missionId": "T1"}})
+    await until(lambda: ctx.session(M6).state.activity is Activity.MAPPING)
+    await until(lambda: len(seen) >= 2)
+
+
 async def test_position_events_are_not_persisted(client, ctx, factory):
     mop = factory.get(M6)
     mop.script_positions(fix(1.0))

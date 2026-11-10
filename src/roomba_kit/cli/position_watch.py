@@ -130,7 +130,7 @@ def position_command(op: Operation) -> click.Command:
         "position",
         help=help_text(op)
         + "\n\nWith --watch, print the current answer, then every fix as it arrives "
-        "(Ctrl-C to stop). Fixes arrive while the robot is cleaning or returning.",
+        "(Ctrl-C to stop). Fixes arrive while the robot is cleaning, mapping or returning.",
     )
     @click.argument("robot")
     @click.option("--watch", "watch_", is_flag=True, help="Follow live position fixes.")

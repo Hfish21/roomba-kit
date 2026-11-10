@@ -82,7 +82,7 @@ Call the `get_position` tool with `{"robot": "Mop"}`. On an i5 the tool error st
 
 ## The stream
 
-While a capable robot's activity is `cleaning` or `returning`, the service polls it every
+While a capable robot's activity is `cleaning`, `mapping` or `returning`, the service polls it every
 2 s and publishes each fix as a `position` event (the payload is the fix above). It stops
 polling when the robot pauses, docks or gets stuck, and starts again when it resumes. "No fix"
 answers produce no event.
@@ -101,7 +101,7 @@ roomba-kit position Mop --watch
 ```
 
 `--watch` prints the current answer, then follows the stream until Ctrl-C. Nothing new
-prints while the robot isn't cleaning or returning. With `--json` it prints the
+prints while the robot isn't cleaning, mapping or returning. With `--json` it prints the
 `get_position` body, then one event envelope per line. If the service closes the stream,
 the command reconnects with `Last-Event-ID`.
 
