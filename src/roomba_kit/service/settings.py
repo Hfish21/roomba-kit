@@ -29,8 +29,10 @@ CHOICES: dict[str, tuple[SettingValue, ...]] = {
     "schedule_hold": (True, False),
     "pad_wetness": (1, 2, 3),
     "spray_overlap": ("standard", "deep", "extended"),
+    "carpet_boost": (True, False),
 }
-"""Every setting the kit knows and its allowed values (contracts/operations.md)."""
+"""Every setting the kit knows and its allowed values (contracts/operations.md): one per
+`Capability.SETTING_*`, so a model lacking one gets `not_supported`, not "unknown setting"."""
 
 _TRUE = {"true", "on", "yes", "1"}
 _FALSE = {"false", "off", "no", "0"}

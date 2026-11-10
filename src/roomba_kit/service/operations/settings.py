@@ -19,11 +19,12 @@ class SetSettingParams(BaseModel):
     robot: str = Field(description="Robot ID or name")
     setting: str = Field(
         description="Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, "
-        "schedule_hold, pad_wetness or spray_overlap"
+        "schedule_hold, pad_wetness, spray_overlap or carpet_boost"
     )
     value: bool | int | str = Field(
         description="passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, "
-        "schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended."
+        "schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. "
+        "spray_overlap: standard|deep|extended."
     )
 
 

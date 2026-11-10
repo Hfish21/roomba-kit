@@ -20,9 +20,11 @@ applied once the robot reports the new value back.
 | `schedule_hold` | `true`, `false` (pause the robot's own schedules) | yes | yes |
 | `pad_wetness` | `1`, `2`, `3` | — | yes |
 | `spray_overlap` | `standard`, `deep`, `extended` | — | yes |
+| `carpet_boost` | `true`, `false` | — | — |
 
 A setting marked — is `not_supported` on that model, and the kit never contacts the robot for
-it. `carpet_boost` is not offered on the i5: it accepts the write and drops it.
+it. `carpet_boost` is a known setting that neither V1 model offers (the i5 accepts the write
+and drops it), so it's `not_supported` on both.
 
 Notes:
 

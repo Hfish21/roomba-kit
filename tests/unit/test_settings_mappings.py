@@ -119,3 +119,12 @@ def test_coerce_rejects(setting, raw):
         coerce(setting, raw)
     assert exc.value.code is ErrorCode.INVALID_REQUEST
     assert exc.value.details["valid"] == list(CHOICES[setting])
+
+
+def test_every_setting_capability_is_a_known_setting():
+    """A `setting.*` capability missing here was "Unknown setting" instead of `not_supported`
+    on a model lacking it (US5 AS3)."""
+    declared = {
+        c.value.removeprefix("setting.") for c in Capability if c.value.startswith("setting.")
+    }
+    assert set(CHOICES) == declared
