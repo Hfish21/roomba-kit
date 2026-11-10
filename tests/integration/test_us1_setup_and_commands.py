@@ -239,7 +239,7 @@ async def test_setup_from_zero(api, factory, monkeypatch):
     assert nobody.json()["error"]["code"] == "robot_offline"
 
     pairing = await api("POST", "/robots/Vacuum/password/retrieve", json={"timeout_s": 5})
-    assert pairing.json() == {"outcome": "stored", "steps": setup.PASSWORD_STEPS}
+    assert pairing.json() == {"outcome": "stored", "steps": setup.pairing_steps_for("roomba_i5")}
     assert CredentialStore().robot_password(I5) == SECRETS[0]
     await wait_connected(api, I5)
     assert factory.get(I5).password == SECRETS[0]
