@@ -10,6 +10,7 @@ import json
 import re
 import tomllib
 from collections.abc import Mapping
+from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any
 
@@ -142,12 +143,50 @@ def load_config(path: Path | None = None) -> ConfigModel:
     return ConfigModel.model_validate(read_config_file(path))
 
 
+def _merge(raw: Mapping[str, Any], full: Mapping[str, Any], sparse: Mapping[str, Any]) -> Any:
+    """`raw` (the file) with the kit's values from `full` merged in.
+
+    A key the kit models is written when the file already had it or its value isn't the
+    default (`sparse`); keys and sections the kit doesn't model are kept as they were.
+    Lists of tables with an `id` (robots) merge per id, in the kit's order.
+    """
+    out = dict(raw)
+    for key, value in full.items():
+        old, explicit = raw.get(key), key in raw or key in sparse
+        if isinstance(value, Mapping):
+            merged = _merge(old if isinstance(old, Mapping) else {}, value, sparse.get(key, {}))
+            if merged or key in raw:
+                out[key] = merged
+            else:
+                out.pop(key, None)
+        elif _is_table_array(value) or (isinstance(value, list) and _is_table_array(old)):
+            by_id = {r.get("id"): r for r in old or [] if isinstance(r, Mapping)}
+            sparse_by_id = {r.get("id"): r for r in sparse.get(key) or []}
+            out[key] = [
+                _merge(by_id.get(v.get("id"), {}), v, sparse_by_id.get(v.get("id"), {}))
+                for v in value
+            ]
+            if not out[key] and key not in raw:
+                out.pop(key)
+        elif explicit:
+            out[key] = value
+    return out
+
+
 def save_config(config: ConfigModel, path: Path | None = None) -> None:
-    """Atomically write `config`. Values equal to the defaults are omitted."""
+    """Atomically write `config`, merged into the file as it stands.
+
+    Values equal to the defaults are omitted unless the file already sets them, and keys and
+    sections the kit doesn't model are preserved. Comments and formatting are not: the stdlib
+    has no TOML writer, so the file is re-serialized from its parsed contents.
+    """
     if isinstance(config, Settings):
         raise TypeError("save_config takes load_config()'s result; Settings carries env values")
-    data = config.model_dump(mode="json", exclude_defaults=True)
-    paths.atomic_write(path or paths.config_file(), dumps_toml(data), mode=0o644)
+    path = path or paths.config_file()
+    full = config.model_dump(mode="json")
+    sparse = config.model_dump(mode="json", exclude_defaults=True)
+    data = _merge(read_config_file(path), full, sparse)
+    paths.atomic_write(path, dumps_toml(data), mode=0o644)
 
 
 def upsert_robot(entry: RobotEntry, path: Path | None = None) -> ConfigModel:
@@ -183,6 +222,8 @@ def _key(key: str) -> str:
 
 
 def _scalar(value: Any) -> str:
+    if isinstance(value, datetime | date | time):  # only from a file being preserved
+        return value.isoformat()
     if isinstance(value, bool):
         return "true" if value else "false"
     if isinstance(value, int | float):

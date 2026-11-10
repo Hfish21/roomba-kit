@@ -122,6 +122,11 @@ By default, `<config>` is `~/.config/roomba-kit` and `<state>` is `~/.local/stat
 Every value can be overridden by environment variables, such as `ROOMBA_KIT_CLOUD__PASSWORD` and
 `ROOMBA_KIT_ROBOTS__<ID>__PASSWORD`, and those values are never written back to the files.
 
+When the kit rewrites `config.toml` (adding, renaming or removing a robot), it keeps every key
+and section you wrote, including ones it doesn't use and ones set to their default. It does
+**not** keep comments or formatting: Python's standard library has no TOML writer, so the file
+is re-serialized from its parsed contents. Keep notes somewhere else.
+
 ## Removing a robot
 
 ```bash

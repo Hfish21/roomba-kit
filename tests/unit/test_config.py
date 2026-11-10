@@ -100,6 +100,35 @@ def test_robot_helpers_round_trip(tmp_kit_home: Path) -> None:
     assert load_config().robots == []
 
 
+def test_rewrites_keep_what_the_kit_does_not_model(tmp_kit_home: Path) -> None:
+    """Unknown keys and sections, and explicit sections/defaults, survive a kit rewrite."""
+    paths.config_file().write_text(
+        "[server]\nport = 9000\nworkers = 2\n"
+        "[alerts]\ndock_search_minutes = 5\n"  # explicit, equal to the default
+        "[history]\n"  # explicit, empty
+        '[custom]\nnote = "mine"\nwhen = 2026-11-08T12:00:00Z\n[custom.nested]\nx = [1, 2]\n'
+        f'[[robots]]\nid = "{BLID}"\nname = "Kitchen"\ncolour = "red"\n'
+    )
+    other = "00000000000000000000000000000002"
+    upsert_robot(RobotEntry(id=other, name="Mop", address="192.0.2.11"))
+    upsert_robot(RobotEntry(id=BLID, name="Hall", address="192.0.2.10"))
+    config = load_config()
+    config.server.port = 8765  # back to the default, but the key was explicit: keep it
+    save_config(config)
+    written = tomllib.loads(paths.config_file().read_text())
+    assert written["server"] == {"port": 8765, "workers": 2}
+    assert written["alerts"] == {"dock_search_minutes": 5}
+    assert written["history"] == {}
+    assert written["custom"]["note"] == "mine" and written["custom"]["nested"] == {"x": [1, 2]}
+    assert written["custom"]["when"].isoformat() == "2026-11-08T12:00:00+00:00"
+    robots = written["robots"]
+    assert [r["id"] for r in robots] == [BLID, other]
+    assert robots[0] == {"id": BLID, "name": "Hall", "address": "192.0.2.10", "colour": "red"}
+    assert remove_robot(other)
+    assert tomllib.loads(paths.config_file().read_text())["robots"] == [robots[0]]
+    assert "cloud" not in written  # a section never written stays absent
+
+
 def test_toml_writer_round_trips_kit_shapes() -> None:
     data = {
         "server": {"host": "127.0.0.1", "port": 8765},
