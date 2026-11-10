@@ -5,9 +5,10 @@ per-mission coverage. All optional (Constitution I).
   over the account's one shared cloud MQTT session (research R12). Watchers run only while the
   cloud is connected, restart when it reconnects or the login changes, and publish each new
   timeline entry once as a `cloud.timeline` event.
-- **Records.** Floor plans and history are fetched live and cached in `cloud_cache`; while the
-  cloud is down the cached copy is served with its original `retrieved_at`. Coverage for a
-  finished mission never changes, so a cached copy is served without asking the cloud.
+- **Records.** Floor plans are fetched live and cached in `cloud_cache`; while the cloud is
+  down the cached copy is served with its original `retrieved_at` (FR-043). History is always
+  live: FR-043 exempts only rooms and floor plans, so a down cloud is `cloud_unavailable`.
+  Coverage for a finished mission never changes, so a cached copy is served without asking.
 
 Nothing here runs on a local path: every cloud call gets its own timeout, and failures become
 `cloud_unavailable(reason)`, never an error on a robot command, state or event.
@@ -259,10 +260,6 @@ class CloudMission(KitModel):
     retrieved_at: datetime
 
 
-class _History(KitModel):
-    missions: list[CloudMission]
-
-
 # -- cloud calls and the cache -------------------------------------------------------------------
 
 
@@ -497,7 +494,7 @@ def parse_cloud_mission(
     )
 
 
-async def _fetch_history(robot_id: str, transport: CloudTransport) -> _History:
+async def _fetch_history(robot_id: str, transport: CloudTransport) -> list[CloudMission]:
     now = datetime.now(UTC)
     missions = [
         m
@@ -506,19 +503,13 @@ async def _fetch_history(robot_id: str, transport: CloudTransport) -> _History:
     ]
     floor = datetime.min.replace(tzinfo=UTC)
     missions.sort(key=lambda m: m.started_at or m.ended_at or floor, reverse=True)
-    return _History(missions=missions)
+    return missions
 
 
 async def cloud_history(ctx: ServiceContext, robot_id: str, limit: int) -> list[CloudMission]:
-    history = await _live_or_cached(
-        ctx,
-        robot_id,
-        "history",
-        "recent",
-        _History,
-        lambda transport: _fetch_history(robot_id, transport),
-    )
-    return history.missions[:limit]
+    """Always live (FR-042): a recent-missions list served stale would hide new missions."""
+    history = await _call(ctx, robot_id, lambda transport: _fetch_history(robot_id, transport))
+    return history[:limit]
 
 
 # -- coverage ------------------------------------------------------------------------------------

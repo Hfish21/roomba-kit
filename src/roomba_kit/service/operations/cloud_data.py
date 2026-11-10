@@ -51,8 +51,9 @@ async def get_floor_plan(ctx: ServiceContext, params: RobotParams) -> FloorPlan:
 @operation(
     description=(
         "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), "
-        "newest first. A running mission appears only minutes after the robot docks. While the "
-        "cloud is unavailable, the last copy fetched is returned."
+        "newest first. A running mission appears only minutes after the robot docks. Always "
+        "fetched live: while the cloud is unavailable this returns `cloud_unavailable` with a "
+        "reason."
     ),
     params=CloudHistoryParams,
     result=list[CloudMission],

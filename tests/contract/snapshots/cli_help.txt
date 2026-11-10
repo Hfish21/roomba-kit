@@ -98,8 +98,8 @@ $ roomba-kit cloud history --help
 Usage: roomba-kit cloud history [OPTIONS] ROBOT
 
   The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A
-  running mission appears only minutes after the robot docks. While the cloud is unavailable, the
-  last copy fetched is returned.
+  running mission appears only minutes after the robot docks. Always fetched live: while the cloud
+  is unavailable this returns `cloud_unavailable` with a reason.
 
   Parameters:
   - `robot`: str — Robot ID or name
