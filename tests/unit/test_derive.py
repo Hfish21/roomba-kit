@@ -206,6 +206,38 @@ async def test_m6_capture_replay(bus, ids):
     assert bus.types().index(EventType.ROBOT_DOCKED) < bus.types().index(EventType.MISSION_FINISHED)
 
 
+async def test_a_new_robot_mission_id_mid_mission_is_a_new_mission(robot, bus):
+    """The robot finished M1 and started M2 while the link was down: two missions, not one."""
+    await robot.emit()
+    await robot.emit(phase="run", cycle="clean", missionId="M1")
+    await robot.emit(phase="run", cycle="clean", missionId="")  # decision #11: not a new one
+    assert robot.deriver.current(I5_ID).id == "M1"
+    await robot.emit(_echo("stop"))
+    await robot.emit(phase="run", cycle="clean", missionId="M2")  # first state after reconnect
+    missions = [(t, d["mission"]) for t, _, d in bus.events if "mission" in d]
+    assert [(t, m["id"]) for t, m in missions] == [
+        (EventType.MISSION_STARTED, "M1"),
+        (EventType.MISSION_FINISHED, "M1"),
+        (EventType.MISSION_STARTED, "M2"),
+    ]
+    assert missions[1][1]["outcome"] == "unknown" and missions[1][1]["ended_at"] is None
+    assert robot.deriver.current(I5_ID).id == "M2"
+    await robot.emit(phase="charge", cycle="none", missionId="M2")
+    (_, m1), (_, m2) = [
+        (t, d["mission"]) for t, _, d in bus.events if t is EventType.MISSION_FINISHED
+    ]
+    assert m2["id"] == "M2" and m2["outcome"] == "completed"  # M1's `stop` isn't M2's
+
+
+async def test_a_mission_that_started_without_an_id_adopts_the_first_one(robot, bus):
+    await robot.emit()
+    await robot.emit(phase="run", cycle="clean", missionId="")
+    await robot.emit(phase="run", cycle="clean", missionId="M1")
+    await robot.emit(phase="run", cycle="clean", missionId="M1")
+    assert bus.types().count(EventType.MISSION_STARTED) == 1
+    assert EventType.MISSION_FINISHED not in bus.types()
+
+
 async def test_driving_home_after_a_cancel_is_not_a_mission(robot, bus):
     """HW-1: an i5 sent `dock` after a cancelled clean drove home with an open `dock` cycle,
     evacuated and flipped returning/docked on arrival; that was logged as two missions."""
