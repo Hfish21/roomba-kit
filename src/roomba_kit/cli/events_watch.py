@@ -16,6 +16,7 @@ import httpx
 from roomba_kit.cli.client import NOT_RUNNING, CliState, cli_token, fail
 from roomba_kit.cli.generate import group_for
 from roomba_kit.cli.output import NO_TOKEN_HINT, emit_response
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import ErrorCode
 from roomba_kit.core.events import EventType
 
@@ -78,7 +79,7 @@ def _client(state: CliState) -> httpx.Client:
         headers["Authorization"] = f"Bearer {token}"
     # No read timeout: the service pings every 15 s, and a dead link ends the stream instead.
     return httpx.Client(
-        base_url=state.url().rstrip("/") + "/v1",
+        base_url=state.url().rstrip("/") + API_PREFIX,
         headers=headers,
         transport=state.transport,
         timeout=httpx.Timeout(5.0, read=None),

@@ -9,6 +9,7 @@ import httpx
 
 from roomba_kit.config import tokens
 from roomba_kit.config.settings import load_settings
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import CLI_EXIT, ErrorCode, KitError
 from roomba_kit.core.registry import Operation, http_request
 
@@ -66,7 +67,7 @@ class ServiceClient:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         # No read timeout: wait operations hold the request open for their own `timeout_s`.
         self._http = httpx.Client(
-            base_url=base_url.rstrip("/") + "/v1",
+            base_url=base_url.rstrip("/") + API_PREFIX,
             headers=headers,
             transport=transport,
             timeout=httpx.Timeout(5.0, read=None),

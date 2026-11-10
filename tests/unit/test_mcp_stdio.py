@@ -165,3 +165,10 @@ async def test_proxy_against_the_real_api(tmp_kit_home):
             assert state.structured_content == expected.json()
             with pytest.raises(ToolError, match="^robot_not_found: "):
                 await client.call_tool("mission_wait", {"robot": "Nobody", "timeout_s": 0.05})
+
+
+async def test_stdio_server_reports_kit_contract_version():
+    from roomba_kit.core.contract import CONTRACT_VERSION
+
+    async with Client(build_stdio_mcp("http://192.0.2.1:8765")) as client:
+        assert client.server_info.version == CONTRACT_VERSION

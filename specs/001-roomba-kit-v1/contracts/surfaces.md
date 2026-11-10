@@ -3,6 +3,21 @@
 How each operation in `operations.md` appears on each surface. These rules are applied by the
 generators, so no surface is written by hand.
 
+## Versioning
+
+- One kit contract version, `CONTRACT_VERSION` in `src/roomba_kit/core/contract.py` (currently
+  `1`), covers all three machine contracts (Constitution VII):
+  - the HTTP API base path `/v<N>` (`API_PREFIX`);
+  - the event schema `roomba-kit.event/v<N>`;
+  - the MCP tool set, reported as the MCP server's `serverInfo.version` on both transports.
+- A breaking change to any of them (removing or renaming an operation, tool, param, result
+  field or event type; changing a type or meaning) bumps it. Additive changes (a new optional
+  param, a new operation, tool, event type or result field) don't.
+- The tripwires are the contract snapshots: `tests/contract/snapshots/openapi.json`,
+  `mcp_tools.json` and `cli_help.txt`. A snapshot diff that removes or changes something is a
+  breaking change and must come with a version bump; `tests/unit/test_contract_version.py`
+  keeps the surfaces on the same number.
+
 ## HTTP API
 
 - Base path `/v1`. Auth is `Authorization: Bearer <token>` on everything except `GET /v1/health`.
@@ -18,11 +33,16 @@ generators, so no surface is written by hand.
     `GET /v1/events/wait`, `GET /v1/robots/{robot}/missions/wait`.
 - Errors: `{"error": {"code", "message", "robot_id"?, "details"?}}`, with the HTTP status from
   `errors.md`.
-- MCP is mounted at `/mcp` (streamable HTTP), behind the same bearer auth.
+- MCP is mounted at `/mcp` (streamable HTTP), behind the same bearer auth. It sits outside
+  `/v1` on purpose: MCP clients discover the tool set and its version from the `serverInfo` the
+  server returns at `initialize`, not from the URL, and the endpoint is a Route rather than a
+  Mount so `/mcp` never redirects to `/mcp/` (decision #36). A version bump changes
+  `serverInfo.version`, not the path.
 
 ## MCP
 
-- Server name `roomba-kit`. Tool name = operation name.
+- Server name `roomba-kit`, server version = the kit contract version (see Versioning). Tool
+  name = operation name.
 - Each tool description is generated from the registry and contains:
   - a one-line purpose;
   - parameter docs;
