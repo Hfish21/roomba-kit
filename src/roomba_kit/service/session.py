@@ -127,6 +127,8 @@ class RobotSession:
         self._idle_silence = idle_silence_s
         self._last_fragment = 0.0
         self._fragment_count = 0
+        self.echo_count = 0
+        """`lastCommand` echo messages received (any client's commands)."""
         self._got_state = asyncio.Event()
         self._coalesce_s = coalesce_s
 
@@ -267,8 +269,11 @@ class RobotSession:
             transport = self.require_link()
             spec = spec_for(name, profile)
             before, sent_at, heard = self._state, _now(), self._fragment_count
+            echoes = self.echo_count
             await transport.send_command(profile.protocol_command(name), args)
-            result = await await_confirmation(self, name, spec, before=before, sent_at=sent_at)
+            result = await await_confirmation(
+                self, name, spec, before=before, sent_at=sent_at, echoes_before=echoes
+            )
             if detect and result.outcome == "unconfirmed" and self._fragment_count == heard:
                 # Not even an echo: the link is up but dead (HW-1: an i5's link kept
                 # "connected" while delivering nothing). Reconnect for a fresh one.
@@ -378,6 +383,8 @@ class RobotSession:
     def _on_fragment(self, fragment: dict[str, Any]) -> None:
         if fragment:
             self._fragment_count += 1
+            if "lastCommand" in fragment:
+                self.echo_count += 1
             self._got_state.set()
             self._last_fragment = asyncio.get_running_loop().time()
         self._fragments.put_nowait(fragment)

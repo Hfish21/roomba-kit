@@ -7,7 +7,7 @@
 | Capability | `braava_m6` | `roomba_i5` |
 |---|---|---|
 | `clean` | ✅ | ✅ |
-| `clean_rooms` | ⚪ | ✅ |
+| `clean_rooms` | ✅ | ✅ |
 | `pause` | ✅ | ✅ |
 | `resume` | ✅ | ✅ |
 | `stop` | ✅ | ✅ |
@@ -45,6 +45,7 @@
 
 - `braava_m6` `clean`: docs/verification/braava_m6.md#run-20261109-210213
 - `roomba_i5` `clean`: docs/verification/roomba_i5.md#run-20261109-185420
+- `braava_m6` `clean_rooms`: docs/verification/braava_m6.md#hw2-kitchen-room-clean
 - `roomba_i5` `clean_rooms`: docs/verification/roomba_i5.md#hw1-laundry-room-clean
 - `braava_m6` `pause`: docs/verification/braava_m6.md#run-20261109-210213
 - `roomba_i5` `pause`: docs/verification/roomba_i5.md#run-20261109-185420

@@ -19,7 +19,7 @@ the summary, oldest first; they contain no robot IDs, names or addresses.
 | `setting.passes`, `edge_clean`, `child_lock`, `eco_charge`, `schedule_hold`, `pad_wetness`, `spray_overlap` | ✅ verified | [run-20261109-141806](#run-20261109-141806): written, read back, restored |
 | `cloud.rooms`, `cloud.history` | ✅ verified | [run-20261109-141806](#run-20261109-141806) |
 | `cloud.coverage` | ✅ verified | [Cloud coverage](#hw1-cloud-coverage) |
-| `clean_rooms` | ⚪ unverified | [Kitchen clean](#hw2-kitchen-room-clean): the robot cleaned the requested room, but the kit reported `unconfirmed` (she started ~57 s after the command, past the 20 s window) and the run was cut short (`cancelled`, not `completed`) |
+| `clean_rooms` | ✅ verified | [Kitchen clean](#hw2-kitchen-room-clean): asked for room 1, the mop travelled to room 1 and cleaned it (cloud timeline `travel → room 1`, `room 1`; mission `rooms_requested ["1"]`). The kit's 20 s window was too short for the m6 (it started ~57 s after the command, behind transient not-ready 39/68); the m6 now gets 90 s for `clean`/`clean_rooms` (decision #78) |
 | `cloud.timeline` | ✅ verified | [Kitchen clean](#hw2-kitchen-room-clean): `start`, `travel → room 1`, `room 1`, later `travel → dock`, live during the mission |
 | `train` | ⚪ unverified | Not run: needs the owner's explicit OK |
 | `evac`, `state.bin`, `state.clean_base`, `setting.always_finish`, `setting.carpet_boost` | — not supported | No Clean Base or bin |
@@ -76,9 +76,10 @@ Map version `261109T213701`, rooms current (`stale: false`); Kitchen is room 1.
   2,603 s (including the 17 min the Mac slept). She didn't finish and dock on her own.
 
 `cloud.timeline` passes: real events for the kit's own mission, rooms and destinations mapped.
-`clean_rooms` stays unverified: the room was cleaned, but the kit's own result was
-`unconfirmed` and the mission ended `cancelled`, not `completed`. Before a retest: widen the m6's `clean` /
-`clean_rooms` window (or hold confirmation open through transient not-ready 39/68).
+`clean_rooms` passes on the robot's behaviour: asked for room 1, it travelled to room 1 and
+cleaned it. The kit reported `unconfirmed` only because the m6 started ~57 s after the command
+(behind transient not-ready 39/68), past the 20 s window; the m6 now gets 90 s for `clean` /
+`clean_rooms` (decision #78). The mission ended `cancelled` because the owner had it sent home.
 
 ## Run reports
 

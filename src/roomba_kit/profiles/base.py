@@ -44,6 +44,9 @@ class ConfirmView:
     before: RobotState | None
     now: RobotState
     reconnected_since_send: bool = False
+    echoed_since_send: bool | None = None
+    """True once a `lastCommand` echo message arrived after the send (None: not tracked).
+    Unlike echo timestamps (whole seconds), this tells two same-second commands apart."""
 
 
 @dataclass(frozen=True)
