@@ -18,6 +18,14 @@ DEFAULT_PROTOCOL_COMMANDS: dict[str, str] = {
 }
 """Kit command name -> protocol command, where they differ. Everything else is sent as-is."""
 
+DEFAULT_PAIRING_STEPS: tuple[str, ...] = (
+    "Place the robot on its dock",
+    "Press and hold HOME for about 2 seconds until it chimes",
+    "Release — retrieving…",
+)
+"""What to do at the robot while the kit retrieves its local password (FR-003), unless the
+profile says otherwise. The first step is done before retrieval starts."""
+
 Reported = Mapping[str, Any]
 """A merged raw `state.reported` dict. Only profiles and transport adapters read its keys."""
 
@@ -69,9 +77,11 @@ class ModelProfile:
     not_ready_texts: dict[int, str] = field(default_factory=dict)
     protocol_commands: dict[str, str] = field(default_factory=dict)
     dock_needs_pause: bool = False
+    """The firmware ignores `dock` while actively cleaning; the kit pauses first."""
     command_windows: dict[str, float] = field(default_factory=dict)
     """Per-command confirmation windows (seconds), keeping the default predicate."""
-    """The firmware ignores `dock` while actively cleaning; the kit pauses first."""
+    pairing_steps: list[str] = field(default_factory=lambda: list(DEFAULT_PAIRING_STEPS))
+    """At-the-robot steps for local password retrieval (FR-003)."""
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[a-z][a-z0-9_]*", self.id):
