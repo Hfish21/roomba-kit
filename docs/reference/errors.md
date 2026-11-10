@@ -12,7 +12,7 @@ Every surface returns these codes. HTTP bodies are `{"error": {"code", "message"
 | `ambiguous_name` | A name matches several robots or rooms; `details.candidates` lists them | 409 | 4 |
 | `room_not_found` | A room name or ID isn't on the current map; `details.valid` lists valid rooms | 404 | 4 |
 | `not_supported` | The model lacks the capability; `details: {profile, capability}` | 422 | 5 |
-| `unsupported_model` | The robot has no profile | 422 | 5 |
+| `unsupported_model` | The robot has no profile; the message points to `docs/guides/adding-a-model.md` | 422 | 5 |
 | `robot_offline` | The robot is unreachable right now | 503 | 6 |
 | `connection_held_elsewhere` | Another client holds the robot's single local connection | 503 | 6 |
 | `auth_failed` | Robot or cloud rejected the stored credential | 502 | 7 |
