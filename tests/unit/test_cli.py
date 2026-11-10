@@ -1,4 +1,5 @@
 import json
+import os
 import stat
 import sys
 import types
@@ -128,6 +129,17 @@ def test_token_header_from_env(ops, tmp_kit_home, monkeypatch):
     service = Service()
     invoke(main.build_cli(ops), ["state", "r1"], service)
     assert service.requests[0].headers["authorization"] == "Bearer rk_test"
+
+
+def test_broad_cli_token_exits_with_chmod_hint(ops, tmp_kit_home):
+    token_file = paths.cli_token_file()
+    token_file.parent.mkdir(parents=True, exist_ok=True)
+    token_file.write_text("rk_test\n")
+    os.chmod(token_file, 0o644)
+    service = Service()
+    result = invoke(main.build_cli(ops), ["state", "r1"], service)
+    assert result.exit_code == CLI_EXIT[ErrorCode.INVALID_REQUEST]
+    assert f"chmod 600 {token_file}" in result.stderr and not service.requests
 
 
 def test_refused_connection_exits_69(ops, tmp_kit_home):

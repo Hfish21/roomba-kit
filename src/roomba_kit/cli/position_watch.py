@@ -14,10 +14,9 @@ from typing import Any
 import click
 import httpx
 
-from roomba_kit.cli.client import NOT_RUNNING, CliState, fail
+from roomba_kit.cli.client import NOT_RUNNING, CliState, cli_token, fail
 from roomba_kit.cli.generate import help_text
 from roomba_kit.cli.output import NO_TOKEN_HINT, emit_response, render
-from roomba_kit.config import tokens
 from roomba_kit.core import registry
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.registry import Operation
@@ -83,7 +82,7 @@ def _show(state: CliState, response: httpx.Response, has_token: bool, *, lines: 
 
 def _stream(state: CliState, robot: str, last_id: str | None) -> str | None:
     """Follow one SSE connection until the service closes it; returns the last event ID seen."""
-    token = tokens.read_cli_token()
+    token = cli_token()
     headers = {"Accept": "text/event-stream"}
     if token:
         headers["Authorization"] = f"Bearer {token}"

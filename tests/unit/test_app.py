@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pytest
 
+from roomba_kit.config import paths
 from roomba_kit.config.credentials import CredentialStore
 from roomba_kit.config.settings import RobotEntry, load_settings
 from roomba_kit.core.capabilities import Capability
@@ -127,6 +128,20 @@ async def test_refuses_to_start_with_broad_credentials(tmp_kit_home, factory):
     os.chmod(path, 0o644)
     with pytest.raises(KitError) as exc:
         await _ctx(factory).start()
+    assert "chmod 600" in exc.value.message
+
+
+async def test_refuses_to_start_with_broad_cli_token(tmp_kit_home, factory, monkeypatch):
+    ctx = _ctx(factory)
+    ctx.tokens.create("cli")
+    os.chmod(paths.cli_token_file(), 0o644)
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "CANARY-env-token")  # doesn't excuse the file
+    try:
+        with pytest.raises(KitError) as exc:
+            await ctx.start()
+    finally:
+        if ctx.running:
+            await ctx.stop()
     assert "chmod 600" in exc.value.message
 
 

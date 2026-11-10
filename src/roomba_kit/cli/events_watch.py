@@ -13,10 +13,9 @@ from typing import Any
 import click
 import httpx
 
-from roomba_kit.cli.client import NOT_RUNNING, CliState, fail
+from roomba_kit.cli.client import NOT_RUNNING, CliState, cli_token, fail
 from roomba_kit.cli.generate import group_for
 from roomba_kit.cli.output import NO_TOKEN_HINT, emit_response
-from roomba_kit.config import tokens
 from roomba_kit.core.errors import ErrorCode
 from roomba_kit.core.events import EventType
 
@@ -73,7 +72,7 @@ def line(event: dict[str, Any]) -> str:
 
 
 def _client(state: CliState) -> httpx.Client:
-    token = tokens.read_cli_token()
+    token = cli_token()
     headers = {"Accept": "text/event-stream"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
@@ -98,7 +97,7 @@ def watch(state: CliState, robot: str | None, types: list[str], since: int | Non
                 ) as response:
                     if response.status_code != 200:
                         response.read()
-                        if response.status_code == 401 and not tokens.read_cli_token():
+                        if response.status_code == 401 and not cli_token():
                             click.echo(NO_TOKEN_HINT, err=True)
                         emit_response(state, response)
                         return
