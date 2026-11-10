@@ -16,6 +16,45 @@
         "title": "Activity",
         "type": "string"
       },
+      "ActivityTransition": {
+        "properties": {
+          "at": {
+            "format": "date-time",
+            "title": "At",
+            "type": "string"
+          },
+          "from": {
+            "$ref": "#/components/schemas/Activity"
+          },
+          "mission_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Mission Id"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "to": {
+            "$ref": "#/components/schemas/Activity"
+          }
+        },
+        "required": [
+          "robot_id",
+          "at",
+          "from",
+          "to"
+        ],
+        "title": "ActivityTransition",
+        "type": "object"
+      },
       "Address": {
         "properties": {
           "address": {
@@ -1642,6 +1681,99 @@
           "initiator"
         ],
         "title": "Mission",
+        "type": "object"
+      },
+      "MissionDetail": {
+        "description": "One mission from local history, with its activity transitions (FR-045).",
+        "properties": {
+          "cloud_mission_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cloud Mission Ref"
+          },
+          "duration_s": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Duration S"
+          },
+          "ended_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ended At"
+          },
+          "errors": {
+            "items": {
+              "$ref": "#/components/schemas/CodeText"
+            },
+            "title": "Errors",
+            "type": "array"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "initiator": {
+            "$ref": "#/components/schemas/Initiator"
+          },
+          "outcome": {
+            "$ref": "#/components/schemas/MissionOutcome",
+            "default": "in_progress"
+          },
+          "robot_id": {
+            "title": "Robot Id",
+            "type": "string"
+          },
+          "rooms_requested": {
+            "description": "Empty = whole home",
+            "items": {
+              "type": "string"
+            },
+            "title": "Rooms Requested",
+            "type": "array"
+          },
+          "started_at": {
+            "format": "date-time",
+            "title": "Started At",
+            "type": "string"
+          },
+          "transitions": {
+            "description": "The mission's activity changes, oldest first",
+            "items": {
+              "$ref": "#/components/schemas/ActivityTransition"
+            },
+            "title": "Transitions",
+            "type": "array"
+          }
+        },
+        "required": [
+          "id",
+          "robot_id",
+          "started_at",
+          "initiator"
+        ],
+        "title": "MissionDetail",
         "type": "object"
       },
       "MissionOutcome": {
@@ -3595,7 +3727,7 @@
     },
     "/v1/missions/{mission_id}": {
       "get": {
-        "description": "Get one mission from local history by its ID.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
+        "description": "Get one mission from local history by its ID, with its activity transitions (cleaning, paused, returning, docked, ...) oldest first.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
         "operationId": "get_mission",
         "parameters": [
           {
@@ -3615,7 +3747,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Mission"
+                  "$ref": "#/components/schemas/MissionDetail"
                 }
               }
             },
@@ -3637,7 +3769,7 @@
             "bearer": []
           }
         ],
-        "summary": "Get one mission from local history by its ID."
+        "summary": "Get one mission from local history by its ID, with its activity transitions (cleaning, paused, returning, docked, ...) oldest first."
       }
     },
     "/v1/robots": {

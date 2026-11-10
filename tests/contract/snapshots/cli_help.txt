@@ -383,7 +383,7 @@ Options:
 
 Commands:
   list  List the missions recorded in local history, newest first: robot, start and end,...
-  show  Get one mission from local history by its ID.
+  show  Get one mission from local history by its ID, with its activity transitions (cleaning,...
   wait  Wait until a robot's mission ends and return it with its outcome.
 
 $ roomba-kit missions list --help
@@ -415,7 +415,8 @@ Options:
 $ roomba-kit missions show --help
 Usage: roomba-kit missions show [OPTIONS] MISSION_ID
 
-  Get one mission from local history by its ID.
+  Get one mission from local history by its ID, with its activity transitions (cleaning, paused,
+  returning, docked, ...) oldest first.
 
   Parameters:
   - `mission_id`: str — Mission ID, as listed by `list_missions`

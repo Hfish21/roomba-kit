@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from pydantic import BaseModel, Field, field_validator
 
 from roomba_kit.core.errors import ErrorCode, KitError
-from roomba_kit.core.models import Mission, MissionOutcome
+from roomba_kit.core.models import Mission, MissionDetail, MissionOutcome
 from roomba_kit.core.registry import Cli, Http, operation
 from roomba_kit.service import history
 from roomba_kit.service.app import ServiceContext
@@ -71,14 +71,15 @@ async def list_missions(ctx: ServiceContext, params: ListMissionsParams) -> list
 
 
 @operation(
-    description="Get one mission from local history by its ID.",
+    description="Get one mission from local history by its ID, with its activity transitions "
+    "(cleaning, paused, returning, docked, ...) oldest first.",
     params=GetMissionParams,
-    result=Mission,
+    result=MissionDetail,
     read_only=True,
     http=Http("GET", "/missions/{mission_id}"),
     cli=Cli(("missions",), "show", args=("mission_id",)),
 )
-async def get_mission(ctx: ServiceContext, params: GetMissionParams) -> Mission:
+async def get_mission(ctx: ServiceContext, params: GetMissionParams) -> MissionDetail:
     mission = await history.get_mission(ctx.store, params.mission_id)
     if mission is None:
         raise KitError(

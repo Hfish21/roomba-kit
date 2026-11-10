@@ -260,6 +260,14 @@ class ActivityTransition(KitModel):
     mission_id: str | None = None
 
 
+class MissionDetail(Mission):
+    """One mission from local history, with its activity transitions (FR-045)."""
+
+    transitions: list[ActivityTransition] = Field(
+        default_factory=list, description="The mission's activity changes, oldest first"
+    )
+
+
 class PositionFix(KitModel):
     robot_id: str
     at: datetime
