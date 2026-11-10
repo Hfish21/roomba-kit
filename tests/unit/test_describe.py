@@ -40,3 +40,24 @@ def test_type_names_are_stable_across_python_versions():
     assert type_name(bool | int | str) == "bool | int | str"
     assert type_name(list[str]) == "list[str]"
     assert type_name(int | None) == "int | None"
+
+
+def test_settings_ops_list_per_setting_support_and_verification():
+    """FR-049: `get_settings`/`set_setting` have no single capability, so they list each
+    setting's models and verification, generated from the installed profiles."""
+    from roomba_kit.profiles.loader import load_profiles
+    from roomba_kit.service.operations import load_operations
+
+    load_operations()
+    profiles = load_profiles()
+    for name in ("get_settings", "set_setting"):
+        text = describe(registry.get(name))
+        for cap in (c for c in Capability if c.value.startswith("setting.")):
+            declared = [
+                f"{pid} ({p.capabilities[cap].status})"
+                for pid, p in sorted(profiles.items())
+                if cap in p.capabilities
+            ]
+            where = ", ".join(declared) or "no installed model"
+            assert f"- `{cap.value.removeprefix('setting.')}`: {where}" in text, (name, text)
+    assert "`pad_wetness`: braava_m6 (" in text and "`carpet_boost`: no installed model" in text
