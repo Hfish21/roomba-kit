@@ -244,9 +244,12 @@ async def test_cloud_down_cache_and_local_ops_unaffected(client, ctx, fake_cloud
     await cloud_down(ctx, fake_cloud)
     # Cached results are served with their original retrieval time (FR-043).
     assert (await client.get(f"/v1/robots/{I5}/floor-plan")).json() == plan
-    assert (await client.get(f"/v1/robots/{I5}/cloud-history")).json() == history
     cached = await client.get(f"/v1/robots/{I5}/missions/{PUBLISHED}/coverage")
     assert cached.json() == coverage
+    # History isn't served stale: FR-043 exempts only rooms and floor plans (FR-042).
+    assert history and unavailable(await client.get(f"/v1/robots/{I5}/cloud-history")) == (
+        "connection_failed"
+    )
     # Nothing cached: cloud_unavailable with the reason (FR-042).
     assert unavailable(await client.get(f"/v1/robots/{M6}/floor-plan")) == "connection_failed"
     response = await client.get(f"/v1/robots/{I5}/missions/{RUNNING}/coverage")

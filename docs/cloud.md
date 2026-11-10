@@ -10,7 +10,7 @@ commands, state and events never wait on the cloud.
 | Extra | Operation / event | Capability | Notes |
 |---|---|---|---|
 | Floor plan: rooms with names, types and outlines | `get_floor_plan` | `cloud.rooms` | Cached; served from cache while the cloud is down |
-| The cloud's recent mission history (about 30 missions) | `cloud_history` | `cloud.history` | Cached; served from cache while the cloud is down |
+| The cloud's recent mission history (about 30 missions) | `cloud_history` | `cloud.history` | Always live; `cloud_unavailable` while the cloud is down |
 | Where a finished mission cleaned, with dirt and clutter | `get_coverage` | `cloud.coverage` | Published minutes after the robot docks |
 | Live room-level mission progress | `cloud.timeline` events | `cloud.timeline` | Heading to a room, in a room, heading home, bin emptied, finished |
 | Robot password retrieval without the button dance | `cloud_retrieve_password` | — | See [setup](setup.md) |

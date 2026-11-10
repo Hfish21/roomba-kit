@@ -3873,7 +3873,7 @@
     },
     "/v1/robots/{robot}/cloud-history": {
       "get": {
-        "description": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `limit`: int (default: 30) — Most recent missions to return\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
+        "description": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. Always fetched live: while the cloud is unavailable this returns `cloud_unavailable` with a reason.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `limit`: int (default: 30) — Most recent missions to return\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified",
         "operationId": "cloud_history",
         "parameters": [
           {
@@ -3932,7 +3932,7 @@
             "bearer": []
           }
         ],
-        "summary": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. While the cloud is unavailable, the last copy fetched is returned."
+        "summary": "The robot's recent missions as the iRobot cloud recorded them (it keeps about 30), newest first. A running mission appears only minutes after the robot docks. Always fetched live: while the cloud is unavailable this returns `cloud_unavailable` with a reason."
       }
     },
     "/v1/robots/{robot}/commands/clean": {
