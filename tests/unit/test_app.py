@@ -1,4 +1,5 @@
 import os
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -161,3 +162,25 @@ async def test_components_start_and_stop(tmp_kit_home, factory, monkeypatch):
     await ctx.start()
     await ctx.stop()
     assert calls == ["start", "stop"]
+
+
+def test_save_address_rewrites_only_that_robot(tmp_kit_home, factory):
+    """FR-018: a rediscovered address is persisted to config.toml and the live settings."""
+    paths.config_file().write_text(
+        "[server]\nport = 9999\n\n[house]\nnote = 'kept'\n\n"
+        f'[[robots]]\nid = "{I5}"\nname = "Vacuum"\naddress = "192.0.2.10"\nfloor = 2\n\n'
+        f'[[robots]]\nid = "{M6}"\nname = "Mop"\naddress = "192.0.2.11"\n'
+    )
+    ctx = _ctx(factory)
+    before = tomllib.loads(paths.config_file().read_text())
+
+    ctx._save_address(I5, "192.0.2.77")
+    after = tomllib.loads(paths.config_file().read_text())
+    assert after["robots"][0] == {**before["robots"][0], "address": "192.0.2.77"}
+    assert after["robots"][1] == before["robots"][1]
+    rest = {k: v for k, v in after.items() if k != "robots"}
+    assert rest == {k: v for k, v in before.items() if k != "robots"}
+    assert {r.id: r.address for r in ctx.settings.robots} == {I5: "192.0.2.77", M6: "192.0.2.11"}
+
+    ctx._save_address("0" * 31 + "9", "192.0.2.99")  # not configured: nothing changes
+    assert tomllib.loads(paths.config_file().read_text()) == after
