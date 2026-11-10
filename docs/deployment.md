@@ -3,16 +3,67 @@
 The kit is one long-running service that owns every robot's local connection (each robot accepts
 only one). Run it wherever is always on and on the robots' LAN. Pick one of:
 
-| Host | How | Starts |
+| Option | How | Starts |
 |---|---|---|
-| Your laptop, ad hoc | `roomba-kit service start` / `stop` | When you run it |
-| A Mac that stays logged in | `roomba-kit service install` (launchd agent) | At login |
-| A Linux box (Pi, NUC, server) | `roomba-kit service install` (systemd user unit) | At boot, with linger |
-| A Linux box with Docker | `deploy/compose.yaml` | At boot (`restart: unless-stopped`) |
+| **Docker (recommended)** | `docker compose -f deploy/compose.yaml up -d` | With Docker (`restart: unless-stopped`) |
+| Linux, no Docker | `roomba-kit service install` (systemd user unit) | At boot, with linger |
+| macOS, no Docker | `roomba-kit service install` (launchd agent) | At login |
+| Ad hoc, for trying it out | `roomba-kit service start` / `stop` | When you run it |
 
 Run exactly one of these per robot set. Two services fight over the robots' single connection.
 
-## Start on login or boot: `service install`
+## Docker (recommended)
+
+From the repo root:
+
+```bash
+docker compose -f deploy/compose.yaml up -d                            # build and start
+docker compose -f deploy/compose.yaml exec roomba-kit roomba-kit setup # find and pair robots
+```
+
+Every CLI command runs the same way inside the container
+(`… exec roomba-kit roomba-kit <command>`). To drive it from another machine, mint that client a
+token and point the CLI at the host:
+
+```bash
+docker compose -f deploy/compose.yaml exec roomba-kit roomba-kit token create laptop
+roomba-kit --service-url http://<host>:8765 robots list   # with ROOMBA_KIT_API_TOKEN set
+```
+
+The image (`deploy/Dockerfile`) is `python:3.13-slim` with the locked dependencies, runs as the
+non-root user `roomba` (uid/gid 1000), and sets:
+
+| Variable | Value |
+|---|---|
+| `ROOMBA_KIT_CONFIG_DIR` | `/config` (volume) |
+| `ROOMBA_KIT_STATE_DIR` | `/state` (volume) |
+| `ROOMBA_KIT_SERVER__HOST` | `0.0.0.0` |
+
+Its `HEALTHCHECK` calls `GET /v1/health` with Python (slim has no curl), on whatever port
+`server.port` resolves to.
+
+**Host networking is required.** Discovery finds robots by UDP broadcast, which doesn't cross a
+bridge network, so compose uses `network_mode: host`. That also means `ports:` does nothing: the
+service binds the host's port 8765 (change it with `ROOMBA_KIT_SERVER__PORT`).
+
+**Docker Desktop (macOS, Windows) can't discover robots**: its "host" network belongs to a Linux
+VM, not your LAN. Give `setup` the robot's IP when discovery comes up empty (or run
+`roomba-kit robots add 192.0.2.10`). To reach the API from the host itself, turn on host
+networking in Docker Desktop's network settings.
+
+### Volumes and file permissions
+
+Compose uses named volumes (`config`, `state`), which Docker creates owned by `roomba`. To use
+bind mounts instead, the host directories must be writable by uid 1000 (or set `user:` in
+compose to your uid), and a mounted `credentials.toml` must be mode `0600` and owned by that
+uid. The service refuses to read a credentials file anyone else can read, and a 0600 file owned
+by a different uid is unreadable to it:
+
+```bash
+chmod 600 ./config/credentials.toml && sudo chown 1000:1000 ./config/credentials.toml
+```
+
+## Without Docker: `service install`
 
 Install the kit with a stable interpreter first, for example `uv tool install roomba-kit` (or a
 checkout's `uv run`). Don't use `uvx`: the installed unit points at the current Python, and
@@ -58,46 +109,6 @@ loginctl enable-linger "$USER"   # start at boot, without logging in
 
 On a host without systemd (some containers, WSL without systemd), `install` exits with
 `not_supported`; run `roomba-kit serve` under your own supervisor instead.
-
-## Container
-
-```bash
-docker compose -f deploy/compose.yaml up -d
-docker compose -f deploy/compose.yaml exec roomba-kit roomba-kit token create laptop
-roomba-kit --service-url http://<host>:8765 robots list   # with ROOMBA_KIT_API_TOKEN set
-```
-
-The image (`deploy/Dockerfile`) is `python:3.13-slim` with the locked dependencies, runs as the
-non-root user `roomba` (uid/gid 1000), and sets:
-
-| Variable | Value |
-|---|---|
-| `ROOMBA_KIT_CONFIG_DIR` | `/config` (volume) |
-| `ROOMBA_KIT_STATE_DIR` | `/state` (volume) |
-| `ROOMBA_KIT_SERVER__HOST` | `0.0.0.0` |
-
-Its `HEALTHCHECK` calls `GET /v1/health` with Python (slim has no curl), on whatever port
-`server.port` resolves to.
-
-**Host networking is required.** Discovery finds robots by UDP broadcast, which doesn't cross a
-bridge network, so compose uses `network_mode: host`. That also means `ports:` does nothing: the
-service binds the host's port 8765 (change it with `ROOMBA_KIT_SERVER__PORT`).
-
-**Docker Desktop on macOS can't discover robots**: its "host" network is a Linux VM's, not your
-Mac's LAN. Add robots by IP (`roomba-kit robots add 192.0.2.10`) instead, or on a Mac just use
-`service install`.
-
-### Volumes and file permissions
-
-Compose uses named volumes (`config`, `state`), which Docker creates owned by `roomba`. To use
-bind mounts instead, the host directories must be writable by uid 1000 (or set `user:` in
-compose to your uid), and a mounted `credentials.toml` must be mode `0600` and owned by that
-uid. The service refuses to read a credentials file anyone else can read, and a 0600 file owned
-by a different uid is unreadable to it:
-
-```bash
-chmod 600 ./config/credentials.toml && sudo chown 1000:1000 ./config/credentials.toml
-```
 
 ## Configuration from the environment
 
