@@ -8,10 +8,12 @@ Output is deterministic: sorted, no timestamps, fixed help width.
 
 import argparse
 import json
+import shlex
 import sys
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlencode
 
 import click
 from pydantic import TypeAdapter
@@ -19,6 +21,7 @@ from pydantic import TypeAdapter
 from roomba_kit.cli.main import cli
 from roomba_kit.core import registry
 from roomba_kit.core.capabilities import Capability
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import CLI_EXIT, HTTP_STATUS, ErrorCode
 from roomba_kit.core.events import EVENT_DATA, Event
 from roomba_kit.profiles.loader import load_profiles
@@ -115,9 +118,112 @@ def usage(ctx: click.Context) -> str:
     return " ".join([ctx.command_path, *ctx.command.collect_usage_pieces(ctx)])
 
 
+SERVICE_URL = "http://127.0.0.1:8765"
+EXAMPLE_VALUES: dict[str, Any] = {
+    "robot": "Vacuum",
+    "address": "192.0.2.10",
+    "rooms": ["Kitchen"],
+    "room_id": "7",
+    "name": "Kitchen",
+    "mission_id": "MISSION_ID",
+    "setting": "passes",
+    "value": "two",
+    "since": 42,
+    "username": "you@example.com",
+    "password": "YOUR_PASSWORD",
+}
+"""Placeholder values for required params, by name. Optional params are left out."""
+EXAMPLE_OVERRIDES: dict[tuple[str, str], Any] = {
+    ("token_create", "name"): "my-script",
+    ("token_revoke", "name"): "my-script",
+}
+
+
+def example_params(op: registry.Operation) -> dict[str, Any]:
+    """Placeholder values for the op's required params (a new required param must be added)."""
+    params: dict[str, Any] = {}
+    for name, field in op.params.model_fields.items():
+        if field.is_required():
+            if (op.name, name) not in EXAMPLE_OVERRIDES and name not in EXAMPLE_VALUES:
+                raise KeyError(f"{op.name}: add an example value for required param {name!r}")
+            params[name] = EXAMPLE_OVERRIDES.get((op.name, name), EXAMPLE_VALUES.get(name))
+    return params
+
+
+def cli_argv(op: registry.Operation) -> list[str]:
+    """The generated command line for the example params; secrets are prompted, never args."""
+    assert op.cli is not None  # noqa: S101 - callers check the surface
+    params = example_params(op)
+    argv = ["roomba-kit", *op.cli.group, op.cli.name]
+    for name in op.cli.args:
+        if name in params:
+            value = params[name]
+            argv += [str(v) for v in value] if isinstance(value, list) else [str(value)]
+    for name, value in params.items():
+        if name in op.cli.args or name in op.cli.secret:
+            continue
+        flag = "--" + name.replace("_", "-")
+        if isinstance(value, bool):
+            argv.append(flag if value else f"--no-{flag[2:]}")
+        else:
+            for v in value if isinstance(value, list) else [value]:
+                argv += [flag, str(v)]
+    return argv
+
+
+def curl_line(op: registry.Operation) -> str:
+    assert op.http is not None  # noqa: S101 - callers check the surface
+    req = registry.http_request(op, example_params(op))
+    url = SERVICE_URL + API_PREFIX + req.path
+    if req.query:
+        url += "?" + urlencode(req.query, doseq=True)
+    parts = ["curl", "-s"]
+    if req.method != "GET":
+        parts += ["-X", req.method]
+    if op.http.auth:
+        parts += ["-H", '"Authorization: Bearer $TOKEN"']
+    if req.body is not None:
+        parts += ["-H", '"Content-Type: application/json"', "-d", shlex.quote(json.dumps(req.body))]
+    return " ".join([*parts, shlex.quote(url)])
+
+
+def mcp_call(op: registry.Operation) -> str:
+    """A JSON-RPC `tools/call` request for the example params."""
+    call = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "tools/call",
+        "params": {"name": op.name, "arguments": example_params(op)},
+    }
+    return json.dumps(call)
+
+
+def examples(op: registry.Operation) -> list[str]:
+    out = ["**Examples**", ""]
+    if "cli" in op.surfaces and op.cli:
+        line = shlex.join(cli_argv(op))
+        prompted = ", ".join(op.cli.secret)
+        out += ["```bash", line + (f"  # prompts for {prompted}" if prompted else ""), "```", ""]
+    if "http" in op.surfaces and op.http:
+        out += ["```bash", curl_line(op), "```", ""]
+    if "mcp" in op.surfaces:
+        out += ["```json", mcp_call(op), "```", ""]
+    return out
+
+
 def operations_md() -> str:
     tree = contexts()
-    out = ["# Operations", "", "Every capability, as it appears on HTTP, MCP and the CLI.", ""]
+    out = [
+        "# Operations",
+        "",
+        "Every capability, as it appears on HTTP, MCP and the CLI.",
+        "",
+        "Examples use placeholder values for the required parameters (the robot `Vacuum`, the",
+        "room `Kitchen`, `MISSION_ID` from `missions list`): replace them with yours. `$TOKEN` is",
+        "an API token (`roomba-kit token create NAME`); the MCP example is the JSON-RPC request an",
+        "MCP client sends to `/mcp` or `roomba-kit mcp`.",
+        "",
+    ]
     for op in registry.all():
         out += [f"## `{op.name}`", ""]
         out += [p for p in describe(op).split("\n\n") if not p.startswith("Parameters:")]
@@ -125,7 +231,7 @@ def operations_md() -> str:
         http = op.http
         if "http" in op.surfaces and http:
             note = "" if http.auth else " (no auth)"
-            out.append(f"| HTTP | `{http.method} /v1{http.path}`{note} |")
+            out.append(f"| HTTP | `{http.method} {API_PREFIX}{http.path}`{note} |")
         else:
             out.append("| HTTP | not on HTTP |")
         out.append(
@@ -137,8 +243,8 @@ def operations_md() -> str:
             out.append(f"| CLI | `{cell(usage(cli_ctx))}`{only} |")
         else:
             out.append("| CLI | not on the CLI |")
+        out += ["", *examples(op)]
         out += [
-            "",
             "**Parameters**",
             "",
             *fields_table(op.params.model_json_schema(), defaults=True),
