@@ -19,18 +19,6 @@ vacuums and Braava mops that speak iRobot's **local MQTT protocol**. One small s
 your robots over your own network and gives you a CLI, an HTTP API and an MCP server, all with
 the same commands.
 
-```console
-$ roomba-kit clean Vacuum
-robot_id   00000000000000000000000000000001
-command    clean
-outcome    confirmed
-state      {"activity":"cleaning","mission":{…}}
-waited_ms  2140
-```
-
-`confirmed` means the kit **saw the robot start cleaning**. It isn't just reporting that the
-command was sent.
-
 ## Why
 
 The robots are great hardware. The app has a few problems: schedules quietly stop firing, the
