@@ -115,7 +115,7 @@ account. To turn the cloud off entirely, set `[cloud] enabled = false` in `confi
 |---|---|
 | `<config>/config.toml` | Robots (ID, name, address, model), server, discovery and cloud settings. No secrets. |
 | `<config>/credentials.toml` | Robot passwords, the account login and hashed API tokens. Owner-only (mode 0600). The service refuses to start if anyone else can read it. |
-| `<state>/cli.token` | This machine's `cli` API token, created by setup |
+| `<config>/cli.token` | This machine's `cli` API token, created by setup. Owner-only (0600), with the same refusal as `credentials.toml`. (Older builds kept it in `<state>`: it's copied here on first use, and the old copy is deleted the next time the `cli` token is created or revoked.) |
 
 By default, `<config>` is `~/.config/roomba-kit` and `<state>` is `~/.local/state/roomba-kit`.
 `roomba-kit config show` prints the effective configuration, with every secret shown as `"***"`.

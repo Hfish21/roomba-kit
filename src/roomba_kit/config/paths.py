@@ -2,6 +2,7 @@
 
 import os
 import secrets
+import stat
 from pathlib import Path
 
 APP = "roomba-kit"
@@ -37,6 +38,26 @@ def state_db() -> Path:
 
 
 def cli_token_file() -> Path:
+    """`<config>/cli.token`, next to `credentials.toml`, so credentials live in one place (FR-009).
+
+    A token at the old location (`legacy_cli_token_file()`) is copied here, keeping its mode,
+    the first time the path is looked up and no token exists here yet. The old file is left in
+    place so an older CLI or service on the same machine keeps working; `TokenStore` removes it
+    when the `cli` token is next created or revoked.
+    """
+    path = config_dir() / "cli.token"
+    legacy = legacy_cli_token_file()
+    if legacy != path and not path.exists():
+        try:
+            text, mode = legacy.read_text(encoding="utf-8"), stat.S_IMODE(legacy.stat().st_mode)
+        except FileNotFoundError:
+            return path
+        atomic_write(path, text, mode)
+    return path
+
+
+def legacy_cli_token_file() -> Path:
+    """Where builds before FR-009's fix kept the `cli` token: `<state>/cli.token`."""
     return state_dir() / "cli.token"
 
 

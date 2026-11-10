@@ -63,7 +63,7 @@ Negative checks:
 ```bash
 uv run pytest tests/contract                   # parity: every registry op on H/M/C, same schemas
 curl -s localhost:8765/v1/robots               # → 401 unauthorized
-curl -s -H "Authorization: Bearer $(cat ~/.local/state/roomba-kit/cli.token)" \
+curl -s -H "Authorization: Bearer $(cat ~/.config/roomba-kit/cli.token)" \
      localhost:8765/v1/robots/<vacuum>/state   # same JSON as: roomba-kit state <vacuum> --json
 ```
 

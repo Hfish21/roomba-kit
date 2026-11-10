@@ -76,6 +76,11 @@ class TokenStore:
     ) -> None:
         self._credentials = credentials
         self._cli_token_path = cli_token_path or paths.cli_token_file()
+        legacy = paths.legacy_cli_token_file()
+        self._legacy_path = (
+            legacy if cli_token_path is None and legacy != self._cli_token_path else None
+        )
+        """The pre-FR-009 copy, dropped once the `cli` token changes (it would be stale)."""
         self._persist_every = timedelta(seconds=persist_every_s)
         self._clock = clock
         self._pending: dict[str, datetime] = {}
@@ -100,6 +105,7 @@ class TokenStore:
             )
         if name == CLI_TOKEN_NAME:
             paths.atomic_write(self._cli_token_path, token + "\n", mode=0o600)
+            self._drop_legacy()
         self._issued.append(token)
         return token
 
@@ -161,7 +167,12 @@ class TokenStore:
         self._pending.pop(name, None)
         if name == CLI_TOKEN_NAME:
             self._cli_token_path.unlink(missing_ok=True)
+            self._drop_legacy()
         return found
+
+    def _drop_legacy(self) -> None:
+        if self._legacy_path is not None:
+            self._legacy_path.unlink(missing_ok=True)
 
     def check(self) -> None:
         """Raise unless `cli.token` (when present) is 0600 and any `ROOMBA_KIT_API_TOKEN` is

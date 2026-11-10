@@ -40,7 +40,7 @@ def test_paths_use_overrides(tmp_kit_home: Path) -> None:
     assert paths.config_dir() == tmp_kit_home / "config"
     assert paths.state_dir() == tmp_kit_home / "state"
     assert paths.credentials_file() == tmp_kit_home / "config" / "credentials.toml"
-    assert paths.cli_token_file() == tmp_kit_home / "state" / "cli.token"
+    assert paths.cli_token_file() == tmp_kit_home / "config" / "cli.token"
     assert paths.state_db().name == "state.db"
 
 
@@ -261,6 +261,52 @@ def test_cli_token_file_is_0600(tmp_kit_home: Path, monkeypatch: pytest.MonkeyPa
     assert tokens.create("cli", replace=True) != plain
     assert tokens.verify(plain) is None
     assert tokens.revoke("cli") and not paths.cli_token_file().exists()
+
+
+def test_tests_never_see_the_real_kit_home() -> None:
+    """conftest's autouse sandbox: no fixture requested, still not the user's dirs."""
+    for d in (paths.config_dir(), paths.state_dir(), paths.cli_token_file().parent):
+        assert not d.is_relative_to(Path.home()), d
+
+
+def test_cli_token_is_copied_from_the_state_dir_once(tmp_kit_home: Path) -> None:
+    """FR-009: the token lives with credentials.toml. One at the old `<state>/cli.token` is
+    copied, and the old file is kept so an older CLI on the same machine still works."""
+    old = tmp_kit_home / "state" / "cli.token"
+    old.write_text("rk_old-location\n")
+    os.chmod(old, 0o600)
+    new = paths.cli_token_file()
+    assert new == paths.config_dir() / "cli.token"
+    assert new.read_text() == "rk_old-location\n" and mode(new) == 0o600
+    assert old.read_text() == "rk_old-location\n"
+    assert read_cli_token() == "rk_old-location"
+
+    old.write_text("rk_stale\n")  # a token at the new location is never overwritten
+    assert paths.cli_token_file().read_text() == "rk_old-location\n"
+
+
+def test_a_broad_legacy_token_keeps_its_mode_and_is_refused(tmp_kit_home: Path) -> None:
+    old = tmp_kit_home / "state" / "cli.token"
+    old.write_text("rk_old-location\n")
+    os.chmod(old, 0o644)
+    assert mode(paths.cli_token_file()) == 0o644
+    with pytest.raises(KitError) as err:
+        read_cli_token()
+    assert f"chmod 600 {paths.cli_token_file()}" in err.value.message
+
+
+@pytest.mark.parametrize("change", ["create", "revoke"])
+def test_changing_the_cli_token_drops_the_legacy_copy(tmp_kit_home: Path, change: str) -> None:
+    tokens = TokenStore(CredentialStore())
+    tokens.create("cli")
+    old = paths.legacy_cli_token_file()
+    old.write_text("rk_stale\n")
+    os.chmod(old, 0o600)
+    if change == "create":
+        tokens.create("cli", replace=True)
+    else:
+        tokens.revoke("cli")
+    assert not old.exists()
 
 
 def test_broad_cli_token_is_refused(tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
