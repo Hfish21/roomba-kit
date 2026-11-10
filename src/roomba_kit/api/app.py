@@ -15,7 +15,6 @@ from starlette.types import ASGIApp, Receive, Scope, Send
 
 import roomba_kit.api
 from roomba_kit.api.generate import (
-    API_PREFIX,
     Presenter,
     authenticate,
     error_response,
@@ -24,6 +23,7 @@ from roomba_kit.api.generate import (
 )
 from roomba_kit.api.generate import add_routes as _add_routes
 from roomba_kit.core import registry
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.mcp.server import build_mcp, in_process
 from roomba_kit.service.app import ServiceContext

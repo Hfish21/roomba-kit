@@ -18,6 +18,7 @@ from roomba_kit.cli.client import NOT_RUNNING, CliState, cli_token, fail
 from roomba_kit.cli.generate import help_text
 from roomba_kit.cli.output import NO_TOKEN_HINT, emit_response, render
 from roomba_kit.core import registry
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.registry import Operation
 
@@ -89,7 +90,7 @@ def _stream(state: CliState, robot: str, last_id: str | None) -> str | None:
     if last_id is not None:
         headers["Last-Event-ID"] = last_id
     params = {"types": "position", "robot": robot}
-    base = state.url().rstrip("/") + "/v1"
+    base = state.url().rstrip("/") + API_PREFIX
     timeout = httpx.Timeout(5.0, read=None)
     try:
         with (

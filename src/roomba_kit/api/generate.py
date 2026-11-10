@@ -18,6 +18,7 @@ from pydantic import BaseModel, TypeAdapter
 from pydantic.json_schema import JsonSchemaMode
 
 from roomba_kit.core import registry
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import HTTP_STATUS, ErrorCode, KitError
 from roomba_kit.core.models import CommandResult
 from roomba_kit.core.registry import Http, Operation
@@ -26,7 +27,6 @@ from roomba_kit.service.describe import describe
 
 log = logging.getLogger(__name__)
 
-API_PREFIX = "/v1"
 BEARER = "bearer"
 INTERNAL_MESSAGE = "Unexpected failure; see the service log."
 
