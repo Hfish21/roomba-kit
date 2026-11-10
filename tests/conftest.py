@@ -32,6 +32,26 @@ def robot_ref(request: pytest.FixtureRequest) -> str:
     return str(ref)
 
 
+@pytest.fixture(autouse=True)
+def _never_the_real_kit_home(
+    request: pytest.FixtureRequest,
+    tmp_path_factory: pytest.TempPathFactory,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No test may read or write the real `~/.config/roomba-kit` or `~/.local/state/roomba-kit`.
+
+    Tests that don't ask for `tmp_kit_home` still get a throwaway home (a path lookup can write:
+    `cli_token_file()` copies a legacy token). Only `hardware` tests see the real dirs.
+    """
+    if "hardware" in request.keywords:
+        return
+    home = tmp_path_factory.mktemp("kit-home")
+    monkeypatch.setenv("ROOMBA_KIT_CONFIG_DIR", str(home / "config"))
+    monkeypatch.setenv("ROOMBA_KIT_STATE_DIR", str(home / "state"))
+    for var in ("XDG_CONFIG_HOME", "XDG_STATE_HOME"):
+        monkeypatch.setenv(var, str(home / var.lower()))
+
+
 @pytest.fixture
 def tmp_kit_home(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Iterator[Path]:
     """Point the kit's config and state dirs at fresh temp dirs."""
