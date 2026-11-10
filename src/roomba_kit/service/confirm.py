@@ -51,13 +51,48 @@ def _find_echoed(v: ConfirmView) -> bool:
     return now.at > prior.at
 
 
+def _fresh_echo(v: ConfirmView, names: frozenset[str]) -> bool:
+    """The robot echoed one of `names` after `before` (HW-1: real robots echo every command)."""
+    now = v.now.last_command
+    if now is None or now.command not in names:
+        return False
+    prior = v.before.last_command if v.before else None
+    if prior is None or prior.command not in names:
+        return True
+    return now.at is not None and prior.at is not None and now.at > prior.at
+
+
+def _mission_changed(v: ConfirmView) -> bool:
+    before = v.before.mission if v.before else None
+    now = v.now.mission
+    return now is not None and (before is None or now.id != before.id)
+
+
+def _started(activity: Activity, *echoes: str) -> Callable[[ConfirmView], bool]:
+    """`activity` reached; if the robot was already in it, only with a fresh effect (FR-029).
+
+    Without that, `clean` sent to a cleaning robot that ignored it would confirm at 0 ms.
+    """
+    names = frozenset(echoes)
+
+    def predicate(v: ConfirmView) -> bool:
+        if v.now.activity is not activity:
+            return False
+        if v.before is None or v.before.activity is not activity:
+            return True
+        return _fresh_echo(v, names) or _mission_changed(v)
+
+    return predicate
+
+
 def _reconnected(v: ConfirmView) -> bool:
     return v.reconnected_since_send
 
 
 DEFAULT_SPECS: dict[str, CommandSpec] = {
-    "clean": CommandSpec(_activity_is(Activity.CLEANING), 20),
-    "clean_rooms": CommandSpec(_activity_is(Activity.CLEANING), 20),
+    # Both are `start` on the wire; an echo normalizes to either, depending on its regions.
+    "clean": CommandSpec(_started(Activity.CLEANING, "clean", "clean_rooms"), 20),
+    "clean_rooms": CommandSpec(_started(Activity.CLEANING, "clean", "clean_rooms"), 20),
     "pause": CommandSpec(_activity_is(Activity.PAUSED), 10),
     "resume": CommandSpec(_activity_is(Activity.CLEANING), 10),
     "stop": CommandSpec(_stopped, 10),
@@ -66,7 +101,7 @@ DEFAULT_SPECS: dict[str, CommandSpec] = {
     "find": CommandSpec(_find_echoed, 5),
     "evac": CommandSpec(_activity_is(Activity.EMPTYING_BIN), 15),
     "reboot": CommandSpec(_reconnected, 180),
-    "train": CommandSpec(_activity_is(Activity.MAPPING), 20),
+    "train": CommandSpec(_started(Activity.MAPPING, "train"), 20),
 }
 
 

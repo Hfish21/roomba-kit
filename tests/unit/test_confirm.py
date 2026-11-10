@@ -156,3 +156,49 @@ async def test_find_after_another_command_in_the_same_second():
     before = _state(Activity.CLEANING, last_command=_echo("resume", 1))
     src = FakeSource(before, [(0.5, _state(Activity.CLEANING, last_command=_echo("find", 1)))])
     assert (await _confirm(src, "find", before=before)).outcome == "confirmed"
+
+
+# FR-029: a command sent while the robot is already in its target activity confirms only on a
+# fresh effect (a new echo of that command, or a new mission), never on the end state alone.
+FRESH_EFFECT = [
+    ("clean", Activity.CLEANING, "clean"),
+    ("clean_rooms", Activity.CLEANING, "clean_rooms"),
+    ("train", Activity.MAPPING, "train"),
+]
+
+
+@pytest.mark.parametrize(("command", "activity", "echo"), FRESH_EFFECT)
+async def test_already_in_activity_and_ignored_is_unconfirmed(command, activity, echo):
+    before = _state(activity, mission=MISSION, last_command=_echo(echo, -600))
+    src = FakeSource(before, [(1.0, before)])
+    result = await _confirm(src, command, before=before)
+    assert result.outcome == "unconfirmed", result
+
+
+@pytest.mark.parametrize(("command", "activity", "echo"), FRESH_EFFECT)
+async def test_already_in_activity_confirms_on_fresh_echo(command, activity, echo):
+    before = _state(activity, mission=MISSION, last_command=_echo("pause", -600))
+    echoed = _state(activity, mission=MISSION, last_command=_echo(echo, 1))
+    src = FakeSource(before, [(0.7, echoed)])
+    result = await _confirm(src, command, before=before)
+    assert result.outcome == "confirmed" and result.waited_ms == 700
+
+
+async def test_clean_while_cleaning_needs_a_newer_echo_of_the_same_command():
+    before = _state(Activity.CLEANING, mission=MISSION, last_command=_echo("clean", -60))
+    again = _state(Activity.CLEANING, mission=MISSION, last_command=_echo("clean", 2))
+    src = FakeSource(before, [(2.0, again)])
+    assert (await _confirm(src, "clean", before=before)).outcome == "confirmed"
+
+
+async def test_already_in_activity_confirms_on_a_new_mission():
+    before = _state(Activity.CLEANING, mission=MISSION)
+    restarted = _state(Activity.CLEANING, mission=MissionRef(id="M2", initiator=Initiator.KIT))
+    src = FakeSource(before, [(3.0, restarted)])
+    assert (await _confirm(src, "clean", before=before)).outcome == "confirmed"
+
+
+async def test_echo_without_the_activity_is_not_enough():
+    before = _state(Activity.DOCKED)
+    src = FakeSource(before, [(1.0, _state(Activity.DOCKED, last_command=_echo("clean", 1)))])
+    assert (await _confirm(src, "clean", before=before)).outcome == "unconfirmed"
