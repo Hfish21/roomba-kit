@@ -24,7 +24,7 @@ from roomba_kit.core import registry
 from roomba_kit.core.errors import CLI_EXIT, ErrorCode
 from roomba_kit.core.models import ADD_A_MODEL_GUIDE
 from roomba_kit.lifecycle import daemon
-from roomba_kit.service.operations.setup import PASSWORD_STEPS
+from roomba_kit.service.operations.setup import pairing_steps_for
 
 RETRIEVE_TIMEOUT_S = 60
 VPN_HINT = (
@@ -146,7 +146,7 @@ class Wizard:
     def pair(self, robot: dict[str, Any]) -> None:
         name = robot["name"]
         while True:
-            first, *rest = PASSWORD_STEPS
+            first, *rest = pairing_steps_for(robot.get("profile_id"))
             click.echo(f"\nPairing {name}. At the robot:\n  1. {first}")
             click.prompt("     Press Enter when it's there", default="", show_default=False)
             for i, step in enumerate(rest, 2):
@@ -356,6 +356,14 @@ def setup(ctx: click.Context, broadcast: str | None) -> None:
             raise SystemExit(CLI_EXIT[code]) from None
 
 
+def _profile_id(state: CliState, robot: str) -> str | None:
+    """The robot's profile ID, to print its pairing steps; None (default steps) if unknown."""
+    with state.client() as client:
+        response = client.call(registry.get("get_robot"), {"robot": robot})
+    body = response.json() if response.is_success else None
+    return body.get("profile_id") if isinstance(body, dict) else None
+
+
 @click.command("password")
 @click.argument("robot")
 @click.option("--manual", is_flag=True, help="Type the password instead of retrieving it.")
@@ -370,7 +378,8 @@ def robots_password(state: CliState, robot: str, manual: bool, timeout_s: float 
         params: dict[str, Any] = {"robot": robot, "password": read_secret("password")}
         run_op(state, registry.get("set_robot_password"), params)
         return
-    click.echo("\n".join(f"{i}. {step}" for i, step in enumerate(PASSWORD_STEPS, 1)), err=True)
+    steps = pairing_steps_for(_profile_id(state, robot))
+    click.echo("\n".join(f"{i}. {step}" for i, step in enumerate(steps, 1)), err=True)
     params = {"robot": robot} | ({"timeout_s": timeout_s} if timeout_s else {})
     run_op(state, registry.get("retrieve_password"), params)
 

@@ -18,6 +18,8 @@ from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import Event, EventType
 from roomba_kit.core.models import ConnectionState, DiscoveredRobot, KitModel
 from roomba_kit.core.registry import Cli, Http, operation
+from roomba_kit.profiles.base import DEFAULT_PAIRING_STEPS, ModelProfile
+from roomba_kit.profiles.loader import get_profile
 from roomba_kit.service.app import ServiceContext
 from roomba_kit.service.session import RobotSession
 
@@ -30,11 +32,6 @@ RETRY_S = 2.0
 """Pause between local password retrieval attempts."""
 ATTEMPT_S = 10.0
 """The longest one retrieval attempt may wait for the robot."""
-PASSWORD_STEPS = [
-    "Place the robot on its dock",
-    "Press and hold HOME for about 2 seconds until it chimes",
-    "Release — retrieving…",
-]
 
 _locks: dict[str, asyncio.Lock] = {}
 
@@ -246,6 +243,16 @@ async def add_robot(ctx: ServiceContext, params: Address) -> DiscoveredRobot:
     return found.model_copy(update={"configured": True})
 
 
+def pairing_steps(profile: ModelProfile | None) -> list[str]:
+    """The profile's pairing steps; the shared default for an unsupported model."""
+    return list(profile.pairing_steps if profile else DEFAULT_PAIRING_STEPS)
+
+
+def pairing_steps_for(profile_id: str | None) -> list[str]:
+    """`pairing_steps` by profile ID, for clients that only have the robot's `profile_id`."""
+    return pairing_steps(get_profile(profile_id) if profile_id else None)
+
+
 class RetrieveParams(BaseModel):
     robot: str = Field(description="Robot ID or unambiguous name")
     timeout_s: float = Field(
@@ -275,6 +282,7 @@ async def retrieve_password(ctx: ServiceContext, params: RetrieveParams) -> Pass
     if not session.address:
         code, message = _UNREACHABLE[ConnectionState.NOT_CONFIGURED]
         raise KitError(code, message, session.robot_id)
+    steps = pairing_steps(session.profile)
     loop = asyncio.get_running_loop()
     deadline = loop.time() + params.timeout_s
     refused = False
@@ -296,10 +304,10 @@ async def retrieve_password(ctx: ServiceContext, params: RetrieveParams) -> Pass
                 "The robot released a password but then rejected it; nothing was saved. Retry.",
                 session.robot_id,
             )
-        return PasswordRetrieval(outcome="stored", steps=PASSWORD_STEPS)
+        return PasswordRetrieval(outcome="stored", steps=steps)
     if refused:
-        return PasswordRetrieval(outcome="cloud_only", steps=PASSWORD_STEPS)
-    return PasswordRetrieval(outcome="timeout", steps=PASSWORD_STEPS)
+        return PasswordRetrieval(outcome="cloud_only", steps=steps)
+    return PasswordRetrieval(outcome="timeout", steps=steps)
 
 
 class RobotRef(BaseModel):

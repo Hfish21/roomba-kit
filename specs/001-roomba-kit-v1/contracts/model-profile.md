@@ -17,6 +17,7 @@ way. V1 ships `roomba_i5` and `braava_m6` (FR-025).
 | `protocol_commands` | Kit command → firmware command where they differ (defaults: `clean`/`clean_rooms` → `start`, `reboot` → `reset`) |
 | `dock_needs_pause` | The firmware ignores `dock` while cleaning, so the kit pauses first (true for both V1 models) |
 | `error_texts`, `not_ready_texts` | Readable text for codes, overriding shared defaults |
+| `pairing_steps` | Optional. What to do at the robot during local password retrieval (FR-003): returned by `retrieve_password` and printed by `setup` and `robots password`. The first step is done before retrieval starts. Defaults to `DEFAULT_PAIRING_STEPS` in `profiles/base.py` (dock it, hold HOME ~2 s until it chimes, release), which unsupported models also get |
 
 A **SettingMapping** has these fields:
 
