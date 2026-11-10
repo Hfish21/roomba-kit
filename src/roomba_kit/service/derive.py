@@ -18,6 +18,9 @@ Mission rules (research R8, captures in tests/fixtures/captures):
   last activity stuck → `stuck`; an error code at the end → `failed`; ended off the dock →
   `cancelled`; else `completed`. These are inferred from local state; the cloud's `done` field
   isn't available locally.
+- A different non-empty robot mission ID during a started mission means the robot moved on while
+  the kit wasn't watching (e.g. a link outage): the old mission finishes as `unknown` and the new
+  one opens under the usual start rule. An empty ID mid-cycle is not a change (decision #11).
 - After a restart, `restore` re-attaches: history hands back each robot's recent missions, and an
   `in_progress` one continues (no second `mission.started`) once the robot is seen running under
   that robot mission ID. If the robot has moved on, the stale record finishes as `unknown`.
@@ -214,6 +217,14 @@ class Deriver:
             return self._finish(r, track, before, after)
         if r.track is None:
             r.track = _Track(opened_at=after.at, robot_ref=ref.id)
+        elif r.track.mission is not None and ref.id and ref.id != r.track.robot_ref:
+            if r.track.robot_ref:
+                # The robot is in another mission: the tracked one ended while nobody watched
+                # (e.g. the link was down). An empty ID mid-cycle isn't a change (decision #11).
+                self._supersede(r, r.track, out)
+                r.track = _Track(opened_at=after.at, robot_ref=ref.id)
+            else:
+                r.track.robot_ref = ref.id  # started before the robot reported its ID
         track = r.track
         if after.error and after.error not in track.errors:
             track.errors.append(after.error)
@@ -245,6 +256,14 @@ class Deriver:
     def _abandon(self, r: _Robot, out: list[tuple[EventType, BaseModel]]) -> None:
         """The robot isn't in the restored mission any more: it ended while nobody watched."""
         mission, r.resume = r.resume, None
+        assert mission is not None  # noqa: S101 - caller checked
+        mission.outcome = MissionOutcome.UNKNOWN
+        r.recent.append(mission)
+        out.append((EventType.MISSION_FINISHED, MissionEventData(mission=mission.model_copy())))
+
+    def _supersede(self, r: _Robot, track: _Track, out: list[tuple[EventType, BaseModel]]) -> None:
+        """Finish a tracked mission the robot has left for another one, like `_abandon`."""
+        mission = track.mission
         assert mission is not None  # noqa: S101 - caller checked
         mission.outcome = MissionOutcome.UNKNOWN
         r.recent.append(mission)
