@@ -34,7 +34,7 @@
 | `cloud.rooms` | ✅ | ✅ |
 | `cloud.history` | ✅ | ✅ |
 | `cloud.coverage` | ✅ | ✅ |
-| `cloud.timeline` | ⚪ | ✅ |
+| `cloud.timeline` | ✅ | ✅ |
 
 ## Profiles
 
@@ -84,4 +84,5 @@
 - `roomba_i5` `cloud.history`: docs/verification/roomba_i5.md#run-20261109-141750
 - `braava_m6` `cloud.coverage`: docs/verification/braava_m6.md#hw1-cloud-coverage
 - `roomba_i5` `cloud.coverage`: docs/verification/roomba_i5.md#hw1-cloud-coverage
+- `braava_m6` `cloud.timeline`: docs/verification/braava_m6.md#hw2-kitchen-room-clean
 - `roomba_i5` `cloud.timeline`: docs/verification/roomba_i5.md#hw1-laundry-room-clean
