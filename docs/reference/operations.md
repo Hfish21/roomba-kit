@@ -4,6 +4,11 @@
 
 Every capability, as it appears on HTTP, MCP and the CLI.
 
+Examples use placeholder values for the required parameters (the robot `Vacuum`, the
+room `Kitchen`, `MISSION_ID` from `missions list`): replace them with yours. `$TOKEN` is
+an API token (`roomba-kit token create NAME`); the MCP example is the JSON-RPC request an
+MCP client sends to `/mcp` or `roomba-kit mcp`.
+
 ## `add_robot`
 
 Add the robot at an IP address, for when discovery can't reach it. The robot must answer there. Next, give it a password with `retrieve_password`.
@@ -13,6 +18,20 @@ Add the robot at an IP address, for when discovery can't reach it. The robot mus
 | HTTP | `POST /v1/robots` |
 | MCP | tool `add_robot` |
 | CLI | `roomba-kit robots add [OPTIONS] ADDRESS` |
+
+**Examples**
+
+```bash
+roomba-kit robots add 192.0.2.10
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"address": "192.0.2.10"}' http://127.0.0.1:8765/v1/robots
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "add_robot", "arguments": {"address": "192.0.2.10"}}}
+```
 
 **Parameters**
 
@@ -49,6 +68,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `clean` |
 | CLI | `roomba-kit clean [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit clean Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/clean
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "clean", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -79,6 +112,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | HTTP | `POST /v1/robots/{robot}/commands/clean_rooms` |
 | MCP | tool `clean_rooms` |
 | CLI | `roomba-kit rooms clean [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit rooms clean Vacuum --rooms Kitchen
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"rooms": ["Kitchen"]}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/clean_rooms
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "clean_rooms", "arguments": {"robot": "Vacuum", "rooms": ["Kitchen"]}}}
+```
 
 **Parameters**
 
@@ -112,6 +159,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | HTTP | `GET /v1/robots/{robot}/cloud-history` |
 | MCP | tool `cloud_history` |
 | CLI | `roomba-kit cloud history [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit cloud history Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/cloud-history
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "cloud_history", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 
@@ -150,6 +211,16 @@ Add or change the iRobot account login. It's checked by logging in and saved onl
 | MCP | not on MCP |
 | CLI | `roomba-kit cloud login [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit cloud login --username you@example.com  # prompts for password
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"username": "you@example.com", "password": "YOUR_PASSWORD"}' http://127.0.0.1:8765/v1/cloud_login
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -177,6 +248,20 @@ Remove the stored iRobot account login and disconnect from the cloud. Credential
 | MCP | tool `cloud_logout` |
 | CLI | `roomba-kit cloud logout [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit cloud logout
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/cloud_logout
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "cloud_logout", "arguments": {}}}
+```
+
 **Parameters**
 
 _No fields._
@@ -200,6 +285,20 @@ Fetch a robot's local password from the iRobot account, check it by connecting, 
 | HTTP | `POST /v1/robots/{robot}/password/cloud` |
 | MCP | tool `cloud_retrieve_password` |
 | CLI | `roomba-kit cloud password [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit cloud password Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/password/cloud
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "cloud_retrieve_password", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 
@@ -226,6 +325,20 @@ The cloud subsystem's status: `connected`, `unavailable` (with a reason) or `not
 | MCP | tool `cloud_status` |
 | CLI | `roomba-kit cloud status [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit cloud status
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/cloud_status
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "cloud_status", "arguments": {}}}
+```
+
 **Parameters**
 
 _No fields._
@@ -249,6 +362,20 @@ The effective configuration (files plus environment overrides), with every secre
 | HTTP | `GET /v1/config_show` |
 | MCP | tool `config_show` |
 | CLI | `roomba-kit config show [OPTIONS]` |
+
+**Examples**
+
+```bash
+roomba-kit config show
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/config_show
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "config_show", "arguments": {}}}
+```
 
 **Parameters**
 
@@ -278,6 +405,20 @@ Find iRobot robots on the local network: ID, name, SKU, firmware, address, wheth
 | HTTP | `GET /v1/discover_robots` |
 | MCP | tool `discover_robots` |
 | CLI | `roomba-kit discover [OPTIONS]` |
+
+**Examples**
+
+```bash
+roomba-kit discover
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/discover_robots
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "discover_robots", "arguments": {}}}
+```
 
 **Parameters**
 
@@ -315,6 +456,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `dock` |
 | CLI | `roomba-kit dock [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit dock Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/dock
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "dock", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -346,6 +501,20 @@ Verification: roomba_i5: verified
 | MCP | tool `evac` |
 | CLI | `roomba-kit evac [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit evac Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/evac
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "evac", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -374,6 +543,20 @@ List recorded events, oldest first, after `since`. Over HTTP, send `Accept: text
 | MCP | tool `events_list` |
 | CLI | `roomba-kit events list [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit events list
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/events
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "events_list", "arguments": {}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -401,6 +584,20 @@ Wait for events after `since` and return them as soon as any arrive, or an empty
 | HTTP | `GET /v1/events/wait` |
 | MCP | tool `events_wait` |
 | CLI | `roomba-kit events wait [OPTIONS]` |
+
+**Examples**
+
+```bash
+roomba-kit events wait --since 42
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" 'http://127.0.0.1:8765/v1/events/wait?since=42'
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "events_wait", "arguments": {"since": 42}}}
+```
 
 **Parameters**
 
@@ -432,6 +629,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `find` |
 | CLI | `roomba-kit find [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit find Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/find
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "find", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -460,6 +671,20 @@ What the robot's model supports, each with `verified` (exercised on real hardwar
 | MCP | tool `get_capabilities` |
 | CLI | `roomba-kit capabilities [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit capabilities Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/capabilities
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_capabilities", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -486,6 +711,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | HTTP | `GET /v1/robots/{robot}/missions/{mission_id}/coverage` |
 | MCP | tool `get_coverage` |
 | CLI | `roomba-kit coverage [OPTIONS] ROBOT MISSION_ID` |
+
+**Examples**
+
+```bash
+roomba-kit coverage Vacuum MISSION_ID
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/missions/MISSION_ID/coverage
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_coverage", "arguments": {"robot": "Vacuum", "mission_id": "MISSION_ID"}}}
+```
 
 **Parameters**
 
@@ -522,6 +761,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `get_floor_plan` |
 | CLI | `roomba-kit floor-plan [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit floor-plan Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/floor-plan
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_floor_plan", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -547,6 +800,20 @@ Get one mission from local history by its ID, with its activity transitions (cle
 | HTTP | `GET /v1/missions/{mission_id}` |
 | MCP | tool `get_mission` |
 | CLI | `roomba-kit missions show [OPTIONS] MISSION_ID` |
+
+**Examples**
+
+```bash
+roomba-kit missions show MISSION_ID
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/missions/MISSION_ID
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_mission", "arguments": {"mission_id": "MISSION_ID"}}}
+```
 
 **Parameters**
 
@@ -584,6 +851,20 @@ Verification: braava_m6: verified
 | MCP | tool `get_position` |
 | CLI | `roomba-kit position [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit position Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/position
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_position", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -604,6 +885,20 @@ One robot's details: ID, name, model, SKU, firmware, address, connection state a
 | HTTP | `GET /v1/robots/{robot}` |
 | MCP | tool `get_robot` |
 | CLI | `roomba-kit robots show [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit robots show Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_robot", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 
@@ -648,6 +943,20 @@ Settings, the models that support each, and verification:
 | MCP | tool `get_settings` |
 | CLI | `roomba-kit settings show [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit settings show Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/settings
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_settings", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -668,6 +977,20 @@ Get a robot's full live state: battery, activity, current mission, last command,
 | HTTP | `GET /v1/robots/{robot}/state` |
 | MCP | tool `get_state` |
 | CLI | `roomba-kit state [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit state Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/state
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "get_state", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 
@@ -710,6 +1033,20 @@ Whether the service is up, and its version. Needs no API token over HTTP.
 | MCP | tool `health` |
 | CLI | `roomba-kit health [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit health
+```
+
+```bash
+curl -s http://127.0.0.1:8765/v1/health
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "health", "arguments": {}}}
+```
+
 **Parameters**
 
 _No fields._
@@ -735,6 +1072,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `import_rooms` |
 | CLI | `roomba-kit rooms import [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit rooms import Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/rooms/import
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "import_rooms", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -759,6 +1110,20 @@ List the missions recorded in local history, newest first: robot, start and end,
 | HTTP | `GET /v1/missions` |
 | MCP | tool `list_missions` |
 | CLI | `roomba-kit missions list [OPTIONS]` |
+
+**Examples**
+
+```bash
+roomba-kit missions list
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/missions
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "list_missions", "arguments": {}}}
+```
 
 **Parameters**
 
@@ -797,6 +1162,20 @@ List every configured robot: ID, name, model, SKU, firmware, address, connection
 | MCP | tool `list_robots` |
 | CLI | `roomba-kit robots list [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit robots list
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "list_robots", "arguments": {}}}
+```
+
 **Parameters**
 
 _No fields._
@@ -828,6 +1207,20 @@ List the robot's rooms: imported from the cloud, named locally, or learned from 
 | MCP | tool `list_rooms` |
 | CLI | `roomba-kit rooms list [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit rooms list Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/rooms
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "list_rooms", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -855,6 +1248,20 @@ Wait until a robot's mission ends and return it with its outcome. Without `missi
 | MCP | tool `mission_wait` |
 | CLI | `roomba-kit missions wait [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit missions wait Vacuum
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum/missions/wait
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "mission_wait", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -877,6 +1284,20 @@ Give a room on the robot's current map a local name. Works without the cloud, fo
 | HTTP | `PUT /v1/robots/{robot}/rooms/{room_id}` |
 | MCP | tool `name_room` |
 | CLI | `roomba-kit rooms name [OPTIONS] ROBOT ROOM_ID NAME` |
+
+**Examples**
+
+```bash
+roomba-kit rooms name Vacuum 7 Kitchen
+```
+
+```bash
+curl -s -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"name": "Kitchen"}' http://127.0.0.1:8765/v1/robots/Vacuum/rooms/7
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "name_room", "arguments": {"robot": "Vacuum", "room_id": "7", "name": "Kitchen"}}}
+```
 
 **Parameters**
 
@@ -914,6 +1335,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `pause` |
 | CLI | `roomba-kit pause [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit pause Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/pause
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "pause", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -945,6 +1380,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `reboot` |
 | CLI | `roomba-kit reboot [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit reboot Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/reboot
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "reboot", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -973,6 +1422,20 @@ Remove a robot: stop its connection and delete its config and password. Other ro
 | MCP | tool `remove_robot` |
 | CLI | `roomba-kit robots remove [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit robots remove Vacuum
+```
+
+```bash
+curl -s -X DELETE -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/robots/Vacuum
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "remove_robot", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -999,6 +1462,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | HTTP | `POST /v1/robots/{robot}/commands/resume` |
 | MCP | tool `resume` |
 | CLI | `roomba-kit resume [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit resume Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/resume
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "resume", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 
@@ -1028,6 +1505,20 @@ Retrieve the robot's local password over the network while you hold HOME on the 
 | MCP | tool `retrieve_password` |
 | CLI | `roomba-kit robots password [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit robots password Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/password/retrieve
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "retrieve_password", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -1054,6 +1545,20 @@ The service's version and uptime, each robot's connection state, and the cloud s
 | MCP | tool `service_status` |
 | CLI | `roomba-kit service status [OPTIONS]` |
 
+**Examples**
+
+```bash
+roomba-kit service status
+```
+
+```bash
+curl -s -H "Authorization: Bearer $TOKEN" http://127.0.0.1:8765/v1/service_status
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "service_status", "arguments": {}}}
+```
+
 **Parameters**
 
 _No fields._
@@ -1078,6 +1583,16 @@ Store a robot's local password you already know, after checking that the robot a
 | HTTP | `POST /v1/robots/{robot}/password` |
 | MCP | not on MCP |
 | CLI | `roomba-kit robots set-password [OPTIONS] ROBOT` |
+
+**Examples**
+
+```bash
+roomba-kit robots set-password Vacuum  # prompts for password
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"password": "YOUR_PASSWORD"}' http://127.0.0.1:8765/v1/robots/Vacuum/password
+```
 
 **Parameters**
 
@@ -1114,6 +1629,20 @@ Settings, the models that support each, and verification:
 | MCP | tool `set_setting` |
 | CLI | `roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE` |
 
+**Examples**
+
+```bash
+roomba-kit settings set Vacuum passes two
+```
+
+```bash
+curl -s -X PUT -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{"value": "two"}' http://127.0.0.1:8765/v1/robots/Vacuum/settings/passes
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "set_setting", "arguments": {"robot": "Vacuum", "setting": "passes", "value": "two"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -1147,6 +1676,20 @@ Verification: braava_m6: verified, roomba_i5: verified
 | MCP | tool `stop` |
 | CLI | `roomba-kit stop [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit stop Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/stop
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "stop", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -1175,6 +1718,12 @@ Create an API token and show it once. The `cli` token is also saved for the CLI.
 | MCP | not on MCP |
 | CLI | `roomba-kit token create [OPTIONS] NAME` (CLI only) |
 
+**Examples**
+
+```bash
+roomba-kit token create my-script
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -1200,6 +1749,12 @@ List API tokens: name, created and last used. Token values are never shown.
 | MCP | not on MCP |
 | CLI | `roomba-kit token list [OPTIONS]` (CLI only) |
 
+**Examples**
+
+```bash
+roomba-kit token list
+```
+
 **Parameters**
 
 _No fields._
@@ -1223,6 +1778,12 @@ Revoke an API token. The service rejects it from its next request.
 | HTTP | not on HTTP |
 | MCP | not on MCP |
 | CLI | `roomba-kit token revoke [OPTIONS] NAME` (CLI only) |
+
+**Examples**
+
+```bash
+roomba-kit token revoke my-script
+```
 
 **Parameters**
 
@@ -1252,6 +1813,20 @@ Verification: braava_m6: unverified, roomba_i5: unverified
 | MCP | tool `train` |
 | CLI | `roomba-kit train [OPTIONS] ROBOT` |
 
+**Examples**
+
+```bash
+roomba-kit train Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/commands/train
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "train", "arguments": {"robot": "Vacuum"}}}
+```
+
 **Parameters**
 
 | Field | Type | Required | Default | Description |
@@ -1280,6 +1855,20 @@ Check capabilities against the real robot and record the run: settings are writt
 | HTTP | `POST /v1/robots/{robot}/verify` |
 | MCP | tool `verify` |
 | CLI | `roomba-kit verify [OPTIONS] ROBOT [CAPABILITIES]...` |
+
+**Examples**
+
+```bash
+roomba-kit verify Vacuum
+```
+
+```bash
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" -d '{}' http://127.0.0.1:8765/v1/robots/Vacuum/verify
+```
+
+```json
+{"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": "verify", "arguments": {"robot": "Vacuum"}}}
+```
 
 **Parameters**
 

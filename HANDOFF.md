@@ -1,12 +1,28 @@
 # Handoff: start here
 
-**State (2026-11-09):** V1 is implemented. All operations in `contracts/operations.md` are on
-`main` (a contract test pins the registry to it), across the HTTP API, MCP server and CLI, with
-~680 mocked-transport tests, contract snapshots and CI on Python 3.13/3.14. Hardware session 1
-(HW-1) ran on the real robots and drove ~15 fixes, each logged in
-`specs/001-roomba-kit-v1/decisions.md` (#63 onward) with a regression test. What remains:
-the rest of Phase 13 (verification docs, profile `Verification` updates), the official
-quickstart V1–V10 run (`checklists/quickstart-run.md`) and the `train` run (owner's OK only).
+**State (2026-11-10): V1 is complete and verified on both robots.** 108 of 110 tasks are done;
+all operations in `contracts/operations.md` are on `main` across HTTP, MCP and CLI (a contract
+test pins the registry to the spec), with ~735 mocked-transport tests, contract snapshots and
+green CI on Python 3.13/3.14. Two independent spec-compliance audits were run and every gap they
+found was fixed with a regression test.
+
+**Hardware (HW-1 2026-11-09, HW-2 2026-11-10):** every declared capability on both robots is
+`verified` with a cited run in `docs/verification/<profile>.md`, except `train` (owner's OK
+pending). `checklists/quickstart-run.md` records V1–V10 as observed. Hardware testing found ~20
+real-robot behaviours the kit now handles; each is in `decisions.md` (#63–#80) with a
+regression test, and summarised in the table below.
+
+**Remaining (no software changes needed):**
+
+| Item | Owner | Notes |
+|---|---|---|
+| Install on the home server (Linux) | owner | This is V9 and settles FR-015 (systemd + linger, or the container in `deploy/`). See `docs/deployment.md`. |
+| T104 `train` on both robots | owner | Only with the house clear; it can re-create the map and change room IDs (re-import rooms after). |
+| T110 owner checks | owner | V1 fresh-user walk-through of `docs/getting-started.md`; V4 ask a real MCP agent to clean a room. |
+
+Known operational notes: a sleeping laptop host stops the service; robots ignore `dock` while
+cleaning (the kit pauses first) and for up to ~70 s after `stop` (the kit retries); the m6 is
+slow to act mid-mop (90 s clean / 30 s pause-stop-dock windows).
 
 Run it: `uv run roomba-kit setup` (or `robots add` + `robots password`), then
 `uv run roomba-kit service start`. Reports from `roomba-kit verify … --write-report` land in
