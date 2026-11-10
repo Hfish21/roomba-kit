@@ -86,7 +86,7 @@ async def test_set_robot_password_is_verified_by_connecting(ctx, factory):
     assert ctx.session(I5).connection is ConnectionState.CONNECTED
     assert CredentialStore().robot_password(I5) == "first"
 
-    factory.get(I5).fail_next_connect(ErrorCode.AUTH_FAILED)
+    factory.get(I5).robot_password = "first"  # the robot rejects anything else
     rejected = await call(ctx, "set_robot_password", robot=I5, password="second")
     assert rejected == {"outcome": "auth_failed"}
     assert CredentialStore().robot_password(I5) == "first"

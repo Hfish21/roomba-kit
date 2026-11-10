@@ -135,6 +135,22 @@ async def test_scripted_connect_failures_then_success():
     assert fake.connected and fake.connect_calls == 3
 
 
+async def test_connect_checks_the_robots_password():
+    factory = FakeTransportFactory()
+    assert factory.get("r").robot_password is None
+    await factory("r", "192.0.2.10", "anything").connect()  # unconfigured: any password works
+    await factory.get("r").disconnect()
+
+    factory.get("r").robot_password = "right"
+    wrong = factory("r", "192.0.2.10", "wrong")
+    with pytest.raises(KitError) as err:
+        await wrong.connect()
+    assert err.value.code is ErrorCode.AUTH_FAILED and not wrong.connected
+    right = factory("r", "192.0.2.10", "right")
+    await right.connect()
+    assert right.connected
+
+
 async def test_drop_and_restore(robot):
     fake, _, links = robot
     fake.drop("robot_offline")
