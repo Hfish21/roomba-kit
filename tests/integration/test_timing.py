@@ -3,8 +3,9 @@
 How time is handled, per criterion:
 - SC-003 (confirmation p95 ≤ 10 s): real HTTP calls against fakes whose reaction delays are drawn
   from distributions based on the hardware observations in docs/research/discovery-2026-11-08.md
-  §2, divided by `SCALE`. Measured wall time is multiplied back by `SCALE`, so the kit's own
-  overhead is inflated `SCALE`-fold: the reported p95 is an upper bound, never an underestimate.
+  §2, divided by `SCALE`. Only the injected robot delay is scaled back up; the kit's own overhead
+  (wall time beyond the scaled delay) is added in real seconds, and is bounded on its own, so
+  runner jitter isn't amplified `SCALE`-fold but a slow kit still fails.
 - SC-005 (robot report → SSE frame ≤ 2 s): real time, real coalescing (1 s). Nothing is scaled.
 - SC-006 (reconnect ≤ 60 s after the robot is back): `RobotSession` with its real backoff
   (1 s doubling to 60 s) and the service's real rediscovery call, on a virtual-time event loop
@@ -53,7 +54,9 @@ from tests.unit.test_sse import Stream
 # -- SC-003: command confirmation ------------------------------------------------------------
 
 SCALE = 40
-"""Fake reactions run 40x faster than the robot; measured latencies are multiplied by 40."""
+"""Fake reactions run 40x faster than the robot; only the injected delay is scaled back up."""
+OVERHEAD_P95_S = 1.0
+"""The kit's own share of a confirmation (HTTP, queue, confirm loop), in real seconds."""
 CYCLE = ("clean", "pause", "resume", "dock", "find")
 ROUNDS = 6
 
@@ -82,7 +85,8 @@ async def test_sc003_command_confirmation_p95_within_10s(tmp_kit_home):
         settings=load_settings(), transport_factory=factory, session_options=FAST_BACKOFF
     )
     rng = random.Random(2026)  # noqa: S311 - a reproducible test distribution
-    measured: list[tuple[str, float, float]] = []  # (command, injected s, measured s)
+    measured: list[tuple[str, float, float]] = []  # (command, injected s, robot-time s)
+    overheads: list[float] = []  # real seconds the kit added on top of the scaled delay
 
     async with serving(ctx) as app, api_client(app, ctx.tokens.create("t")) as client:
 
@@ -94,17 +98,20 @@ async def test_sc003_command_confirmation_p95_within_10s(tmp_kit_home):
                     fake.reaction_delay = injected / SCALE
                     started = time.monotonic()
                     response = await http_call(client, command, {"robot": robot})
-                    took = (time.monotonic() - started) * SCALE
+                    wall = time.monotonic() - started
                     assert response.json()["outcome"] == "confirmed", (command, response.text)
-                    measured.append((command, injected, took))
+                    overhead = wall - fake.reaction_delay
+                    overheads.append(overhead)
+                    measured.append((command, injected, injected + overhead))
 
         await asyncio.gather(drive(I5), drive(M6))
 
     assert len(measured) == 2 * ROUNDS * len(CYCLE)
     # The measurement includes the robot's reaction: it can't come in under the injected delay.
-    assert all(took >= injected for _, injected, took in measured)
+    assert all(overhead >= 0 for overhead in overheads), min(overheads)
     injected_p95 = p95([i for _, i, _ in measured])
     assert injected_p95 > 4.0, "the distribution must stay realistic, not trivially fast"
+    assert p95(overheads) <= OVERHEAD_P95_S, sorted(overheads)[-6:]
     assert p95([t for *_, t in measured]) <= 10.0, sorted(t for *_, t in measured)[-6:]
 
 
