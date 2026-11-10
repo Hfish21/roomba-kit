@@ -16,6 +16,7 @@ models are versioned with the contract (`v1`).
 | `address` | str | Last known IP; updated by rediscovery (FR-018) |
 | `connection` | ConnectionState | See below |
 | `capabilities` | list[CapabilityStatus] | From the profile |
+| `guide` | str \| null | `docs/guides/adding-a-model.md` when `supported` is false, else null (FR-024). Also on `DiscoveredRobot` |
 
 **ConnectionState**: `connected`, `connecting`, `offline`, `held_elsewhere`, `auth_failed`,
 `not_configured`.

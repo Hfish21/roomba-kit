@@ -3,7 +3,7 @@
 from pydantic import BaseModel, Field
 
 from roomba_kit.core.errors import ErrorCode, KitError
-from roomba_kit.core.models import RobotState
+from roomba_kit.core.models import ADD_A_MODEL_GUIDE, RobotState
 from roomba_kit.core.registry import Cli, Http, operation
 from roomba_kit.service.app import ServiceContext
 
@@ -31,7 +31,8 @@ async def get_state(ctx: ServiceContext, params: RobotParams) -> RobotState:
     if not session.supported:
         raise KitError(
             ErrorCode.UNSUPPORTED_MODEL,
-            "This robot's model has no profile, so its state can't be read.",
+            "This robot's model has no profile, so its state can't be read. To add one, see "
+            f"{ADD_A_MODEL_GUIDE}.",
             session.robot_id,
         )
     if not session.has_state:

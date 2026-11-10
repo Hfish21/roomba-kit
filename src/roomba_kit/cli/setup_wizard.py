@@ -22,6 +22,7 @@ from roomba_kit.config import tokens
 from roomba_kit.config.credentials import CredentialStore
 from roomba_kit.core import registry
 from roomba_kit.core.errors import CLI_EXIT, ErrorCode
+from roomba_kit.core.models import ADD_A_MODEL_GUIDE
 from roomba_kit.lifecycle import daemon
 from roomba_kit.service.operations.setup import PASSWORD_STEPS
 
@@ -72,7 +73,10 @@ def countdown(seconds: int) -> Iterator[None]:
 
 def _robot_line(r: dict[str, Any]) -> str:
     model = r.get("profile_id") or "unsupported model"
-    return f"{r['name']}  ({model}, SKU {r['sku']}, {r['address']}, ID {r['id']})"
+    firmware = r.get("firmware") or "unknown"
+    return (
+        f"{r['name']}  ({model}, SKU {r['sku']}, firmware {firmware}, {r['address']}, ID {r['id']})"
+    )
 
 
 class Wizard:
@@ -131,7 +135,9 @@ class Wizard:
                 continue
             click.echo(f"  • {_robot_line(robot)}")
             if not robot["supported"]:
+                guide = robot.get("guide") or ADD_A_MODEL_GUIDE
                 click.echo("    This model has no profile: it can be listed but not controlled.")
+                click.echo(f"    To add one, see {guide}.")
             if click.confirm("    Add it?", default=bool(robot["supported"])):
                 if self.attempt("add_robot", address=robot["address"]) is not None:
                     added.append(robot)
@@ -206,7 +212,8 @@ class Wizard:
                 return False
 
     def cloud_passwords(self) -> None:
-        for robot in self.cloud_only:
+        queued, self.cloud_only = self.cloud_only, []
+        for robot in queued:
             if not click.confirm(f"Get {robot['name']}'s password from the account?", default=True):
                 continue
             result = self.attempt("cloud_retrieve_password", robot=robot["id"])
@@ -262,11 +269,14 @@ class Wizard:
                 click.echo(f"  {i}. {text}")
             choice = click.prompt("Choose", type=click.IntRange(1, len(options)), default=6)
             if choice == 1:
-                for robot in self.add_robots(self.discover(broadcast)):
+                added = self.add_robots(self.discover(broadcast))
+                for robot in added:
                     if robot["supported"]:
                         self.pair(robot)
+                self.use_account(added)
             elif choice == 2 and robots:
                 self.pair(self.choose_robot(robots))
+                self.use_account([])
             elif choice == 3:
                 self.account()
             elif choice == 4 and robots:
@@ -277,6 +287,17 @@ class Wizard:
                     self.attempt("remove_robot", robot=robot["id"])
             elif choice == 6:
                 return
+
+    def use_account(self, added: list[dict[str, Any]]) -> None:
+        """After a menu add or re-pair: what first run does once the account is connected."""
+        if not (added or self.cloud_only):
+            return
+        status = self.attempt("cloud_status") or {}
+        if status.get("status") == "connected":
+            self.cloud_passwords()
+            self.import_rooms(added)
+        elif self.cloud_only:
+            click.echo("Add iRobot account credentials (option 3) to get its password from there.")
 
     def account(self) -> None:
         status = self.attempt("cloud_status") or {}
