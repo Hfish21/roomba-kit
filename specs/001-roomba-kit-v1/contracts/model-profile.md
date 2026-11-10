@@ -13,6 +13,9 @@ way. V1 ships `roomba_i5` and `braava_m6` (FR-025).
 | `capabilities` | `{Capability: Verification}`, where `Verification` is `verified(run="<ref>")` or `unverified()` |
 | `settings` | `{SettingName: SettingMapping}` |
 | `command_overrides` | Per-command confirmation predicate or window overrides |
+| `command_windows` | Per-command confirmation windows in seconds, keeping the default predicate (e.g. the m6's 30 s for pause/resume/stop/dock) |
+| `protocol_commands` | Kit command → firmware command where they differ (defaults: `clean`/`clean_rooms` → `start`, `reboot` → `reset`) |
+| `dock_needs_pause` | The firmware ignores `dock` while cleaning, so the kit pauses first (true for both V1 models) |
 | `error_texts`, `not_ready_texts` | Readable text for codes, overriding shared defaults |
 
 A **SettingMapping** has these fields:

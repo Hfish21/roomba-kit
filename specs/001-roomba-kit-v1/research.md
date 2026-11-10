@@ -144,7 +144,8 @@ resolved below.
 ## R8. Normalized activity model
 
 - **Decision**: Map raw `cleanMissionStatus.{phase, cycle}` to a kit `Activity` enum:
-  - `phase=charge, cycle=none` → `docked` (also `charging` while `batPct < 100`);
+  - `phase=charge` → `docked` (also `charging` while `batPct < 100`), with any `cycle`: an open
+    cycle on the dock is a mission waiting there (HW-1 finding, decisions.md #63);
   - `phase=run` → `cleaning`, or `mapping` when `cycle=train`;
   - `phase=stop, cycle≠none` → `paused`;
   - `phase` in `hmUsrDock`, `hmPostMsn`, `hmMidMsn` → `returning`;

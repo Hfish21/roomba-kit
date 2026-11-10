@@ -294,7 +294,7 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 - [x] T025 [P] Implement `src/roomba_kit/service/normalize.py`, mapping a merged raw
   `state.reported` dict to `RobotState`:
   - **Activity mapping** (exactly research R8):
-    - `phase=charge, cycle=none` → `docked`, or `charging` if `batPct<100`
+    - `phase=charge` (any `cycle`) → `docked`, or `charging` if `batPct<100` (decisions.md #63)
     - `phase=run` → `cleaning`, or `mapping` when `cycle=train`
     - `phase=stop` with `cycle≠none` → `paused`
     - `hmUsrDock` / `hmPostMsn` / `hmMidMsn` → `returning`
@@ -339,7 +339,8 @@ criteria are verified by named tests (parity, secret leak, cloud blocked, timing
 - [x] T027 Implement `src/roomba_kit/service/session.py` `RobotSession`:
   - **Connection supervision**:
     - Owns exactly one `RobotTransport`.
-    - Supervisor with exponential backoff (1 s doubling to a 60 s cap).
+    - Supervisor with exponential backoff (1 s doubling to a 50 s cap; was 60 s, lowered so
+      reconnect meets SC-006 — decisions.md #61).
     - `ConnectionState` transitions per `data-model.md`. `auth_failed` is terminal until
       credentials change.
     - After 3 consecutive offline attempts, rediscover the robot by BLID and update its
@@ -808,12 +809,14 @@ unverified capabilities.
 **Independent Test**: quickstart V9.
 
 - [x] T089 [P] [US9] Implement `src/roomba_kit/lifecycle/launchd.py` and
-  `deploy/launchd.plist.j2`:
+  `deploy/launchd.plist.j2` (shipped as `src/roomba_kit/lifecycle/templates/launchd.plist.tmpl`,
+  decisions.md #43):
   - Install to `~/Library/LaunchAgents/com.roomba-kit.service.plist` with `RunAtLoad` and
     `KeepAlive`, logging to `<state>/service.log`.
   - `install` / `uninstall` use `launchctl bootstrap|bootout gui/$UID`.
 - [x] T090 [P] [US9] Implement `src/roomba_kit/lifecycle/systemd.py` and
-  `deploy/roomba-kit.service.j2`:
+  `deploy/roomba-kit.service.j2` (shipped as
+  `src/roomba_kit/lifecycle/templates/roomba-kit.service.tmpl`):
   - A `systemd --user` unit with `Restart=on-failure`.
   - `install` runs `daemon-reload` and `enable --now`, and tells the user about
     `loginctl enable-linger` for boot without login.
