@@ -1,9 +1,9 @@
 """Live position polling (research R13, FR-039, FR-040).
 
 For robots whose profile declares `live_position`, a per-robot task asks for a fix every
-`POLL_INTERVAL_S` while the robot is `cleaning` or `returning`, and publishes each fix as a
-`position` event (live only unless `events.persist_position`). "No fix" is not an error and
-not an event.
+`POLL_INTERVAL_S` while the robot is `cleaning`, `mapping` or `returning`, and publishes each
+fix as a `position` event (live only unless `events.persist_position`). "No fix" is not an
+error and not an event.
 
 A robot that has never answered gets `GIVE_UP_AFTER` consecutive timeouts, then isn't asked
 again for the rest of that mission. Once it has answered, timeouts never stop polling.
@@ -32,7 +32,7 @@ POLL_INTERVAL_S = 2.0
 POLL_TIMEOUT_S = 2.0
 GIVE_UP_AFTER = 3
 """Consecutive timeouts, on a robot that has never answered, before giving up for the mission."""
-ACTIVE = frozenset({Activity.CLEANING, Activity.RETURNING})
+ACTIVE = frozenset({Activity.CLEANING, Activity.MAPPING, Activity.RETURNING})
 
 
 def _mission_id(state: RobotState) -> str | None:

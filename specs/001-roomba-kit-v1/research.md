@@ -245,7 +245,7 @@ resolved below.
 ## R13. Position polling
 
 - **Decision**: Only for profiles declaring `live_position`, and only while activity is
-  `cleaning` or `returning`. Poll at 0.5 Hz using a 2 s timeout. Stop for the rest of the
+  `cleaning`, `mapping` (a `train` run) or `returning`. Poll at 0.5 Hz using a 2 s timeout. Stop for the rest of the
   mission after 3 consecutive timeouts on a robot that has never answered. Treat `None` as
   "no fix".
 - **Rationale**: FR-039 and FR-040. The m6 answered on that cadence in testing, and the i5 is
