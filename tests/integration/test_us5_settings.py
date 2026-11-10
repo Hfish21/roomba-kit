@@ -142,6 +142,17 @@ async def test_pad_wetness_on_the_vacuum_is_not_supported(api, factory):
     assert factory.get(I5).published_settings == []
 
 
+@pytest.mark.parametrize(("robot", "profile"), [("Vacuum", "roomba_i5"), ("Mop", "braava_m6")])
+async def test_carpet_boost_is_known_but_not_supported(api, factory, robot, profile):
+    """US5 AS3: every `setting.*` capability is a known setting; a model lacking it is
+    `not_supported` naming the model and capability, not `invalid_request`."""
+    resp = await call(api, "set_setting", robot=robot, setting="carpet_boost", value=True)
+    assert resp.status_code == 422
+    error = resp.json()["error"]
+    assert error["code"] == "not_supported"
+    assert error["details"] == {"profile": profile, "capability": "setting.carpet_boost"}
+
+
 async def test_schedule_hold_round_trip(api, factory):
     for value in (True, False):
         resp = await call(api, "set_setting", robot="Mop", setting="schedule_hold", value=value)

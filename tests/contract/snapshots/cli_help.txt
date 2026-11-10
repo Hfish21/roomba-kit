@@ -790,8 +790,8 @@ Usage: roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE
 
   Parameters:
   - `robot`: str — Robot ID or name
-  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap
-  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
+  - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost
+  - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
 
 Options:
   -h, --help  Show this message and exit.

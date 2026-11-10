@@ -56,7 +56,10 @@ M = MCP, C = CLI. Every operation is HCM unless marked otherwise.
 
 Setting values:
 - `passes` ∈ {`auto`, `one`, `two`}
-- `edge_clean`, `always_finish`, `child_lock`, `eco_charge`, `schedule_hold` are booleans
+- `edge_clean`, `always_finish`, `child_lock`, `eco_charge`, `schedule_hold`, `carpet_boost` are booleans
+- Every `setting.<name>` capability is a known setting name; a model without it gets
+  `not_supported` (details: `profile`, `capability`). Only names outside that set are
+  `invalid_request`.
 - `pad_wetness` ∈ {1, 2, 3}
 - `spray_overlap` ∈ {`standard`, `deep`, `extended`}
 

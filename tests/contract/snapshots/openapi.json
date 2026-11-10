@@ -2716,7 +2716,7 @@
             "type": "string"
           },
           "setting": {
-            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost",
             "title": "Setting",
             "type": "string"
           },
@@ -2732,7 +2732,7 @@
                 "type": "string"
               }
             ],
-            "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+            "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
             "title": "Value"
           }
         },
@@ -5346,7 +5346,7 @@
     },
     "/v1/robots/{robot}/settings/{setting}": {
       "put": {
-        "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+        "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
         "operationId": "set_setting",
         "parameters": [
           {
@@ -5361,12 +5361,12 @@
             }
           },
           {
-            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+            "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost",
             "in": "path",
             "name": "setting",
             "required": true,
             "schema": {
-              "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness or spray_overlap",
+              "description": "Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost",
               "title": "Setting",
               "type": "string"
             }
@@ -5389,7 +5389,7 @@
                         "type": "string"
                       }
                     ],
-                    "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+                    "description": "passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
                     "title": "Value"
                   }
                 },
