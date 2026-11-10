@@ -17,7 +17,7 @@ from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 from roomba_kit.config import paths
-from roomba_kit.config.credentials import CredentialStore
+from roomba_kit.config.credentials import CredentialStore, check_mode
 from roomba_kit.core.errors import ErrorCode, KitError
 
 CLI_TOKEN_NAME = "cli"  # noqa: S105 - a token name, not a token
@@ -45,14 +45,23 @@ def _parse(value: object) -> datetime | None:
     return datetime.fromisoformat(value) if isinstance(value, str) and value else None
 
 
-def read_cli_token(path: Path | None = None) -> str | None:
-    """The token the local CLI and stdio MCP send: `ROOMBA_KIT_API_TOKEN`, else `cli.token`."""
-    if env := os.environ.get(API_TOKEN_ENV):
-        return env
+def _read_token_file(path: Path, *, check: bool = True) -> str | None:
     try:
-        return (path or paths.cli_token_file()).read_text(encoding="utf-8").strip() or None
+        if check:
+            check_mode(path)  # FR-013: a plaintext token readable by others is refused
+        return path.read_text(encoding="utf-8").strip() or None
     except FileNotFoundError:
         return None
+
+
+def read_cli_token(path: Path | None = None) -> str | None:
+    """The token the local CLI and stdio MCP send: `ROOMBA_KIT_API_TOKEN`, else `cli.token`.
+
+    Raises `invalid_request` with a `chmod 600` hint if `cli.token` is broader than 0600.
+    """
+    if env := os.environ.get(API_TOKEN_ENV):
+        return env
+    return _read_token_file(path or paths.cli_token_file())
 
 
 class TokenStore:
@@ -145,8 +154,17 @@ class TokenStore:
             self._cli_token_path.unlink(missing_ok=True)
         return found
 
+    def check_files(self) -> None:
+        """Raise unless `cli.token` (when present) is 0600. The service runs this at start."""
+        _read_token_file(self._cli_token_path)
+
     def secrets(self) -> Iterator[str]:
-        """Plaintexts this process knows: tokens it minted, plus the CLI token."""
+        """Plaintexts this process knows: tokens it minted, plus the CLI and env tokens.
+
+        Reads `cli.token` whatever its mode: masking it in logs matters most when it's exposed.
+        """
         yield from self._issued
-        if cli := read_cli_token(self._cli_token_path):
+        if env := os.environ.get(API_TOKEN_ENV):
+            yield env
+        if cli := _read_token_file(self._cli_token_path, check=False):
             yield cli

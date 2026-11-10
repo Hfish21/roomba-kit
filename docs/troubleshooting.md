@@ -262,7 +262,8 @@ Error (invalid_request): /home/you/.config/roomba-kit/credentials.toml has mode 
 **Cause.** `credentials.toml` holds robot passwords, the account login and token hashes. The kit
 fails closed: it won't read the file while anyone but its owner can, and keeps refusing until
 it's fixed. Copying the file, restoring a backup, or a bind mount in Docker are the usual ways it
-ends up too open.
+ends up too open. `<state>/cli.token` (the local CLI's plaintext token) gets the same check: the
+service won't start, and the CLI won't send it, until it's 0600 again.
 
 **Fix.**
 

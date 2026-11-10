@@ -42,12 +42,20 @@ class CliState:
         return self.service_url or local_service_url()
 
     def client(self) -> "ServiceClient":
-        return ServiceClient(self.url(), tokens.read_cli_token(), self.transport)
+        return ServiceClient(self.url(), cli_token(), self.transport)
 
 
 def fail(code: ErrorCode, message: str) -> NoReturn:
     click.echo(message, err=True)
     raise SystemExit(CLI_EXIT[code])
+
+
+def cli_token() -> str | None:
+    """`tokens.read_cli_token()`; a `cli.token` broader than 0600 exits with the chmod hint."""
+    try:
+        return tokens.read_cli_token()
+    except KitError as exc:
+        fail(exc.code, exc.message)
 
 
 class ServiceClient:

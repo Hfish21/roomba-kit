@@ -184,6 +184,20 @@ def test_cli_token_file_is_0600(tmp_kit_home: Path, monkeypatch: pytest.MonkeyPa
     assert tokens.revoke("cli") and not paths.cli_token_file().exists()
 
 
+def test_broad_cli_token_is_refused(tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """FR-013: the plaintext CLI token gets the same 0600 check as credentials.toml."""
+    tokens = TokenStore(CredentialStore())
+    plain = tokens.create("cli")
+    os.chmod(paths.cli_token_file(), 0o644)
+    with pytest.raises(KitError) as err:
+        read_cli_token()
+    assert err.value.code is ErrorCode.INVALID_REQUEST
+    assert f"chmod 600 {paths.cli_token_file()}" in err.value.message
+    assert plain in set(tokens.secrets())  # the redactor still masks it
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "CANARY-env-token")
+    assert read_cli_token() == "CANARY-env-token"  # env wins; the file isn't read
+
+
 def test_revoke_in_another_process_takes_effect(tmp_kit_home: Path) -> None:
     service = TokenStore(CredentialStore())
     plain = TokenStore(CredentialStore()).create("phone")

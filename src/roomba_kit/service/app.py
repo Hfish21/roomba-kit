@@ -148,6 +148,7 @@ class ServiceContext:
     async def start(self) -> None:
         """Start everything, or raise without leaving anything running (FR-013, SC-009)."""
         self.credentials.refresh(force=True)  # refuses a credentials file broader than 0600
+        self.tokens.check_files()  # and a `cli.token` broader than 0600
         self._redactor = install_redaction(self.secrets)
         self.profiles = load_profiles()
         await self.store.open()

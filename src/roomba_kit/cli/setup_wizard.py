@@ -15,7 +15,7 @@ from typing import Any
 import click
 
 from roomba_kit.cli import lifecycle
-from roomba_kit.cli.client import CliState, ServiceClient, fail
+from roomba_kit.cli.client import CliState, ServiceClient, cli_token, fail
 from roomba_kit.cli.generate import group_for, read_secret
 from roomba_kit.cli.generate import run as run_op
 from roomba_kit.config import tokens
@@ -322,7 +322,7 @@ class Wizard:
 
 def ensure_cli_token() -> None:
     """Mint the `cli` token if this machine has none (first run)."""
-    if tokens.read_cli_token() is not None:
+    if cli_token() is not None:
         return
     # `replace`: a `cli` record whose plaintext file is gone can never be used again anyway.
     tokens.TokenStore(CredentialStore()).create(tokens.CLI_TOKEN_NAME, replace=True)

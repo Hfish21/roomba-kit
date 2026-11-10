@@ -77,4 +77,5 @@ disk.
 - A logging filter redacts every known secret value and the patterns `password=`, `token` and
   `Authorization` (FR-012).
 - The plaintext `cli` token is stored at `<state>/cli.token` (0600), so the local CLI can
-  authenticate.
+  authenticate. A broader mode gets the same refusal as `credentials.toml`: the CLI won't read
+  it and the service won't start (FR-013).
