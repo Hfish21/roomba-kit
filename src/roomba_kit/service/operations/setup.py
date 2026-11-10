@@ -277,16 +277,17 @@ async def retrieve_password(ctx: ServiceContext, params: RetrieveParams) -> Pass
         raise KitError(code, message, session.robot_id)
     loop = asyncio.get_running_loop()
     deadline = loop.time() + params.timeout_s
-    last: ErrorCode | None = None
+    refused = False
     while (remaining := deadline - loop.time()) > 0:
         try:
             password = await ctx.password_retriever.retrieve(
                 session.address, min(remaining, ATTEMPT_S)
             )
         except KitError as err:
-            # The robot says nothing until HOME is held, and that silence looks the same as a
-            # model that never serves it locally, so keep trying for the whole window.
-            last = err.code
+            # The robot says nothing until HOME is held, so keep trying for the whole window.
+            # Only an actual answer without a password counts as a refusal (`cloud_only`).
+            if err.code is ErrorCode.PASSWORD_UNAVAILABLE:
+                refused = True
             await asyncio.sleep(min(RETRY_S, max(deadline - loop.time(), 0)))
             continue
         if await store_verified_password(ctx, session, password) is ConnectionState.AUTH_FAILED:
@@ -296,7 +297,7 @@ async def retrieve_password(ctx: ServiceContext, params: RetrieveParams) -> Pass
                 session.robot_id,
             )
         return PasswordRetrieval(outcome="stored", steps=PASSWORD_STEPS)
-    if last is ErrorCode.PASSWORD_UNAVAILABLE:
+    if refused:
         return PasswordRetrieval(outcome="cloud_only", steps=PASSWORD_STEPS)
     return PasswordRetrieval(outcome="timeout", steps=PASSWORD_STEPS)
 

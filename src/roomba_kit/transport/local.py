@@ -21,6 +21,7 @@ from roombapy import (
     RoombaScopeError,
     RrtpUnsupportedError,
 )
+from roombapy.getpassword import UNSUPPORTED_MAGIC
 
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.models import PositionFix
@@ -189,19 +190,57 @@ class LocalTransport:
         task.add_done_callback(self._tasks.discard)
 
 
+class _TapReader:
+    """Wraps the reply stream so the bytes the robot sent are visible after the fact."""
+
+    def __init__(self, reader: asyncio.StreamReader) -> None:
+        self._reader = reader
+        self.received = b""
+
+    async def read(self, n: int = -1) -> bytes:
+        chunk = await self._reader.read(n)
+        self.received += chunk
+        return chunk
+
+
+class _PasswordRequest(RoombaPassword):
+    """`RoombaPassword` that remembers what the robot answered.
+
+    `get_password` returns `None` for silence, a refused connection and the cloud-only reply
+    alike; FR-003 needs to tell "no answer" (`timeout`) from "answered, no password".
+    """
+
+    received: bytes | None = None
+
+    async def _read_response(self, reader: asyncio.StreamReader) -> bytes:
+        tap = _TapReader(reader)
+        try:
+            return await super()._read_response(tap)  # type: ignore[arg-type]
+        finally:
+            self.received = tap.received
+
+
 class LocalPasswordRetriever:
     """A `PasswordRetriever` using the dock's listening mode (HOME held ~2 s until it chimes)."""
 
     async def retrieve(self, address: str, timeout: float) -> str:
+        request = _PasswordRequest(address)
         try:
-            password = await RoombaPassword(address).get_password(timeout)
-        except (UnicodeDecodeError, OSError):
+            password = await request.get_password(timeout)
+        except UnicodeDecodeError:
+            password = ""  # it answered, but not with a usable password
+        except OSError:
             password = None
-        if not password:
-            # roombapy returns None for silence, refusal and the cloud-only magic alike.
+        if password:
+            return password
+        if password == "" or (request.received or b"").startswith(UNSUPPORTED_MAGIC):
             raise KitError(
                 ErrorCode.PASSWORD_UNAVAILABLE,
-                "The robot gave no password. Put it on its dock, hold HOME about 2 s until it "
-                "chimes, then retry within 30 s. Some models only serve it from the cloud.",
+                "The robot answered but didn't release a password. Hold HOME about 2 s until "
+                "it chimes and retry; some models only serve it from the cloud.",
             )
-        return password
+        raise KitError(
+            ErrorCode.TIMEOUT,
+            "The robot didn't answer. Put it on its dock, hold HOME about 2 s until it chimes, "
+            "then retry within 30 s.",
+        )

@@ -8,7 +8,7 @@ import asyncio
 import copy
 import json
 import time
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Iterable
 from pathlib import Path
 from typing import Any
 
@@ -347,7 +347,11 @@ class FakeCloud:
 
 
 class FakePasswordRetriever:
-    """A `PasswordRetriever` answering from a dict of address → password."""
+    """A `PasswordRetriever` answering from a dict of address → password.
+
+    Like the real adapter: an address in `cloud_only` answers without a password
+    (`password_unavailable`); any other unknown address doesn't answer (`timeout`).
+    """
 
     def __init__(
         self,
@@ -355,10 +359,12 @@ class FakePasswordRetriever:
         *,
         error: ErrorCode | None = None,
         delay: float = 0.0,
+        cloud_only: Iterable[str] = (),
     ) -> None:
         self.passwords = passwords or {}
         self.error = error
         self.delay = delay
+        self.cloud_only = set(cloud_only)
         self.calls: list[str] = []
 
     async def retrieve(self, address: str, timeout: float) -> str:
@@ -369,6 +375,8 @@ class FakePasswordRetriever:
         await asyncio.sleep(self.delay)
         if self.error is not None:
             raise KitError(self.error, f"fake password retrieval failed: {self.error.value}")
+        if address in self.cloud_only:
+            raise KitError(ErrorCode.PASSWORD_UNAVAILABLE, "fake robot refused: cloud only")
         if address not in self.passwords:
-            raise KitError(ErrorCode.PASSWORD_UNAVAILABLE, "fake robot gave no password")
+            raise KitError(ErrorCode.TIMEOUT, "fake robot didn't answer")
         return self.passwords[address]

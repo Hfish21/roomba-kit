@@ -251,11 +251,22 @@ async def test_setup_from_zero(api, factory, monkeypatch):
 async def test_robot_that_wont_release_its_password_is_cloud_only(api, retriever, monkeypatch):
     monkeypatch.setattr(setup, "RETRY_S", 0.01)
     del retriever.passwords["192.0.2.11"]
+    retriever.cloud_only.add("192.0.2.11")
     await api("POST", "/robots", json={"address": "192.0.2.11"})
     pairing = await api("POST", f"/robots/{M6}/password/retrieve", json={"timeout_s": 0.2})
     assert pairing.json()["outcome"] == "cloud_only"
     assert len(retriever.calls) > 1  # retried through the window, not given up at once
     assert CredentialStore().robot_password(M6) is None
+
+
+async def test_home_not_held_is_timeout_not_cloud_only(api, retriever, monkeypatch):
+    """FR-003: silence for the whole window (HOME never held) is `timeout`."""
+    monkeypatch.setattr(setup, "RETRY_S", 0.01)
+    del retriever.passwords["192.0.2.11"]
+    await api("POST", "/robots", json={"address": "192.0.2.11"})
+    pairing = await api("POST", f"/robots/{M6}/password/retrieve", json={"timeout_s": 0.2})
+    assert pairing.json()["outcome"] == "timeout"
+    assert len(retriever.calls) > 1
 
 
 async def test_unanswered_retrieval_times_out(api, retriever, monkeypatch):
