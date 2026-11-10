@@ -151,3 +151,23 @@ def test_registry_is_exactly_the_contract():
     registered = {op.name for op in _ops()}
     assert registered - contract == set(), "registered but not in contracts/operations.md"
     assert contract - registered == set(), "in contracts/operations.md but not registered"
+
+
+def _leaves(group: click.Group, path: tuple[str, ...] = ()) -> list[str]:
+    out: list[str] = []
+    for name, cmd in group.commands.items():
+        if isinstance(cmd, click.Group):
+            out += _leaves(cmd, (*path, name))
+        else:
+            out.append(" ".join((*path, name)))
+    return out
+
+
+def test_every_cli_command_is_in_the_surfaces_contract():
+    from pathlib import Path
+
+    text = (Path(__file__).parents[2] / "specs/001-roomba-kit-v1/contracts/surfaces.md").read_text()
+    tree = text[text.index("- Command tree:") :]
+    leaves = _leaves(build_cli())
+    assert len(leaves) >= 40, "too few commands; the check would pass vacuously"
+    assert [c for c in leaves if f"`{c}" not in tree] == []

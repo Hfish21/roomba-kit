@@ -38,7 +38,7 @@ change logged in `specs/001-roomba-kit-v1/decisions.md`:
 <a id="hw1-laundry-room-clean"></a>
 ## HW-1: Laundry Room clean (`clean_rooms`, `cloud.timeline`)
 
-`roomba-kit clean Patty --room "Laundry Room"` at 14:28 UTC: confirmed `cleaning` in 7.7 s
+`roomba-kit clean <the vacuum> --room "Laundry Room"` at 14:28 UTC: confirmed `cleaning` in 7.7 s
 (room 7, current map). `missions wait` returned the terminal mission: outcome `completed`,
 `rooms_requested ["7"]`, initiator `kit`, 2,313 s. Cloud timeline events arrived over the
 shared cloud session within seconds: `start` (14:28:23), `travel → room 7` (14:28:49),
@@ -48,7 +48,7 @@ shared cloud session within seconds: `start` (14:28:23), `travel → room 7` (14
 <a id="hw1-cloud-coverage"></a>
 ## HW-1: Cloud coverage (`cloud.coverage`)
 
-`roomba-kit coverage Patty <laundry mission>` after the run: 491 coverage points and 244
+`roomba-kit coverage <the vacuum> <laundry mission>` after the run: 491 coverage points and 244
 clutter points from the mission's own map version. Missions not yet published return
 `cloud_unavailable(not_yet_published)`.
 

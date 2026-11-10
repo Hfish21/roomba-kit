@@ -30,7 +30,7 @@ right after `stop` is ignored for 30–70 s (the kit re-sends it).
 <a id="hw1-cloud-coverage"></a>
 ## HW-1: Cloud coverage (`cloud.coverage`)
 
-`roomba-kit coverage Eva <mission>` for the day's missions: one returned 2,258 coverage
+`roomba-kit coverage <the mop> <mission>` for the day's missions: one returned 2,258 coverage
 points; the two most recent returned `cloud_unavailable(not_yet_published)` as documented.
 
 <a id="hw1-tank-fault"></a>
