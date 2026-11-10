@@ -2169,7 +2169,7 @@
     "annotations": {
       "read_only_hint": true
     },
-    "description": "Get one mission from local history by its ID.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
+    "description": "Get one mission from local history by its ID, with its activity transitions (cleaning, paused, returning, docked, ...) oldest first.\n\nParameters:\n- `mission_id`: str — Mission ID, as listed by `list_missions`",
     "input_schema": {
       "properties": {
         "mission_id": {
@@ -2186,6 +2186,7 @@
     },
     "name": "get_mission",
     "output_schema": {
+      "description": "One mission from local history, with its activity transitions (FR-045).",
       "properties": {
         "cloud_mission_ref": {
           "anyOf": [
@@ -2292,6 +2293,74 @@
           "format": "date-time",
           "title": "Started At",
           "type": "string"
+        },
+        "transitions": {
+          "description": "The mission's activity changes, oldest first",
+          "items": {
+            "properties": {
+              "at": {
+                "format": "date-time",
+                "title": "At",
+                "type": "string"
+              },
+              "from": {
+                "enum": [
+                  "docked",
+                  "charging",
+                  "cleaning",
+                  "mapping",
+                  "paused",
+                  "returning",
+                  "emptying_bin",
+                  "stuck",
+                  "unknown"
+                ],
+                "title": "Activity",
+                "type": "string"
+              },
+              "mission_id": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "title": "Mission Id"
+              },
+              "robot_id": {
+                "title": "Robot Id",
+                "type": "string"
+              },
+              "to": {
+                "enum": [
+                  "docked",
+                  "charging",
+                  "cleaning",
+                  "mapping",
+                  "paused",
+                  "returning",
+                  "emptying_bin",
+                  "stuck",
+                  "unknown"
+                ],
+                "title": "Activity",
+                "type": "string"
+              }
+            },
+            "required": [
+              "robot_id",
+              "at",
+              "from",
+              "to"
+            ],
+            "title": "ActivityTransition",
+            "type": "object"
+          },
+          "title": "Transitions",
+          "type": "array"
         }
       },
       "required": [
@@ -2300,7 +2369,7 @@
         "started_at",
         "initiator"
       ],
-      "title": "Mission",
+      "title": "MissionDetail",
       "type": "object"
     }
   },

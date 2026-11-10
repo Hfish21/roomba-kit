@@ -36,6 +36,7 @@ from roomba_kit.core.models import (
     CoverageRecord,
     DiscoveredRobot,
     Mission,
+    MissionDetail,
     MissionOutcome,
     NoFix,
     PositionFix,
@@ -423,8 +424,8 @@ class Client:
             "list_missions", robot=robot, since=since, until=until, outcome=outcome, limit=limit
         )
 
-    async def get_mission(self, mission_id: str) -> Mission:
-        """One mission from local history, by its ID."""
+    async def get_mission(self, mission_id: str) -> MissionDetail:
+        """One mission from local history, by its ID, with its activity transitions."""
         return await self._call("get_mission", mission_id=mission_id)
 
     # -- cloud records ---------------------------------------------------------------------------

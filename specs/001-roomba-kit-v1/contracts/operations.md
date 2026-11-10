@@ -93,7 +93,7 @@ HTTP also exposes `events_list` as an SSE stream at the same route with
 | Operation | Params | Result | Cap |
 |---|---|---|---|
 | `list_missions` | `robot?`, `since?`, `until?`, `outcome?`, `limit=50` | `[Mission]` | — |
-| `get_mission` | `mission_id` | `Mission` | — |
+| `get_mission` | `mission_id` | `MissionDetail` (`Mission` + `transitions: [ActivityTransition]`, oldest first; additive) | — |
 | `cloud_history` | `robot`, `limit=30` | `[CloudMission]` | `cloud.history` |
 | `get_coverage` | `robot`, `mission_id` | `CoverageRecord` or `cloud_unavailable(reason=not_yet_published)` | `cloud.coverage` |
 

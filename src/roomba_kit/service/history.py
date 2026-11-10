@@ -25,7 +25,13 @@ from typing import TYPE_CHECKING, Any
 
 from roomba_kit.core.errors import KitError
 from roomba_kit.core.events import ActivityChangedData, ErrorEventData, Event, EventType
-from roomba_kit.core.models import CodeText, Mission, MissionOutcome
+from roomba_kit.core.models import (
+    ActivityTransition,
+    CodeText,
+    Mission,
+    MissionDetail,
+    MissionOutcome,
+)
 from roomba_kit.service import derive
 from roomba_kit.service.cloud import manager
 from roomba_kit.service.components import Stop, component
@@ -72,12 +78,32 @@ def _ts(dt: datetime) -> str:
     return format_ts(dt if dt.tzinfo else dt.replace(tzinfo=UTC))
 
 
-async def get_mission(store: Store, mission_id: str) -> Mission | None:
-    """The mission with this ID (the newest, should two robots ever share one)."""
+async def get_mission(store: Store, mission_id: str) -> MissionDetail | None:
+    """The mission with this ID (the newest, should two robots ever share one), with its
+    activity transitions in time order (FR-045)."""
     row = await store.fetchone(
         "SELECT * FROM missions WHERE id = ? ORDER BY started_at DESC LIMIT 1", (mission_id,)
     )
-    return _mission(row) if row else None
+    if row is None:
+        return None
+    mission = _mission(row)
+    moves = await store.fetchall(
+        "SELECT * FROM activity_transitions WHERE robot_id = ? AND mission_id = ? ORDER BY at, id",
+        (mission.robot_id, mission.id),
+    )
+    transitions = [
+        ActivityTransition.model_validate(
+            {
+                "robot_id": m["robot_id"],
+                "at": parse_ts(m["at"]),
+                "from": m["from_activity"],
+                "to": m["to_activity"],
+                "mission_id": m["mission_id"],
+            }
+        )
+        for m in moves
+    ]
+    return MissionDetail.model_validate({**mission.model_dump(), "transitions": transitions})
 
 
 async def list_missions(

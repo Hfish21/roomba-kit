@@ -155,7 +155,13 @@ mid-mission resumes the same record by mission ID (FR-044, US8 scenario 3).
 
 ## ActivityTransition
 
-Fields: `robot_id`, `at`, `from`, `to`, `mission_id`.
+Fields: `robot_id`, `at`, `from`, `to`, `mission_id`. Recorded from every `activity.changed`
+event and readable through `get_mission` (FR-045).
+
+## MissionDetail (`get_mission` result)
+
+A `Mission` plus `transitions: list[ActivityTransition]`: the mission's activity changes, ordered
+by time (additive; `list_missions` and mission events still carry plain `Mission`).
 
 ## Event
 

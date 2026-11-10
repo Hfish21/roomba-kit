@@ -163,7 +163,16 @@ async def test_two_missions_survive_a_restart_and_filter(factory: FakeTransportF
         assert await missions(client, since=since, until=since) == []
         assert [m["id"] for m in await missions(client, limit=1)] == [b]
 
-        assert (await client.get(f"/missions/{a}")).json() == first
+        shown = (await client.get(f"/missions/{a}")).json()
+        assert {k: v for k, v in shown.items() if k != "transitions"} == first
+        # FR-045: the mission's activity transitions, oldest first, survive the restart.
+        moves = shown["transitions"]
+        assert [m["at"] for m in moves] == sorted(m["at"] for m in moves)
+        assert {(m["robot_id"], m["mission_id"]) for m in moves} == {(I5, a)}
+        assert moves[0]["to"] == "cleaning" and moves[-1]["to"] in ("docked", "charging")
+        assert all(m["from"] != m["to"] for m in moves)
+        other = (await client.get(f"/missions/{b}")).json()["transitions"]
+        assert other and all(m["mission_id"] == b for m in other)
         unknown = await client.get("/missions/NOPE")
         assert unknown.status_code == 400
         assert unknown.json()["error"]["code"] == "invalid_request"
