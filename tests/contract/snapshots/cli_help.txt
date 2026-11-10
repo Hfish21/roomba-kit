@@ -793,6 +793,17 @@ Usage: roomba-kit settings set [OPTIONS] ROBOT SETTING VALUE
   - `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost
   - `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.
 
+  Settings, the models that support each, and verification:
+  - `passes`: braava_m6 (verified), roomba_i5 (verified)
+  - `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+  - `always_finish`: roomba_i5 (verified)
+  - `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+  - `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+  - `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+  - `pad_wetness`: braava_m6 (verified)
+  - `spray_overlap`: braava_m6 (verified)
+  - `carpet_boost`: no installed model
+
 Options:
   -h, --help  Show this message and exit.
 
@@ -804,6 +815,17 @@ Usage: roomba-kit settings show [OPTIONS] ROBOT
 
   Parameters:
   - `robot`: str — Robot ID or name
+
+  Settings, the models that support each, and verification:
+  - `passes`: braava_m6 (verified), roomba_i5 (verified)
+  - `edge_clean`: braava_m6 (verified), roomba_i5 (verified)
+  - `always_finish`: roomba_i5 (verified)
+  - `child_lock`: braava_m6 (verified), roomba_i5 (verified)
+  - `eco_charge`: braava_m6 (verified), roomba_i5 (verified)
+  - `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)
+  - `pad_wetness`: braava_m6 (verified)
+  - `spray_overlap`: braava_m6 (verified)
+  - `carpet_boost`: no installed model
 
 Options:
   -h, --help  Show this message and exit.

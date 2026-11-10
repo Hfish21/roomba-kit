@@ -5283,7 +5283,7 @@
     },
     "/v1/robots/{robot}/settings": {
       "get": {
-        "description": "Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.\n\nParameters:\n- `robot`: str — Robot ID or name",
+        "description": "Read the robot's settings: every setting its model supports, null when the robot hasn't reported it.\n\nParameters:\n- `robot`: str — Robot ID or name\n\nSettings, the models that support each, and verification:\n- `passes`: braava_m6 (verified), roomba_i5 (verified)\n- `edge_clean`: braava_m6 (verified), roomba_i5 (verified)\n- `always_finish`: roomba_i5 (verified)\n- `child_lock`: braava_m6 (verified), roomba_i5 (verified)\n- `eco_charge`: braava_m6 (verified), roomba_i5 (verified)\n- `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)\n- `pad_wetness`: braava_m6 (verified)\n- `spray_overlap`: braava_m6 (verified)\n- `carpet_boost`: no installed model",
         "operationId": "get_settings",
         "parameters": [
           {
@@ -5346,7 +5346,7 @@
     },
     "/v1/robots/{robot}/settings/{setting}": {
       "put": {
-        "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.",
+        "description": "Change one setting. It is reported applied only once the robot reports the new value; otherwise the error is `not_applied` with the value the robot holds.\n\nParameters:\n- `robot`: str — Robot ID or name\n- `setting`: str — Setting name: passes, edge_clean, always_finish, child_lock, eco_charge, schedule_hold, pad_wetness, spray_overlap or carpet_boost\n- `value`: bool | int | str — passes: auto|one|two. edge_clean, always_finish, child_lock, eco_charge, schedule_hold, carpet_boost: true|false. pad_wetness: 1|2|3. spray_overlap: standard|deep|extended.\n\nSettings, the models that support each, and verification:\n- `passes`: braava_m6 (verified), roomba_i5 (verified)\n- `edge_clean`: braava_m6 (verified), roomba_i5 (verified)\n- `always_finish`: roomba_i5 (verified)\n- `child_lock`: braava_m6 (verified), roomba_i5 (verified)\n- `eco_charge`: braava_m6 (verified), roomba_i5 (verified)\n- `schedule_hold`: braava_m6 (verified), roomba_i5 (verified)\n- `pad_wetness`: braava_m6 (verified)\n- `spray_overlap`: braava_m6 (verified)\n- `carpet_boost`: no installed model",
         "operationId": "set_setting",
         "parameters": [
           {

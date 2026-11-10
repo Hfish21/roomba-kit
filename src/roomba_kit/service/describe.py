@@ -7,6 +7,8 @@ from roomba_kit.core.registry import Operation
 from roomba_kit.profiles.loader import load_profiles
 
 MOTION_NOTE = "⚠ Moves the robot: it will physically start, stop or drive."
+PER_SETTING_OPS = frozenset({"get_settings", "set_setting"})
+"""Operations with no single capability: each `setting.<name>` has its own (FR-049)."""
 
 
 def support(capability: Capability) -> dict[str, str]:
@@ -16,6 +18,17 @@ def support(capability: Capability) -> dict[str, str]:
         for pid, profile in sorted(load_profiles().items())
         if capability in profile.capabilities
     }
+
+
+def setting_support() -> str:
+    """Each known setting with the installed models that support it and their verification."""
+    lines = []
+    for cap in Capability:
+        if cap.value.startswith("setting."):
+            sup = support(cap)
+            where = ", ".join(f"{p} ({s})" for p, s in sup.items()) or "no installed model"
+            lines.append(f"- `{cap.value.removeprefix('setting.')}`: {where}")
+    return "Settings, the models that support each, and verification:\n" + "\n".join(lines)
 
 
 def type_name(annotation: Any) -> str:
@@ -50,6 +63,8 @@ def describe(op: Operation) -> str:
         parts.append("Supported on: " + (", ".join(sup) if sup else "no installed model"))
         if sup:
             parts.append("Verification: " + ", ".join(f"{p}: {s}" for p, s in sup.items()))
+    elif op.name in PER_SETTING_OPS:
+        parts.append(setting_support())
     if op.motion:
         parts.append(MOTION_NOTE)
     return "\n\n".join(parts)
