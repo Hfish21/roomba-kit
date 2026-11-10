@@ -7,6 +7,7 @@ Two views of the same schema:
 """
 
 import json
+import os
 import re
 import tomllib
 from collections.abc import Mapping
@@ -14,7 +15,7 @@ from datetime import date, datetime, time
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 from pydantic_settings import (
     BaseSettings,
     EnvSettingsSource,
@@ -93,9 +94,13 @@ class ConfigModel(BaseModel):
         return next((r for r in self.robots if r.id == robot_id), None)
 
 
+ROBOTS_ENV = "ROOMBA_KIT_ROBOTS"
+"""A JSON list of robot entries merged by id over `config.toml` (FR-010). Never written back."""
+
+
 class _EnvSource(EnvSettingsSource):
     """Env overrides minus `robots`: `ROOMBA_KIT_ROBOTS__<BLID>__PASSWORD` is a credential,
-    and the robot list itself is file-only."""
+    and `ROOMBA_KIT_ROBOTS` (the list) is merged by id in `load_settings`."""
 
     def __call__(self) -> dict[str, Any]:
         data = super().__call__()
@@ -133,9 +138,42 @@ def read_config_file(path: Path | None = None) -> dict[str, Any]:
         raise KitError(ErrorCode.INVALID_REQUEST, f"{path} is not valid TOML: {exc}") from exc
 
 
+def _env_robots() -> list[dict[str, Any]]:
+    """`ROOMBA_KIT_ROBOTS` as entries holding only the fields it sets."""
+    raw = os.environ.get(ROBOTS_ENV, "").strip()
+    if not raw:
+        return []
+    hint = f"{ROBOTS_ENV} must be a JSON list of {{id, name, address, profile}} objects"
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise KitError(ErrorCode.INVALID_REQUEST, f"{hint}: {exc}") from None
+    if not isinstance(data, list) or not all(isinstance(r, dict) for r in data):
+        raise KitError(ErrorCode.INVALID_REQUEST, f"{hint}.")
+    try:
+        entries = [RobotEntry.model_validate(r) for r in data]
+    except ValidationError as exc:
+        raise KitError(ErrorCode.INVALID_REQUEST, f"{hint}: {exc.errors()[0]['msg']}") from None
+    return [e.model_dump(mode="json", exclude_unset=True) for e in entries]
+
+
 def load_settings(path: Path | None = None) -> Settings:
-    """Effective settings: env, then `config.toml`, then defaults."""
-    return Settings(**read_config_file(path))
+    """Effective settings: env, then `config.toml`, then defaults.
+
+    `ROOMBA_KIT_ROBOTS` entries override the file's robot with the same id field by field, and
+    add robots the file doesn't list.
+    """
+    data = read_config_file(path)
+    if env := _env_robots():
+        robots = [dict(r) for r in data.get("robots", []) if isinstance(r, dict)]
+        by_id = {r.get("id"): r for r in robots}
+        for entry in env:
+            if (existing := by_id.get(entry["id"])) is not None:
+                existing.update(entry)
+            else:
+                robots.append(entry)
+        data = {**data, "robots": robots}
+    return Settings(**data)
 
 
 def load_config(path: Path | None = None) -> ConfigModel:

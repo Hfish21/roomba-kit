@@ -297,6 +297,14 @@ async def test_revoked_token_rejected(client, ctx, auth):
     assert (await client.get(f"/v1/robots/{I5}/state", headers=auth)).status_code == 401
 
 
+async def test_env_api_token_is_accepted(client, monkeypatch):
+    """FR-010: an env-only container authenticates with `ROOMBA_KIT_API_TOKEN`."""
+    env_token = {"Authorization": "Bearer rk_from-the-environment"}
+    assert (await client.get(f"/v1/robots/{I5}/state", headers=env_token)).status_code == 401
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "rk_from-the-environment")
+    assert (await client.get(f"/v1/robots/{I5}/state", headers=env_token)).status_code == 200
+
+
 async def test_health_is_open(client):
     resp = await client.get("/v1/health")
     assert resp.status_code == 200 and resp.json() == {"status": "ok"}

@@ -62,11 +62,12 @@ These use pydantic-settings, with `__` as the nesting delimiter.
 |---|---|
 | `ROOMBA_KIT_SERVER__HOST`, `ROOMBA_KIT_SERVER__PORT` | Server bind address and port |
 | `ROOMBA_KIT_CLOUD__USERNAME`, `ROOMBA_KIT_CLOUD__PASSWORD` | Cloud credentials |
+| `ROOMBA_KIT_ROBOTS` | The robot list: a JSON list of `{id, name, address, profile}` merged by `id` over `config.toml` (an entry overrides only the fields it sets; new ids are added). Invalid JSON or entries → `invalid_request` |
 | `ROOMBA_KIT_ROBOTS__<BLID>__PASSWORD` | One robot's password |
-| `ROOMBA_KIT_API_TOKEN` | Token the CLI and stdio MCP send (otherwise read from the `cli` token file) |
+| `ROOMBA_KIT_API_TOKEN` | Token the CLI and stdio MCP send (otherwise read from the `cli` token file). The service also accepts it as a bearer token named `env` (≥16 characters, else the service refuses to start), so a container can run from env alone (FR-010) |
 
 Precedence: env, then the files, then defaults. Values coming from env are never written back to
-disk.
+disk: `save_config` only takes the file's own content, so env robots stay out of `config.toml`.
 
 ## Rules
 
