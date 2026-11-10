@@ -54,7 +54,7 @@ No API token found. Create one with: roomba-kit token create cli
 ```
 
 **Cause.** Every route except `GET /v1/health` needs `Authorization: Bearer <token>`. The CLI
-and stdio MCP send `ROOMBA_KIT_API_TOKEN` if it's set, else the token in `<state>/cli.token`,
+and stdio MCP send `ROOMBA_KIT_API_TOKEN` if it's set, else the token in `<config>/cli.token`,
 which setup creates. A revoked token, a typo, or a token from another machine's service is
 rejected.
 
@@ -262,7 +262,7 @@ Error (invalid_request): /home/you/.config/roomba-kit/credentials.toml has mode 
 **Cause.** `credentials.toml` holds robot passwords, the account login and token hashes. The kit
 fails closed: it won't read the file while anyone but its owner can, and keeps refusing until
 it's fixed. Copying the file, restoring a backup, or a bind mount in Docker are the usual ways it
-ends up too open. `<state>/cli.token` (the local CLI's plaintext token) gets the same check: the
+ends up too open. `<config>/cli.token` (the local CLI's plaintext token) gets the same check: the
 service won't start, and the CLI won't send it, until it's 0600 again.
 
 **Fix.**

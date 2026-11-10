@@ -158,8 +158,8 @@ copy both, start it again:
 
 | Dir | Holds | Lose it and… |
 |---|---|---|
-| config | `config.toml` (robots, settings), `credentials.toml` (passwords, token hashes) | re-run setup and re-issue tokens |
-| state | `state.db` (missions, events, rooms), `cli.token`, `service.log` | lose history and learned rooms |
+| config | `config.toml` (robots, settings), `credentials.toml` (passwords, token hashes), `cli.token` | re-run setup and re-issue tokens |
+| state | `state.db` (missions, events, rooms), `service.log` | lose history and learned rooms |
 
 ```bash
 roomba-kit config path                       # where they are on this host

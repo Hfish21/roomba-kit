@@ -77,6 +77,11 @@ disk: `save_config` only takes the file's own content, so env robots stay out of
   take effect without a restart.
 - A logging filter redacts every known secret value and the patterns `password=`, `token` and
   `Authorization` (FR-012).
-- The plaintext `cli` token is stored at `<state>/cli.token` (0600), so the local CLI can
+- The plaintext `cli` token is stored at `<config>/cli.token` (0600), next to
+  `credentials.toml`, so every credential lives in the config dir (FR-009) and the local CLI can
   authenticate. A broader mode gets the same refusal as `credentials.toml`: the CLI won't read
   it and the service won't start (FR-013).
+- Earlier builds kept it at `<state>/cli.token`. The first lookup on a new build copies it to
+  `<config>` (keeping its mode) unless a token is already there, and leaves the old file so an
+  older CLI or service on the same machine keeps working. The old copy is deleted the next time
+  the `cli` token is created or revoked, since it would then be stale.

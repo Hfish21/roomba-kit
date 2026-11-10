@@ -27,7 +27,7 @@ roomba-kit token revoke scheduler     # takes effect on the next request, no res
 
 Token admin is CLI-only and local to the service's machine, because a new token is a secret
 shown once. Setup creates a `cli` token for this machine; the CLI and `roomba-kit mcp` read it
-from `<state>/cli.token` (or `ROOMBA_KIT_API_TOKEN`). A missing, wrong or revoked token is
+from `<config>/cli.token` (or `ROOMBA_KIT_API_TOKEN`). A missing, wrong or revoked token is
 `401` with `{"error": {"code": "unauthorized", …}}`.
 
 The service listens on `127.0.0.1` only. To reach it from another host, set `server.host` (see
