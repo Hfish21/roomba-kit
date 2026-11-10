@@ -35,6 +35,7 @@ class FakeTransport:
         *,
         address: str = "192.0.2.10",
         password: str = "",
+        robot_password: str | None = None,
         reaction_delay: float = 0.0,
         dock_delay: float | None = None,
         evac_duration: float | None = None,
@@ -42,6 +43,9 @@ class FakeTransport:
         self.robot_id = robot_id
         self.address = address
         self.password = password
+        """The password the kit connects with (the factory sets it on every call)."""
+        self.robot_password = robot_password
+        """The robot's own password. When set, connecting with any other is `auth_failed`."""
         self.reported: dict[str, Any] = copy.deepcopy(reported or {})
         self.reaction_delay = reaction_delay
         self.dock_delay = reaction_delay if dock_delay is None else dock_delay
@@ -75,6 +79,8 @@ class FakeTransport:
             raise self._connect_failures.pop(0)
         if self._offline is not None:
             raise self._offline
+        if self.robot_password is not None and self.password != self.robot_password:
+            raise KitError(ErrorCode.AUTH_FAILED, "fake robot rejected the password")
         if self.connected:
             return
         self.connected = True

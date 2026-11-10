@@ -44,7 +44,8 @@ def _session(bus, factory, robot_id=I5, profile="roomba_i5", password="pw", **kw
     kw.setdefault("backoff_min", 0.01)
     kw.setdefault("backoff_max", 0.04)
     kw.setdefault("coalesce_s", 0.05)
-    return RobotSession(entry, get_profile(profile), factory, lambda: password, bus, **kw)
+    secret = password if callable(password) else lambda: password
+    return RobotSession(entry, get_profile(profile), factory, secret, bus, **kw)
 
 
 async def test_connects_and_normalizes(bus, factory):
@@ -100,13 +101,15 @@ async def test_held_elsewhere_is_detected(bus, factory):
 
 async def test_auth_failed_is_terminal_until_credentials_change(bus, factory):
     fake = factory.get(I5)
-    fake.fail_next_connect(ErrorCode.AUTH_FAILED)
-    s = _session(bus, factory)
+    fake.robot_password = "right"
+    password = {"value": "wrong"}
+    s = _session(bus, factory, password=lambda: password["value"])
     await s.start()
     try:
         await _until(lambda: s.connection is ConnectionState.AUTH_FAILED)
         await asyncio.sleep(0.1)
         assert fake.connect_calls == 1
+        password["value"] = "right"
         s.credentials_changed()
         await _until(lambda: s.connection is ConnectionState.CONNECTED)
     finally:
