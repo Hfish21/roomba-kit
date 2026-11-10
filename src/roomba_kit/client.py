@@ -29,6 +29,7 @@ from pydantic_core import to_jsonable_python
 from roomba_kit.config.tokens import read_cli_token
 from roomba_kit.core import registry
 from roomba_kit.core.capabilities import CapabilityStatus
+from roomba_kit.core.contract import API_PREFIX
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import Event, EventType
 from roomba_kit.core.models import (
@@ -128,7 +129,7 @@ class Client:
         headers = {"Authorization": f"Bearer {token}"} if token else {}
         # No read timeout: wait operations hold the request open for their own `timeout_s`.
         self._http = httpx.AsyncClient(
-            base_url=base_url.rstrip("/") + "/v1",
+            base_url=base_url.rstrip("/") + API_PREFIX,
             headers=headers,
             transport=transport,
             timeout=httpx.Timeout(connect_timeout_s, read=None),

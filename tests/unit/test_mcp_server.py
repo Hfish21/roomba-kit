@@ -108,3 +108,10 @@ async def test_custom_executor_and_op_subset(test_ops):
         failed = await c.call_tool("evac", {"robot": I5}, raise_on_error=False)
     assert failed.content[0].text == "service_unavailable: Service not running"
     assert calls == [("health", {}), ("evac", {"robot": I5})]
+
+
+async def test_server_reports_kit_contract_version(client):
+    from roomba_kit.core.contract import CONTRACT_VERSION
+
+    info = client.server_info
+    assert (info.name, info.version) == ("roomba-kit", CONTRACT_VERSION)
