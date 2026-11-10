@@ -4,35 +4,29 @@ from roomba_kit.core.capabilities import Capability as C
 from roomba_kit.profiles import braava_m6, roomba_i5
 from roomba_kit.profiles.loader import load_profiles, match_profile
 
-RUN = "session b10c0fbc 2026-11-08"
-
 EXPECTED = {
     "roomba_i5": (
         roomba_i5.PROFILE,
         {
-            C.CLEAN, C.PAUSE, C.RESUME, C.DOCK, C.FIND, C.CLEAN_ROOMS, C.EVAC,
+            C.CLEAN, C.PAUSE, C.RESUME, C.STOP, C.DOCK, C.FIND, C.EVAC, C.REBOOT, C.CLEAN_ROOMS,
             C.STATE_BIN, C.STATE_CLEAN_BASE,
-            C.CLOUD_ROOMS, C.CLOUD_HISTORY, C.CLOUD_COVERAGE, C.CLOUD_TIMELINE,
-        },
-        {
-            C.STOP, C.REBOOT, C.TRAIN,
             C.SETTING_PASSES, C.SETTING_EDGE_CLEAN, C.SETTING_ALWAYS_FINISH,
             C.SETTING_CHILD_LOCK, C.SETTING_ECO_CHARGE, C.SETTING_SCHEDULE_HOLD,
+            C.CLOUD_ROOMS, C.CLOUD_HISTORY, C.CLOUD_COVERAGE, C.CLOUD_TIMELINE,
         },
+        {C.TRAIN},
     ),
     "braava_m6": (
         braava_m6.PROFILE,
         {
-            C.CLEAN, C.PAUSE, C.RESUME, C.DOCK, C.FIND,
-            C.STATE_PAD, C.STATE_TANK, C.STATE_LID, C.LIVE_POSITION,
-            C.CLOUD_ROOMS, C.CLOUD_HISTORY, C.CLOUD_COVERAGE,
-        },
-        {
-            C.STOP, C.REBOOT, C.TRAIN, C.CLEAN_ROOMS, C.CLOUD_TIMELINE,
+            C.CLEAN, C.PAUSE, C.RESUME, C.STOP, C.DOCK, C.FIND, C.REBOOT, C.LIVE_POSITION,
+            C.STATE_PAD, C.STATE_TANK, C.STATE_LID,
             C.SETTING_PASSES, C.SETTING_EDGE_CLEAN, C.SETTING_CHILD_LOCK,
             C.SETTING_ECO_CHARGE, C.SETTING_SCHEDULE_HOLD,
             C.SETTING_PAD_WETNESS, C.SETTING_SPRAY_OVERLAP,
+            C.CLOUD_ROOMS, C.CLOUD_HISTORY, C.CLOUD_COVERAGE,
         },
+        {C.TRAIN, C.CLEAN_ROOMS, C.CLOUD_TIMELINE},
     ),
 }  # fmt: skip
 
@@ -44,7 +38,9 @@ def test_capabilities_and_verification(profile_id):
     assert set(profile.capabilities) == verified | unverified
     for cap in verified:
         assert profile.capabilities[cap].is_verified, cap
-        assert profile.capabilities[cap].run == RUN
+        # Constitution VIII: every verified capability cites its hardware run.
+        run = profile.capabilities[cap].run or ""
+        assert run.startswith(f"docs/verification/{profile_id}.md#"), (cap, run)
     for cap in unverified:
         assert not profile.capabilities[cap].is_verified, cap
     assert {C.for_setting(s) for s in profile.settings} == {

@@ -4338,7 +4338,7 @@
       "destructive_hint": false,
       "idempotent_hint": false
     },
-    "description": "Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "description": "Soft-reboot the robot. Confirmed when its connection drops and comes back (up to 3 minutes).\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
     "input_schema": {
       "properties": {
         "robot": {
@@ -4859,7 +4859,7 @@
       "destructive_hint": false,
       "idempotent_hint": false
     },
-    "description": "End the current mission where the robot is. Confirmed when no mission is active.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: unverified, roomba_i5: unverified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
+    "description": "End the current mission where the robot is. Confirmed when no mission is active.\n\nParameters:\n- `robot`: str — Robot ID or unambiguous name\n\nSupported on: braava_m6, roomba_i5\n\nVerification: braava_m6: verified, roomba_i5: verified\n\n⚠ Moves the robot: it will physically start, stop or drive.",
     "input_schema": {
       "properties": {
         "robot": {

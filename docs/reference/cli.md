@@ -593,7 +593,7 @@ Usage: roomba-kit reboot [OPTIONS] ROBOT
 
   Supported on: braava_m6, roomba_i5
 
-  Verification: braava_m6: unverified, roomba_i5: unverified
+  Verification: braava_m6: verified, roomba_i5: verified
 
   ⚠ Moves the robot: it will physically start, stop or drive.
 
@@ -1034,7 +1034,7 @@ Usage: roomba-kit stop [OPTIONS] ROBOT
 
   Supported on: braava_m6, roomba_i5
 
-  Verification: braava_m6: unverified, roomba_i5: unverified
+  Verification: braava_m6: verified, roomba_i5: verified
 
   ⚠ Moves the robot: it will physically start, stop or drive.
 
