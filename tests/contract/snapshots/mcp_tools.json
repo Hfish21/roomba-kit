@@ -32,6 +32,19 @@
           "title": "Firmware",
           "type": "string"
         },
+        "guide": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+          "title": "Guide"
+        },
         "id": {
           "title": "Id",
           "type": "string"
@@ -1040,6 +1053,19 @@
               "firmware": {
                 "title": "Firmware",
                 "type": "string"
+              },
+              "guide": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+                "title": "Guide"
               },
               "id": {
                 "title": "Id",
@@ -2503,6 +2529,19 @@
           "title": "Firmware",
           "type": "string"
         },
+        "guide": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+          "title": "Guide"
+        },
         "id": {
           "description": "The robot's permanent ID (BLID); the only identifier.",
           "title": "Id",
@@ -3583,6 +3622,19 @@
               "firmware": {
                 "title": "Firmware",
                 "type": "string"
+              },
+              "guide": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null,
+                "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+                "title": "Guide"
               },
               "id": {
                 "description": "The robot's permanent ID (BLID); the only identifier.",

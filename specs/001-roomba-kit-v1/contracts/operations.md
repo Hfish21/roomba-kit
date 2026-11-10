@@ -13,7 +13,7 @@ M = MCP, C = CLI. Every operation is HCM unless marked otherwise.
 |---|---|---|---|---|
 | `health` | — | `{status, version}` | — | HCM (HTTP route needs no auth) |
 | `service_status` | — | `{version, uptime_s, robots:[{id, connection}], cloud:{status, reason?}}` | — | HCM |
-| `discover_robots` | `broadcast?: str`, `timeout_s=8` | `[DiscoveredRobot{id, name, sku, firmware, address, supported, profile_id?, configured}]` | — | HCM |
+| `discover_robots` | `broadcast?: str`, `timeout_s=8` | `[DiscoveredRobot{id, name, sku, firmware, address, supported, profile_id?, configured, guide?}]` | — | HCM |
 | `add_robot` | `address: str` | `DiscoveredRobot` | — | HCM |
 | `retrieve_password` | `robot`, `timeout_s=60` | `{outcome: stored \| timeout \| cloud_only, steps:[str]}` (password never returned) | — | HCM |
 | `cloud_retrieve_password` | `robot` | `{outcome: stored \| unavailable, reason?}` | — | HCM |

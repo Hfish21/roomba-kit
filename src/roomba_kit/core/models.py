@@ -2,9 +2,9 @@
 
 from datetime import datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, computed_field
+from pydantic import BaseModel, ConfigDict, Field, computed_field, model_validator
 
 from roomba_kit.core.capabilities import CapabilityStatus
 
@@ -62,6 +62,10 @@ TERMINAL_OUTCOMES: frozenset[MissionOutcome] = frozenset(MissionOutcome) - {
 }
 
 
+ADD_A_MODEL_GUIDE = "docs/guides/adding-a-model.md"
+_GUIDE = "For a model without a profile, the guide to adding one (FR-024); otherwise null."
+
+
 class Robot(KitModel):
     id: str = Field(description="The robot's permanent ID (BLID); the only identifier.")
     name: str
@@ -72,6 +76,13 @@ class Robot(KitModel):
     address: str
     connection: ConnectionState
     capabilities: list[CapabilityStatus]
+    guide: str | None = Field(default=None, description=_GUIDE)
+
+    @model_validator(mode="after")
+    def _point_at_guide(self) -> Self:
+        if not self.supported and self.guide is None:
+            self.guide = ADD_A_MODEL_GUIDE
+        return self
 
 
 class DiscoveredRobot(KitModel):
@@ -83,6 +94,13 @@ class DiscoveredRobot(KitModel):
     supported: bool
     profile_id: str | None = None
     configured: bool = False
+    guide: str | None = Field(default=None, description=_GUIDE)
+
+    @model_validator(mode="after")
+    def _point_at_guide(self) -> Self:
+        if not self.supported and self.guide is None:
+            self.guide = ADD_A_MODEL_GUIDE
+        return self
 
 
 class MissionRef(KitModel):

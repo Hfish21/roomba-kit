@@ -18,6 +18,7 @@ from roomba_kit.core.capabilities import COMMAND_CAPABILITIES, Capability
 from roomba_kit.core.errors import ErrorCode, KitError
 from roomba_kit.core.events import ConnectionChangedData, EventType, StateChangedData
 from roomba_kit.core.models import (
+    ADD_A_MODEL_GUIDE,
     Activity,
     CommandResult,
     ConnectionState,
@@ -222,7 +223,8 @@ class RobotSession:
         if self.profile is None:
             raise KitError(
                 ErrorCode.UNSUPPORTED_MODEL,
-                "This robot's model has no profile, so it can't be commanded.",
+                "This robot's model has no profile, so it can't be commanded. To add one, see "
+                f"{ADD_A_MODEL_GUIDE}.",
                 self.robot_id,
             )
         if not self.profile.supports(capability):

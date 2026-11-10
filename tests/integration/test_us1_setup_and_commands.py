@@ -27,6 +27,7 @@ FIXTURES = Path(__file__).parents[1] / "fixtures"
 I5 = "00000000000000000000000000000001"
 M6 = "00000000000000000000000000000002"
 ODD = "00000000000000000000000000000003"
+GUIDE = "docs/guides/adding-a-model.md"
 SECRETS = ("i5-local-secret", "m6-local-secret", "account-secret")
 ON_LAN = [
     (I5, "Vacuum", "i5G5020", "192.0.2.10"),
@@ -145,6 +146,7 @@ async def test_inventory_lists_supported_and_unsupported_robots(api, configured)
     assert {"clean", "dock", "evac"} <= set(caps)
     assert robots[ODD]["supported"] is False and robots[ODD]["capabilities"] == []
     assert robots[ODD]["profile_id"] is None and robots[ODD]["sku"] == "x900020"
+    assert robots[ODD]["guide"] == GUIDE and robots[I5]["guide"] is None  # FR-024
 
     by_name = await api("GET", "/robots/mop/capabilities")
     assert "evac" not in {c["capability"] for c in by_name.json()}
@@ -189,6 +191,10 @@ async def test_capability_and_model_errors(api, configured, factory):
 
     odd = await api("POST", f"/robots/{ODD}/commands/clean")
     assert odd.status_code == 422 and odd.json()["error"]["code"] == "unsupported_model"
+    assert GUIDE in odd.json()["error"]["message"]
+    state = await api("GET", f"/robots/{ODD}/state")
+    assert state.json()["error"]["code"] == "unsupported_model"
+    assert GUIDE in state.json()["error"]["message"]
 
 
 async def test_cloud_declined_leaves_local_control_working(api, configured):
@@ -223,6 +229,7 @@ async def test_setup_from_zero(api, factory, monkeypatch):
     assert {rid: r["supported"] for rid, r in found.items()} == {I5: True, M6: True, ODD: False}
     assert found[I5]["profile_id"] == "roomba_i5" and not found[I5]["configured"]
     assert found[ODD]["profile_id"] is None and found[ODD]["sku"] == "x900020"
+    assert found[ODD]["guide"] == GUIDE and found[I5]["guide"] is None
     bad = await api("GET", "/discover_robots", params={"broadcast": "not-an-ip"})
     assert bad.status_code == 400
 

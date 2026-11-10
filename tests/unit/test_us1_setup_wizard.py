@@ -194,3 +194,62 @@ def test_robots_password_manual_alias(tmp_kit_home):
     result = CliRunner().invoke(main.build_cli(), args, obj=obj, input="pw\n")
     assert result.exit_code == 0, result.output
     assert service.calls == [("set_robot_password", {"robot": "Vacuum", "password": "pw"})]
+
+
+def test_discovered_robots_show_firmware_and_unsupported_guide(tmp_kit_home):
+    odd = {**VACUUM, "id": "0" * 31 + "3", "name": "Odd", "firmware": "9.9.9", "sku": "x900020"}
+    odd |= {"supported": False, "profile_id": None, "guide": "docs/guides/adding-a-model.md"}
+    service = Service(
+        list_robots=[[]],
+        discover_robots=[[{**VACUUM, "firmware": "3.20.7"}, odd]],
+        cloud_status={"status": "not_configured"},
+    )
+    result = run(service, ["n", "n", "n"])  # add neither, no account
+    assert result.exit_code == 0, result.output
+    assert "firmware 3.20.7" in result.output and "firmware 9.9.9" in result.output  # FR-001
+    assert "docs/guides/adding-a-model.md" in result.output  # FR-024
+
+
+def test_menu_add_uses_a_connected_account_right_away(tmp_kit_home):
+    robots = [{**VACUUM, "configured": True, "connection": "connected"}]
+    service = Service(
+        list_robots=[robots] * 3,
+        discover_robots=[[{**VACUUM, "configured": True}, MOP]],
+        add_robot={**MOP, "configured": True},
+        retrieve_password={"outcome": "cloud_only", "steps": []},
+        cloud_status={"status": "connected"},
+        cloud_retrieve_password={"outcome": "stored"},
+        import_rooms={"imported": 3},
+    )
+    keys = ["1", "y", "", "s", "y", "6"]  # add, add Mop, on dock, skip, from account, done
+    result = run(service, keys)
+    assert result.exit_code == 0, result.output
+    expected = [
+        "list_robots",
+        "list_robots",
+        "discover_robots",
+        "add_robot",
+        "retrieve_password",
+        "cloud_status",
+        "cloud_retrieve_password",  # FR-005
+    ]
+    if any(op.name == "import_rooms" for op in registry.all()):
+        expected.append("import_rooms")  # FR-008
+    expected.append("list_robots")
+    assert service.names() == expected
+    assert ("cloud_retrieve_password", {"robot": M6}) in service.calls
+    if "import_rooms" in expected:
+        assert ("import_rooms", {"robot": M6}) in service.calls
+
+
+def test_menu_repair_cloud_only_without_account_points_to_option_3(tmp_kit_home):
+    robots = [{**MOP, "configured": True, "connection": "not_configured"}]
+    service = Service(
+        list_robots=[robots] * 3,
+        retrieve_password={"outcome": "cloud_only", "steps": []},
+        cloud_status={"status": "not_configured"},
+    )
+    result = run(service, ["2", "1", "", "s", "6"])
+    assert result.exit_code == 0, result.output
+    assert "cloud_retrieve_password" not in service.names()
+    assert "option 3" in result.output
