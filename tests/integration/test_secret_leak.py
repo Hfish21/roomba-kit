@@ -1,4 +1,4 @@
-"""SC-007 / FR-012 / Constitution VI (T107): no credential appears anywhere the kit writes.
+"""No credential appears anywhere the kit writes.
 
 Canary robot passwords, cloud logins and an API token are configured through `credentials.toml`
 and env overrides, handed out by the fake password retriever and the fake cloud, and sent as op

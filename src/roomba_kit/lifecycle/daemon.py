@@ -1,4 +1,4 @@
-"""The detached background service: spawn, pidfile, health polling, stop (research R11, SC-009).
+"""The detached background service: spawn, pidfile, health polling, stop.
 
 Process-level only: the command to run is injected, so this is testable without uvicorn.
 """

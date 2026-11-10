@@ -30,10 +30,17 @@ nav:
       - Errors: reference/errors.md
       - Events: reference/events.md
       - Support matrix: reference/support-matrix.md
+  - Contracts:
+      - Operations: contracts/operations.md
+      - Surfaces: contracts/surfaces.md
+      - Errors: contracts/errors.md
+      - Events: contracts/events.md
+      - Config: contracts/config.md
+      - Model profiles: contracts/model-profile.md
   - Deployment: deployment.md
   - Troubleshooting: troubleshooting.md
   - Verification:
       - Roomba i5/i5+: verification/roomba_i5.md
       - Braava jet m6: verification/braava_m6.md
   - Research:
-      - Discovery (2026-11-08): research/discovery-2026-11-08.md
+      - Protocol notes: research/protocol-notes.md

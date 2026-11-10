@@ -1,4 +1,4 @@
-"""Start-on-boot installs (research R11, FR-015): what to run, the template renderer, the runner.
+"""Start-on-boot installs: what to run, the template renderer, the runner.
 
 The supervisor backends are `launchd.py` (macOS) and `systemd.py` (Linux). Both take the
 command runner and their target path as arguments, so tests never touch the real supervisor

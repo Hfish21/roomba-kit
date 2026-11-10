@@ -1,4 +1,4 @@
-"""API token admin: CLI-only local file operations (plan Complexity Tracking, Constitution VI).
+"""API token admin: CLI-only local file operations (plan Complexity Tracking).
 
 Creating a token shows its plaintext once, so these never go over HTTP or MCP. They run in the
 CLI process against `credentials.toml`; the service picks changes up on its next read.

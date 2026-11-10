@@ -53,7 +53,7 @@ Type: `DiscoveredRobot`
 | `supported` | bool | yes |  |
 | `profile_id` | str \| None | no |  |
 | `configured` | bool | no |  |
-| `guide` | str \| None | no | For a model without a profile, the guide to adding one (FR-024); otherwise null. |
+| `guide` | str \| None | no | For a model without a profile, the guide to adding one; otherwise null. |
 
 ## `clean`
 
@@ -441,7 +441,7 @@ Type: `list[DiscoveredRobot]`
 | `supported` | bool | yes |  |
 | `profile_id` | str \| None | no |  |
 | `configured` | bool | no |  |
-| `guide` | str \| None | no | For a model without a profile, the guide to adding one (FR-024); otherwise null. |
+| `guide` | str \| None | no | For a model without a profile, the guide to adding one; otherwise null. |
 
 ## `dock`
 
@@ -921,7 +921,7 @@ Type: `Robot`
 | `address` | str | yes |  |
 | `connection` | ConnectionState | yes |  |
 | `capabilities` | list[CapabilityStatus] | yes |  |
-| `guide` | str \| None | no | For a model without a profile, the guide to adding one (FR-024); otherwise null. |
+| `guide` | str \| None | no | For a model without a profile, the guide to adding one; otherwise null. |
 
 ## `get_settings`
 
@@ -1195,7 +1195,7 @@ Type: `list[Robot]`
 | `address` | str | yes |  |
 | `connection` | ConnectionState | yes |  |
 | `capabilities` | list[CapabilityStatus] | yes |  |
-| `guide` | str \| None | no | For a model without a profile, the guide to adding one (FR-024); otherwise null. |
+| `guide` | str \| None | no | For a model without a profile, the guide to adding one; otherwise null. |
 
 ## `list_rooms`
 

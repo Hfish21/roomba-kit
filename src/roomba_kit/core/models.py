@@ -63,7 +63,7 @@ TERMINAL_OUTCOMES: frozenset[MissionOutcome] = frozenset(MissionOutcome) - {
 
 
 ADD_A_MODEL_GUIDE = "docs/guides/adding-a-model.md"
-_GUIDE = "For a model without a profile, the guide to adding one (FR-024); otherwise null."
+_GUIDE = "For a model without a profile, the guide to adding one; otherwise null."
 
 
 class Robot(KitModel):
@@ -261,7 +261,7 @@ class ActivityTransition(KitModel):
 
 
 class MissionDetail(Mission):
-    """One mission from local history, with its activity transitions (FR-045)."""
+    """One mission from local history, with its activity transitions."""
 
     transitions: list[ActivityTransition] = Field(
         default_factory=list, description="The mission's activity changes, oldest first"

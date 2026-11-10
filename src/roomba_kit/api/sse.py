@@ -1,4 +1,4 @@
-"""`GET /v1/events` as a Server-Sent Events stream (T053, research R3, contracts/events.md).
+"""`GET /v1/events` as a Server-Sent Events stream (contracts/events.md).
 
 With `Accept: text/event-stream`, `events_list` streams instead of returning a page. Each frame
 carries `id: <seq>`, `event: <type>` and `data: <envelope JSON>`. A reconnecting client sends

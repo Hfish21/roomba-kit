@@ -65,7 +65,7 @@ COMMAND_CAPABILITIES: frozenset[Capability] = frozenset(
 
 
 class Verification(BaseModel):
-    """Whether a capability has been exercised on real hardware (Constitution VIII)."""
+    """Whether a capability has been exercised on real hardware."""
 
     model_config = ConfigDict(frozen=True)
 

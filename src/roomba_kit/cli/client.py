@@ -1,4 +1,4 @@
-"""The CLI's HTTP client for the service. The CLI never talks to robots (Constitution II)."""
+"""The CLI's HTTP client for the service. The CLI never talks to robots."""
 
 from collections.abc import Mapping
 from dataclasses import dataclass

@@ -1,4 +1,4 @@
-"""SC-002 / Constitution III: every registry operation is identical on HTTP, MCP and CLI (T037).
+"""Every registry operation is identical on HTTP, MCP and CLI.
 
 Each operation must appear on every surface it declares, under its own name, with exactly the
 params of its params model, and with a result schema derived from the same model. The only ops
@@ -135,9 +135,7 @@ def _contract_ops() -> set[str]:
     import re
     from pathlib import Path
 
-    text = (
-        Path(__file__).parents[2] / "specs/001-roomba-kit-v1/contracts/operations.md"
-    ).read_text()
+    text = (Path(__file__).parents[2] / "docs/contracts/operations.md").read_text()
     names: set[str] = set()
     for line in text.splitlines():
         if m := re.match(r"^\| ((?:`[a-z_]+`(?: / )?)+) \|", line):
@@ -166,7 +164,7 @@ def _leaves(group: click.Group, path: tuple[str, ...] = ()) -> list[str]:
 def test_every_cli_command_is_in_the_surfaces_contract():
     from pathlib import Path
 
-    text = (Path(__file__).parents[2] / "specs/001-roomba-kit-v1/contracts/surfaces.md").read_text()
+    text = (Path(__file__).parents[2] / "docs/contracts/surfaces.md").read_text()
     tree = text[text.index("- Command tree:") :]
     leaves = _leaves(build_cli())
     assert len(leaves) >= 40, "too few commands; the check would pass vacuously"

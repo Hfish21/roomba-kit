@@ -1,4 +1,4 @@
-"""Local mission history (T086, FR-044, US8).
+"""Local mission history.
 
 A service component persists history from events alone: `mission.started` and
 `mission.finished` upsert the `Mission` (by robot and mission ID, so a re-sent mission never
@@ -80,7 +80,7 @@ def _ts(dt: datetime) -> str:
 
 async def get_mission(store: Store, mission_id: str) -> MissionDetail | None:
     """The mission with this ID (the newest, should two robots ever share one), with its
-    activity transitions in time order (FR-045)."""
+    activity transitions in time order."""
     row = await store.fetchone(
         "SELECT * FROM missions WHERE id = ? ORDER BY started_at DESC LIMIT 1", (mission_id,)
     )

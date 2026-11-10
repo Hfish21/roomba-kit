@@ -1,4 +1,4 @@
-"""Live position on request (FR-039). The stream is `position` events (service/position.py)."""
+"""Live position on request. The stream is `position` events (service/position.py)."""
 
 from pydantic import BaseModel, Field
 

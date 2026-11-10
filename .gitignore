@@ -5,6 +5,7 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.import_linter_cache/
 dist/
 build/
 *.egg-info/
@@ -21,5 +22,9 @@ state.db
 # OS
 .DS_Store
 
-# Agent worktrees
-.claude/worktrees/
+# Local agent tooling and design-process notes (kept on disk, not shipped)
+.claude/
+.specify/
+specs/
+CLAUDE.md
+HANDOFF.md

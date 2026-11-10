@@ -1,4 +1,4 @@
-"""Adding a model needs no surface change (SC-011, quickstart V10).
+"""Adding a model needs no surface change.
 
 A made-up profile is installed through a patched entry-point list. It must show up on all
 three generated surfaces, and nothing under `api/`, `mcp/` or `cli/` may name a profile.

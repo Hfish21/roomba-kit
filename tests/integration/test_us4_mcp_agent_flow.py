@@ -1,4 +1,4 @@
-"""US4 / SC-008 (quickstart V4): an agent with only the MCP tools cleans a room and reports (T066).
+"""US4 / SC-008: an agent with only the MCP tools cleans a room and reports.
 
 The flow an agent follows for "clean the laundry room with the vacuum and tell me when it's
 done": `list_robots` → `clean_rooms` → `mission_wait`. It runs through both MCP transports'

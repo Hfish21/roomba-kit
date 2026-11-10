@@ -6,7 +6,7 @@ generators, so no surface is written by hand.
 ## Versioning
 
 - One kit contract version, `CONTRACT_VERSION` in `src/roomba_kit/core/contract.py` (currently
-  `1`), covers all three machine contracts (Constitution VII):
+  `1`), covers all three machine contracts:
   - the HTTP API base path `/v<N>` (`API_PREFIX`);
   - the event schema `roomba-kit.event/v<N>`;
   - the MCP tool set, reported as the MCP server's `serverInfo.version` on both transports.

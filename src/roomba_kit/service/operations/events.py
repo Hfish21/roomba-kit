@@ -1,4 +1,4 @@
-"""Events and mission waits (T052, FR-036, FR-037, contracts/events.md).
+"""Events and mission waits (contracts/events.md).
 
 `GET /v1/events` also streams SSE with `Accept: text/event-stream` (api/sse.py); that is a
 presentation of `events_list`, not another operation.

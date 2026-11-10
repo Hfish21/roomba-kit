@@ -1,4 +1,4 @@
-"""Service operations: health, status and the redacted config view (FR-011, FR-014)."""
+"""Service operations: health, status and the redacted config view."""
 
 from datetime import datetime
 from typing import Literal

@@ -1,4 +1,4 @@
-"""Hardware verification (research R16, Constitution VIII): scripted, reversible checks per
+"""Hardware verification: scripted, reversible checks per
 capability, recorded in `verification_runs` and rendered as a markdown report.
 
 - Settings: write an alternate value, read it back, restore the original.

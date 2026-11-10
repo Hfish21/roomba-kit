@@ -1,4 +1,4 @@
-"""US6: cloud extras when available, and clean degradation (FR-041–FR-043, SC-004, V6)."""
+"""US6: cloud extras when available, and clean degradation (V6)."""
 
 import asyncio
 import copy
@@ -242,20 +242,20 @@ async def test_cloud_down_cache_and_local_ops_unaffected(client, ctx, fake_cloud
     coverage = (await client.get(f"/v1/robots/{I5}/missions/{PUBLISHED}/coverage")).json()
 
     await cloud_down(ctx, fake_cloud)
-    # Cached results are served with their original retrieval time (FR-043).
+    # Cached results are served with their original retrieval time.
     assert (await client.get(f"/v1/robots/{I5}/floor-plan")).json() == plan
     cached = await client.get(f"/v1/robots/{I5}/missions/{PUBLISHED}/coverage")
     assert cached.json() == coverage
-    # History isn't served stale: FR-043 exempts only rooms and floor plans (FR-042).
+    # History isn't served stale: FR-043 exempts only rooms and floor plans.
     assert history and unavailable(await client.get(f"/v1/robots/{I5}/cloud-history")) == (
         "connection_failed"
     )
-    # Nothing cached: cloud_unavailable with the reason (FR-042).
+    # Nothing cached: cloud_unavailable with the reason.
     assert unavailable(await client.get(f"/v1/robots/{M6}/floor-plan")) == "connection_failed"
     response = await client.get(f"/v1/robots/{I5}/missions/{RUNNING}/coverage")
     assert unavailable(response) == "connection_failed"
 
-    # Local commands, state and events are unaffected and fast (Constitution I, SC-004).
+    # Local commands, state and events are unaffected and fast.
     state_events = collect(ctx, EventType.STATE_CHANGED)
     factory.get(I5).emit({"batPct": 42})
     await until(lambda: ctx.session(I5).state.battery_pct == 42)

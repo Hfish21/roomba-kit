@@ -117,7 +117,7 @@ def _deny(request: Request, ctx: ServiceContext) -> Response | None:
 
 
 def _add_doc_routes(app: FastAPI, ctx: ServiceContext) -> None:
-    """OpenAPI JSON and Swagger UI, both behind bearer auth (FR-048). The UI embeds the spec
+    """OpenAPI JSON and Swagger UI, both behind bearer auth. The UI embeds the spec
     inline, so it works once the page itself was fetched with a token."""
 
     async def openapi_json(request: Request) -> Response:

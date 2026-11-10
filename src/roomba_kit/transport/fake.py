@@ -1,6 +1,6 @@
 """In-memory transports for tests: a scripted robot, a canned cloud and a password retriever.
 
-Reactions follow the protocol shapes seen on hardware (docs/research/discovery-2026-11-08.md §2).
+Reactions follow the protocol shapes seen on hardware (docs/research/protocol-notes.md §2).
 Every delay is an `asyncio.sleep`, so tests run fast with small values.
 """
 

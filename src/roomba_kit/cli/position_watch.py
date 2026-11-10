@@ -2,7 +2,7 @@
 
 Without `--watch` it's `get_position`. With it, it prints the current answer (so a docked robot
 shows `no_fix`), then follows the service's live `position` events over SSE
-(`GET /v1/events`, `Accept: text/event-stream`). Presentation only (Constitution III).
+(`GET /v1/events`, `Accept: text/event-stream`). Presentation only.
 """
 
 import json

@@ -1,4 +1,4 @@
-"""`roomba-kit mcp`: serve the kit's MCP tools over stdio for local agent clients (T065)."""
+"""`roomba-kit mcp`: serve the kit's MCP tools over stdio for local agent clients."""
 
 import asyncio
 import logging

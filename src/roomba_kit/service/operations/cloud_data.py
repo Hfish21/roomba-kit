@@ -1,6 +1,6 @@
-"""Cloud records: floor plan, cloud mission history and per-mission coverage (FR-041–FR-043).
+"""Cloud records: floor plan, cloud mission history and per-mission coverage.
 
-Optional extras (Constitution I). Each returns `cloud_unavailable` with `details.reason` when the
+Optional extras. Each returns `cloud_unavailable` with `details.reason` when the
 cloud can't answer; floor plans and history fall back to the last cached copy, with its
 `retrieved_at`. The live timeline is delivered as `cloud.timeline` events, not an operation.
 """

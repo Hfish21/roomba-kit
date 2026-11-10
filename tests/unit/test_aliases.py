@@ -1,4 +1,4 @@
-"""`roomba-kit clean` dispatches to `clean` or `clean_rooms` (cli/aliases.py, T060)."""
+"""`roomba-kit clean` dispatches to `clean` or `clean_rooms` (cli/aliases.py)."""
 
 import json
 

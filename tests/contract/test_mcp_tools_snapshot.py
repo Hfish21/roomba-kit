@@ -1,4 +1,4 @@
-"""MCP tool names, descriptions, schemas and annotations are a contract (FR-049): diffs show it."""
+"""MCP tool names, descriptions, schemas and annotations are a contract: diffs show it."""
 
 from typing import Any
 

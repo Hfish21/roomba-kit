@@ -1,4 +1,4 @@
-"""`roomba-kit setup` (T046) against a mocked service: it only calls registry operations."""
+"""`roomba-kit setup` against a mocked service: it only calls registry operations."""
 
 import json
 

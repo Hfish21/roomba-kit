@@ -1,6 +1,6 @@
 # Contract: Configuration & Secrets (v1)
 
-## Locations (research R5)
+## Locations
 
 | What | Default | Override |
 |---|---|---|
@@ -64,23 +64,23 @@ These use pydantic-settings, with `__` as the nesting delimiter.
 | `ROOMBA_KIT_CLOUD__USERNAME`, `ROOMBA_KIT_CLOUD__PASSWORD` | Cloud credentials |
 | `ROOMBA_KIT_ROBOTS` | The robot list: a JSON list of `{id, name, address, profile}` merged by `id` over `config.toml` (an entry overrides only the fields it sets; new ids are added). Invalid JSON or entries → `invalid_request` |
 | `ROOMBA_KIT_ROBOTS__<BLID>__PASSWORD` | One robot's password |
-| `ROOMBA_KIT_API_TOKEN` | Token the CLI and stdio MCP send (otherwise read from the `cli` token file). The service also accepts it as a bearer token named `env` (≥16 characters, else the service refuses to start), so a container can run from env alone (FR-010) |
+| `ROOMBA_KIT_API_TOKEN` | Token the CLI and stdio MCP send (otherwise read from the `cli` token file). The service also accepts it as a bearer token named `env` (≥16 characters, else the service refuses to start), so a container can run from env alone |
 
 Precedence: env, then the files, then defaults. Values coming from env are never written back to
 disk: `save_config` only takes the file's own content, so env robots stay out of `config.toml`.
 
 ## Rules
 
-- The service refuses to start if `credentials.toml` mode is broader than 0600 (FR-013), and
+- The service refuses to start if `credentials.toml` mode is broader than 0600, and
   prints the `chmod` fix.
 - The service re-reads `credentials.toml` when its mtime changes, so tokens created by the CLI
   take effect without a restart.
 - A logging filter redacts every known secret value and the patterns `password=`, `token` and
-  `Authorization` (FR-012).
+  `Authorization`.
 - The plaintext `cli` token is stored at `<config>/cli.token` (0600), next to
-  `credentials.toml`, so every credential lives in the config dir (FR-009) and the local CLI can
+  `credentials.toml`, so every credential lives in the config dir and the local CLI can
   authenticate. A broader mode gets the same refusal as `credentials.toml`: the CLI won't read
-  it and the service won't start (FR-013).
+  it and the service won't start.
 - Earlier builds kept it at `<state>/cli.token`. The first lookup on a new build copies it to
   `<config>` (keeping its mode) unless a token is already there, and leaves the old file so an
   older CLI or service on the same machine keeps working. The old copy is deleted the next time

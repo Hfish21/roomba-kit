@@ -1,9 +1,9 @@
 """Setup operations: discovery, adding and removing robots, and their passwords
 (contracts/operations.md, "System & setup"; FR-001–FR-006).
 
-Every robot password is verified by connecting before it's kept (FR-006). The check runs
+Every robot password is verified by connecting before it's kept. The check runs
 through the robot's own session, not a second connection: robots accept one local client, so a
-side probe would evict the session or be refused (Constitution II). The password is written,
+side probe would evict the session or be refused. The password is written,
 the session reconnects with it, and the previous password is put back unless it connects.
 """
 
@@ -97,7 +97,7 @@ def _write(ctx: ServiceContext, robot_id: str, password: str | None) -> str | No
 async def store_verified_password(
     ctx: ServiceContext, session: RobotSession, password: str
 ) -> Literal[ConnectionState.CONNECTED, ConnectionState.AUTH_FAILED]:
-    """Keep `password` for the robot only if its session connects with it (FR-006).
+    """Keep `password` for the robot only if its session connects with it.
 
     Returns `CONNECTED` (kept) or `AUTH_FAILED` (rejected; the previous password is restored).
     Raises `robot_offline` / `connection_held_elsewhere` when it can't be checked, after

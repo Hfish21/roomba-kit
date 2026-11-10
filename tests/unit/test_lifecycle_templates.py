@@ -1,4 +1,4 @@
-"""Rendered start-on-boot units (T093). Rendering only: nothing is installed or run."""
+"""Rendered start-on-boot units. Rendering only: nothing is installed or run."""
 
 import plistlib
 from importlib.resources import files

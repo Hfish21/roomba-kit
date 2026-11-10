@@ -68,7 +68,7 @@ def _parse_cli(argv):
 
 
 def test_every_operation_has_a_working_example_per_surface(gen_docs):
-    """FR-051 / Constitution IX: CLI, curl and MCP examples, each valid for its surface."""
+    """CLI, curl and MCP examples, each valid for its surface."""
     load_operations()
     page = gen_docs.render()["operations.md"]
     for op in registry.all():

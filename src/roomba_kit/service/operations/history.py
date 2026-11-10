@@ -1,4 +1,4 @@
-"""Local mission history queries (T087, FR-044, FR-045)."""
+"""Local mission history queries."""
 
 from datetime import UTC, datetime
 

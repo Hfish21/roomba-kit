@@ -1,4 +1,4 @@
-"""The published OpenAPI document is a contract (FR-048, Constitution VII): diffs show changes."""
+"""The published OpenAPI document is a contract: diffs show changes."""
 
 from roomba_kit.api.app import create_app
 from tests.contract._snapshot import as_json, check

@@ -95,7 +95,7 @@ class ConfigModel(BaseModel):
 
 
 ROBOTS_ENV = "ROOMBA_KIT_ROBOTS"
-"""A JSON list of robot entries merged by id over `config.toml` (FR-010). Never written back."""
+"""A JSON list of robot entries merged by id over `config.toml`. Never written back."""
 
 
 class _EnvSource(EnvSettingsSource):

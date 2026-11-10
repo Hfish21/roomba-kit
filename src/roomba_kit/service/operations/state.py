@@ -1,4 +1,4 @@
-"""Live state on demand (T049, FR-026, FR-027)."""
+"""Live state on demand."""
 
 from pydantic import BaseModel, Field
 

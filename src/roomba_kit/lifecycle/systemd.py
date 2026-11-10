@@ -1,4 +1,4 @@
-"""Linux start-on-boot: a `systemd --user` unit (research R11, T090)."""
+"""Linux start-on-boot: a `systemd --user` unit."""
 
 import getpass
 import os

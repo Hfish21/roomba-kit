@@ -1,4 +1,4 @@
-"""Command confirmation (research R9): did the robot's state show the command took effect?"""
+"""Command confirmation: did the robot's state show the command took effect?"""
 
 import time
 from collections.abc import Callable
@@ -71,7 +71,7 @@ def _mission_changed(v: ConfirmView) -> bool:
 
 
 def _started(activity: Activity, *echoes: str) -> Callable[[ConfirmView], bool]:
-    """`activity` reached; if the robot was already in it, only with a fresh effect (FR-029).
+    """`activity` reached; if the robot was already in it, only with a fresh effect.
 
     Without that, `clean` sent to a cleaning robot that ignored it would confirm at 0 ms.
     """

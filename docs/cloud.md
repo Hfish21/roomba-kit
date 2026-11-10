@@ -23,7 +23,7 @@ See the [support matrix](reference/support-matrix.md).
 
 iRobot has no public cloud API. The kit talks to the same endpoints the iRobot app uses, through
 a reverse-engineered client library, and iRobot (now owned by Picea) can change or close them
-at any time. That's why the cloud is optional by design (Constitution I): treat these extras as
+at any time. That's why the cloud is optional by design: treat these extras as
 nice to have, and never build an automation that needs one to control a robot. If the cloud
 API changes, the extras stop working and report `cloud_unavailable`; local control doesn't
 notice.

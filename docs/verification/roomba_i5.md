@@ -24,16 +24,16 @@ follow the summary, oldest first; they contain no robot IDs, names or addresses.
 | `live_position`, `setting.carpet_boost` | — not supported | `live_position` verified absent in discovery (368 silent requests) |
 
 Runs that failed or were superseded are kept below as the record. Each one drove a kit
-change logged in `specs/001-roomba-kit-v1/decisions.md`:
+change:
 
 | Run | What happened | Fix |
 |---|---|---|
-| run-20261109-140359 | No state after HOME-button pairing (session connected, robot sent nothing) | #64 retry a silent session |
-| run-20261109-142228 | `clean` "passed" on a 1 s cleaning blip; mission aborted right after an evac (not-ready 68) | #66 sustained clean, wait for not-ready |
-| run-20261109-170859 | `pause` 9 s into a clean ended the mission | #70 clean 30 s before pausing |
-| run-20261109-185249, -190707 | Commands sent on a half-dead link | #73, #75 detect dead links and really reconnect |
-| run-20261109-190834 | `dock` while cleaning was ignored | #72 pause before dock |
-| run-20261109-191625 | `reboot` ignored (wrong firmware command) | #71 send `reset` |
+| run-20261109-140359 | No state after HOME-button pairing (session connected, robot sent nothing) | retry a silent session |
+| run-20261109-142228 | `clean` "passed" on a 1 s cleaning blip; mission aborted right after an evac (not-ready 68) | sustained clean, wait for not-ready |
+| run-20261109-170859 | `pause` 9 s into a clean ended the mission | clean 30 s before pausing |
+| run-20261109-185249, -190707 | Commands sent on a half-dead link | detect dead links and really reconnect |
+| run-20261109-190834 | `dock` while cleaning was ignored | pause before dock |
+| run-20261109-191625 | `reboot` ignored (wrong firmware command) | send `reset` |
 
 <a id="hw1-laundry-room-clean"></a>
 ## HW-1: Laundry Room clean (`clean_rooms`, `cloud.timeline`)

@@ -1,4 +1,4 @@
-"""US8 (quickstart V8): a local record of every mission that survives restarts (T085)."""
+"""US8: a local record of every mission that survives restarts."""
 
 import asyncio
 import itertools

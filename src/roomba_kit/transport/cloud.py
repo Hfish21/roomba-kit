@@ -1,6 +1,6 @@
 """The iRobot cloud adapter over roombapy-prime 0.8.3, and the only module importing it.
 
-One `CloudAccount` login per account, shared by every robot (R12), and one cloud MQTT session
+One `CloudAccount` login per account, shared by every robot, and one cloud MQTT session
 per account carrying every robot's timeline subscription. This adapter only subscribes: it never
 publishes, least of all to `.../req`, which AWS policy answers by dropping the session.
 """

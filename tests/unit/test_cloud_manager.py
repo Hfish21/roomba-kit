@@ -1,4 +1,4 @@
-"""CloudManager (T042): status, backoff, rejected credentials, events, configure/clear."""
+"""CloudManager: status, backoff, rejected credentials, events, configure/clear."""
 
 import asyncio
 from pathlib import Path

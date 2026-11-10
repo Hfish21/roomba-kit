@@ -1,4 +1,4 @@
-"""US3: clean specific rooms by name (FR-008, FR-031, FR-032, FR-043, quickstart V3)."""
+"""US3: clean specific rooms by name."""
 
 import asyncio
 import time

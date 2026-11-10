@@ -31,7 +31,7 @@ The m6 has 1 Kitchen; rooms 0 and 2–5 have no name in the app. See the
 |---|---|---|---|
 | Imported | `import_rooms`, from the iRobot cloud | the app's name, or null | kept across re-imports of the same map version |
 | Named | `name_room`, on any room on the current map | — | your name |
-| Learned | The kit saw the robot echo a room clean (FR-032) | null | null until you name it |
+| Learned | The kit saw the robot echo a room clean | null | null until you name it |
 
 Each room has an **effective name** (`name`): its local name, then its cloud name, then the
 placeholder `Room <id>`. So the m6's unnamed rooms show as `Room 0`, `Room 2`, …
@@ -51,7 +51,7 @@ Import replaces what's stored for the robot with the cloud's current map. Local 
 same map version are kept; rooms stored for older versions are dropped.
 
 The result is cached in the kit's state database, so rooms stay usable while the cloud is down
-or logged out (FR-043). `rooms list` shows `retrieved_at`, when they were last fetched. If the
+or logged out. `rooms list` shows `retrieved_at`, when they were last fetched. If the
 cloud is unreachable, `import_rooms` fails with `cloud_unavailable` and nothing stored changes.
 
 ### Without the cloud: learned rooms and local names

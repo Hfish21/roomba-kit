@@ -1,4 +1,4 @@
-"""macOS start-at-login: a launchd agent in the user's GUI domain (research R11, T089)."""
+"""macOS start-at-login: a launchd agent in the user's GUI domain."""
 
 import os
 import plistlib

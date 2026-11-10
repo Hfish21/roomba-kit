@@ -49,7 +49,7 @@ def _flag(key: str, *, inverted: bool = False) -> SettingMapping:
 
 
 _PASSES = {"auto": (False, False), "one": (True, False), "two": (True, True)}
-"""`passes` -> (`noAutoPasses`, `twoPass`). They are always written together (FR-035)."""
+"""`passes` -> (`noAutoPasses`, `twoPass`). They are always written together."""
 
 
 def _read_passes(r: Reported) -> str | None:

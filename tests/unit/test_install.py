@@ -1,4 +1,4 @@
-"""`service install|uninstall` (T089, T090, T092) against a fake supervisor.
+"""`service install|uninstall` against a fake supervisor.
 
 Nothing here runs `launchctl`/`systemctl` or writes outside `tmp_path`.
 """

@@ -146,7 +146,7 @@ class ServiceContext:
     # -- lifecycle -------------------------------------------------------------------------------
 
     async def start(self) -> None:
-        """Start everything, or raise without leaving anything running (FR-013, SC-009)."""
+        """Start everything, or raise without leaving anything running."""
         self.credentials.refresh(force=True)  # refuses a credentials file broader than 0600
         self.tokens.check()  # and a `cli.token` broader than 0600, or a short env token
         self._redactor = install_redaction(self.secrets)
@@ -241,7 +241,7 @@ class ServiceContext:
             ) from None
 
     def resolve_robot(self, ref: str) -> RobotSession:
-        """A robot by its ID, or by an unambiguous display name (case-insensitive, FR-020)."""
+        """A robot by its ID, or by an unambiguous display name (case-insensitive)."""
         if ref in self.sessions:
             return self.sessions[ref]
         by_id = [s for s in self.sessions.values() if s.robot_id.lower() == ref.lower()]

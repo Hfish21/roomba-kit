@@ -1,6 +1,6 @@
-"""`roomba-kit setup`: the guided setup wizard (FR-001–FR-008, T046).
+"""`roomba-kit setup`: the guided setup wizard.
 
-Presentation only (Constitution III): every change goes through a registry operation on the
+Presentation only: every change goes through a registry operation on the
 service. The one local step is minting the `cli` API token on first run, which is the
 `token_create` local file op, since nothing can call the service before that token exists.
 """

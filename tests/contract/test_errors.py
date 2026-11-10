@@ -1,11 +1,11 @@
-"""The error catalogue in code equals the table in contracts/errors.md (T038)."""
+"""The error catalogue in code equals the table in contracts/errors.md."""
 
 import re
 from pathlib import Path
 
 from roomba_kit.core.errors import CLI_EXIT, HTTP_STATUS, ErrorCode
 
-CONTRACT = Path(__file__).parents[2] / "specs/001-roomba-kit-v1/contracts/errors.md"
+CONTRACT = Path(__file__).parents[2] / "docs/contracts/errors.md"
 ROW = re.compile(r"^\| `(?P<code>[a-z_]+)` \|[^|]*\| (?P<http>[^|]+?) \| (?P<exit>\d+) \|$")
 
 

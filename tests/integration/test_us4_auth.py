@@ -1,4 +1,4 @@
-"""US4 / FR-048 (quickstart V4): non-health endpoints need a token; revocation is live (T063).
+"""US4 / FR-048: non-health endpoints need a token; revocation is live.
 
 Routes are taken from the running app, so endpoints added later are covered automatically.
 """

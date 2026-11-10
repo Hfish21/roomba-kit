@@ -8,7 +8,7 @@ from roomba_kit.profiles.loader import load_profiles
 
 MOTION_NOTE = "⚠ Moves the robot: it will physically start, stop or drive."
 PER_SETTING_OPS = frozenset({"get_settings", "set_setting"})
-"""Operations with no single capability: each `setting.<name>` has its own (FR-049)."""
+"""Operations with no single capability: each `setting.<name>` has its own."""
 
 
 def support(capability: Capability) -> dict[str, str]:
@@ -53,7 +53,7 @@ def param_docs(op: Operation) -> list[str]:
 
 
 def describe(op: Operation) -> str:
-    """Purpose, parameters, supported models, verification and the motion warning (FR-049)."""
+    """Purpose, parameters, supported models, verification and the motion warning."""
     parts = [op.description.strip()]
     params = param_docs(op)
     if params:

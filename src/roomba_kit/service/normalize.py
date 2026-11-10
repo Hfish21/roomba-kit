@@ -1,4 +1,4 @@
-"""Map a merged raw `state.reported` dict to a kit `RobotState` (research R8).
+"""Map a merged raw `state.reported` dict to a kit `RobotState`.
 
 Protocol keys stay in this module and in profiles. Fragments are partial right after connect,
 so every read tolerates a missing or oddly typed key.
@@ -123,7 +123,7 @@ def initiator(raw: object) -> Initiator:
 def code_text(
     code: int, overrides: Mapping[int, str], shared: Mapping[int, str], label: str
 ) -> str:
-    """Readable text for an error or not-ready code (T055): the profile's override, then the
+    """Readable text for an error or not-ready code: the profile's override, then the
     shared table in `profiles/texts.py`, else `"<label> <code>"`."""
     return overrides.get(code) or shared.get(code) or f"{label} {code}"
 

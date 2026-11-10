@@ -1,4 +1,4 @@
-"""`roomba-kit verify`: the generated command plus a motion prompt and `--write-report` (R16).
+"""`roomba-kit verify`: the generated command plus a motion prompt and `--write-report`.
 
 `--write-report` appends the run's markdown to `docs/verification/<profile>.md` in the repo
 checkout it is run from, so the run can be committed and cited by the profile.

@@ -1,7 +1,7 @@
-"""`roomba-kit mcp`: the MCP tool set over stdio, proxied to the running service (research R2).
+"""`roomba-kit mcp`: the MCP tool set over stdio, proxied to the running service.
 
 The tools are the in-service ones (`build_mcp`), with an executor that sends each call to the
-HTTP API using the CLI's token. This process never talks to robots (Constitution II). If the
+HTTP API using the CLI's token. This process never talks to robots. If the
 service is down, every call fails with `service_unavailable`.
 """
 

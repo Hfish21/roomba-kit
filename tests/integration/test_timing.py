@@ -1,8 +1,8 @@
-"""Timing success criteria (T109): SC-003, SC-005, SC-006 and SC-009, against fakes.
+"""Timing success criteria: SC-003, SC-005, SC-006 and SC-009, against fakes.
 
 How time is handled, per criterion:
 - SC-003 (confirmation p95 ≤ 10 s): real HTTP calls against fakes whose reaction delays are drawn
-  from distributions based on the hardware observations in docs/research/discovery-2026-11-08.md
+  from distributions based on the hardware observations in docs/research/protocol-notes.md
   §2, divided by `SCALE`. Only the injected robot delay is scaled back up; the kit's own overhead
   (wall time beyond the scaled delay) is added in real seconds, and is bounded on its own, so
   runner jitter isn't amplified `SCALE`-fold but a slow kit still fails.

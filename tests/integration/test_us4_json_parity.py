@@ -1,4 +1,4 @@
-"""US4 / FR-047: `roomba-kit … --json` prints exactly the HTTP response body (T064).
+"""US4 / FR-047: `roomba-kit … --json` prints exactly the HTTP response body.
 
 Every read operation on both the CLI and HTTP is run both ways against one in-process service,
 for a valid robot and an unknown one (so error envelopes are compared too). The CLI runs in a
@@ -24,7 +24,7 @@ from tests.integration._us4 import FIXTURES, Served, make_ctx, sample_params, se
 
 # CLI commands that a lifecycle extra replaces with a local composite, so their output isn't
 # the operation's body by design.
-COMPOSITES: dict[str, str] = {}  # `service status --json` now prints the HTTP body (FR-047)
+COMPOSITES: dict[str, str] = {}  # `service status --json` now prints the HTTP body
 
 
 def read_ops() -> list[Operation]:

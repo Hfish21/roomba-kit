@@ -1,4 +1,4 @@
-"""Shared readable text for robot error and not-ready codes (T055, FR-026).
+"""Shared readable text for robot error and not-ready codes.
 
 `normalize` looks a code up in the robot's profile overrides first, then here, then falls back
 to `"Error <code>"` / `"Not ready <code>"`.

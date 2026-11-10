@@ -1,4 +1,4 @@
-# Roomba Kit service image (research R11). Build from the repo root:
+# Roomba Kit service image. Build from the repo root:
 #   docker build -f deploy/Dockerfile -t roomba-kit .
 # Run it with deploy/compose.yaml: discovery needs the host network.
 

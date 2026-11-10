@@ -38,7 +38,7 @@ def test_capabilities_and_verification(profile_id):
     assert set(profile.capabilities) == verified | unverified
     for cap in verified:
         assert profile.capabilities[cap].is_verified, cap
-        # Constitution VIII: every verified capability cites its hardware run.
+        # Every verified capability cites its hardware run.
         run = profile.capabilities[cap].run or ""
         assert run.startswith(f"docs/verification/{profile_id}.md#"), (cap, run)
     for cap in unverified:

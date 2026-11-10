@@ -6,7 +6,7 @@ surface code. The CLI, HTTP API and MCP server are generated from the operation 
 read capabilities from whatever profiles are installed, so adding a model never touches
 `api/`, `mcp/` or `cli/`. `tests/profiles/test_fake_model.py` enforces that.
 
-The convention is specified in `specs/001-roomba-kit-v1/contracts/model-profile.md`. This
+The convention is specified in [the model-profile contract](../contracts/model-profile.md). This
 guide walks through its five steps, using the Braava jet m6 profile
 (`src/roomba_kit/profiles/braava_m6.py`) as the worked example, as if V1 hadn't shipped it.
 
@@ -30,7 +30,7 @@ roomba-kit service start
 ```
 
 `scripts/capture_fixture.py` is a developer tool, not a kit surface: raw protocol payloads
-never appear on the API, MCP or CLI (Constitution V). It:
+never appear on the API, MCP or CLI. It:
 
 - refuses to run while the service's pidfile is live, or while a service answers at the
   configured `server.host`/`server.port`. A service on another host can't be detected, so
@@ -166,8 +166,7 @@ reports something `normalize.py` doesn't map yet. Fix it there, with a test in
 
 ## 4. Verify on hardware
 
-A capability is `verified` only after it has been exercised on a real robot of that model
-(Constitution VIII). Until then, discovery, `roomba-kit capabilities ROBOT`, the tool
+A capability is `verified` only after it has been exercised on a real robot of that model. Until then, discovery, `roomba-kit capabilities ROBOT`, the tool
 descriptions and the support matrix all show it as `unverified`.
 
 ```bash

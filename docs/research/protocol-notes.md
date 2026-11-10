@@ -1,13 +1,13 @@
-# Discovery record: controlling iRobot robots without the iRobot app (2026-11-08)
+# Protocol notes: controlling iRobot robots without the iRobot app
 
-**Conclusion:** Both robots (Roomba i5+ and Braava jet m6) are fully controllable over the home
+**Conclusion:** Both robots (Roomba i5+ and Braava jet m6) are fully controllable over your
 LAN without iRobot's app or cloud, using the robot's local MQTT interface. iRobot's unofficial
 cloud adds room names, floor plans, history, coverage paths and a live room-level timeline. Only
 the m6 reports live x/y position; the i5+ firmware never does, by any route we found. Custom
 firmware is not viable (secure boot). Everything below was **verified on hardware** unless it is
 marked *(inferred)* or *(third-party)*.
 
-Session transcript: `recall --show b10c0fbc`. Test fixtures built from these captures:
+Captured on 2026-11-08 on a real i5+ and m6. Test fixtures built from these captures:
 `tests/fixtures/captures/`.
 
 ---
@@ -21,15 +21,15 @@ Session transcript: `recall --show b10c0fbc`. Test fixtures built from these cap
 | Dock | Clean Base `ADJ-N1` (auto-empty) | Standard dock |
 | Navigation | Gyro/IMU (BMI088) + wheel odometry + floor-tracking sensor. **No camera** (`nGoodLmrks=0` over 678 h) | Camera vSLAM |
 | Secure boot | Section present | `enforce: 2`, efuse set, so enforced |
-| Stored maps | 1 (`FbKwAujERSazAALZRD_rEg`, version `231231T204559`) | 1 (`5brjBHI-RtKr1Yt7JzFjDw`, version `260128T162258`) |
+| Stored maps | 1 | 1 |
 
 ## 2. Local control (no cloud)
 
 **Discovery**
 - UDP broadcast `irobotmcs` → port 5678. Each robot replies with JSON (`robotid`, `robotname`,
   `ip`, `mac`, `sw`, `sku`, `cap`).
-- ⚠ This Mac's default route is a VPN (`utun3`), so broadcasting to `255.255.255.255` fails with
-  `EADDRNOTAVAIL`. Use the subnet broadcast `192.168.1.255`.
+- ⚠ If the host's default route is a VPN, broadcasting to `255.255.255.255` fails with
+  `EADDRNOTAVAIL`. Use the subnet's broadcast address instead (e.g. `192.168.1.255`).
 
 **Password**
 - Put the robot on its dock and hold HOME about 2 s until it chimes.
@@ -145,12 +145,12 @@ about 2 minutes after docking. Coverage is after-the-fact only, with minutes of 
 
 **Schedules:** the i5's last scheduled run was 2026-08-21 and the m6's was 2026-02-03, while the
 schedules still showed as enabled. Every schedule runs through cloud team routines, which matches
-the owner's "never runs on schedule" complaint.
+the common "never runs on schedule" complaint.
 
 **Docking is intermittent on the i5:**
 - In history, docking almost always took 0–2 min until it failed on 2026-08-20 and 2026-08-21.
 - Today's first run hunted for 70 min, crossing Living Room, Guest Bathroom, Laundry and Office,
-  until the owner placed it (`done_raw: plcDoc`).
+  until someone placed it (`done_raw: plcDoc`).
 - The second identical run docked on its own in about 90 s.
 - The likely cause is the dock's surroundings or IR line of sight *(inferred)*. The kit alerts
   on it (`dock_search_timeout`) rather than trying to fix it.
@@ -165,15 +165,4 @@ single-room routines *(inferred)*.
 | Custom firmware / root | No public root for i/j/m-series. The m6 enforces secure boot. |
 | Live i5 coordinates | Not exposed locally or via the cloud; see §3 |
 | Matter | Not offered on the i5 or m6 (only on 2025+ models) *(third-party)* |
-| Home Assistant as the platform | The owner wants owned software; HA libraries are used only as protocol evidence |
-
-## 7. Environment gotchas on this machine
-
-| Gotcha | What to do |
-|---|---|
-| VPN owns the default route | Use the subnet broadcast `192.168.1.255` for discovery |
-| `SPECIFY_INIT_DIR=~/context` is set globally in `~/.claude/settings.json` | The repo's `.specify/scripts/python/common.py` is patched so the nearest `.specify/` wins. Re-apply after `specify init --force`. |
-| The 1Password CLI intermittently fails reads | Testing credentials are in `~/scratch/roomba-kit/roomba.env` (0600; robot BLIDs and passwords plus iRobot login). Never commit them. |
-| The auto-mode classifier blocked a background+kill shell pattern | Use `run_in_background` with until-loops, not `&` plus `kill` |
-| `grep` is ugrep | `--exclude-dir` behaves differently; check warnings |
-| The i5 often strands itself | A human may need to put it back on the dock after test runs |
+| Home Assistant as the platform | The kit is standalone software; HA libraries are used only as protocol evidence |

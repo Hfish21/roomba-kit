@@ -1,9 +1,9 @@
-"""Snapshot files for the contract tests (T062). Regenerate after an intended contract change:
+"""Snapshot files for the contract tests. Regenerate after an intended contract change:
 
     UPDATE_SNAPSHOTS=1 uv run pytest tests/contract
 
 then review the diff: it is exactly what consumers of the API, MCP tools or CLI will see change.
-A breaking change also bumps the contract version (Constitution VII).
+A breaking change also bumps the contract version.
 """
 
 import json

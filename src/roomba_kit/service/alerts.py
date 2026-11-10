@@ -1,4 +1,4 @@
-"""`alert.dock_search_timeout` (T051, FR-038): a robot has been returning to its dock for longer
+"""`alert.dock_search_timeout`: a robot has been returning to its dock for longer
 than `alerts.dock_search_minutes`. Fires at most once per mission.
 
 Robots flicker out of `returning` for a moment while docking (a `run` blip on dock contact, the

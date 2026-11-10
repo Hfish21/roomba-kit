@@ -1,4 +1,4 @@
-"""SQLite persistence in `<state>/state.db` (research R7) with numbered migrations.
+"""SQLite persistence in `<state>/state.db` with numbered migrations.
 
 The store is a thin generic layer (`execute`, `fetchall`, `fetchone`, `transaction`); feature
 modules own their own queries. One connection is shared by the whole service, so statements are

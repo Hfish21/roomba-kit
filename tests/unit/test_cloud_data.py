@@ -1,4 +1,4 @@
-"""Cloud data parsing and the timeline watchers' restart rules (T078)."""
+"""Cloud data parsing and the timeline watchers' restart rules."""
 
 import asyncio
 import json

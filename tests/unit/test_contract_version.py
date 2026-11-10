@@ -1,4 +1,4 @@
-"""One kit contract version shared by HTTP, events and MCP (Constitution VII)."""
+"""One kit contract version shared by HTTP, events and MCP."""
 
 from roomba_kit.api import generate
 from roomba_kit.core.contract import CONTRACT_VERSION

@@ -1,4 +1,4 @@
-"""SC-004 / Constitution I (T108): with the cloud configured but blocked, local control works.
+"""With the cloud configured but blocked, local control works.
 
 Two cloud failure modes: every call fails at once (`fail`), and every call hangs forever (`hang`,
 a black-holed connection). The US1, US2, US3 (local room names), US5 and US8 suites are rerun

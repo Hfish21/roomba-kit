@@ -1,4 +1,4 @@
-"""`roomba-kit events watch`: follow the service's SSE event stream (T054).
+"""`roomba-kit events watch`: follow the service's SSE event stream.
 
 One line per event, or the event envelope as one JSON line with `--json`. When the stream drops
 (service restart, network blip) it reconnects with `Last-Event-ID`, so no event is missed or

@@ -1,8 +1,8 @@
-"""RobotSession: the single owner of one robot's local connection (Constitution II).
+"""RobotSession: the single owner of one robot's local connection.
 
 It supervises the connection with backoff, merges and normalizes reported state, publishes
 `connection.changed` and coalesced `state.changed` events, and runs every command and setting
-write for the robot through one FIFO queue (FR-030). Derived behaviour (events, history,
+write for the robot through one FIFO queue. Derived behaviour (events, history,
 alerts, …) hooks in through state listeners and the EventBus, never by editing this module.
 """
 
@@ -67,7 +67,7 @@ DOCK_RETRIES = 6
 """`dock` re-sent every 15 s, up to 6 times, while a stopped robot hasn't headed home."""
 
 REDISCOVER_AFTER = 3
-"""Consecutive offline connection attempts before re-locating the robot by BLID (FR-018)."""
+"""Consecutive offline connection attempts before re-locating the robot by BLID."""
 
 _LINK_ERRORS = {
     ConnectionState.HELD_ELSEWHERE: (
@@ -258,7 +258,7 @@ class RobotSession:
         return await future
 
     async def execute(self, command: str, params: dict[str, Any] | None = None) -> CommandResult:
-        """Send a command and confirm it took effect (FR-029). Capability is checked first."""
+        """Send a command and confirm it took effect. Capability is checked first."""
         if command not in {c.value for c in COMMAND_CAPABILITIES}:
             raise KitError(ErrorCode.INVALID_REQUEST, f"Unknown command: {command}", self.robot_id)
         profile = self.require(Capability(command))
@@ -287,7 +287,7 @@ class RobotSession:
             if command == "dock" and profile.dock_needs_pause and cleaning:
                 await send("pause", None, detect=False)  # the dock's outcome decides
             result = await send(command, params)
-            # After `stop`, both V1 models ignore `dock` for 30–70 s (HW-1). While the robot
+            # After `stop`, both V1 models ignore `dock` for 30–70 s. While the robot
             # sits stopped off its dock, keep asking, so `dock` reliably means "go home".
             for _ in range(DOCK_RETRIES):
                 if command != "dock" or result.outcome == "confirmed" or not self._stopped():

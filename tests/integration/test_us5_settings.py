@@ -1,4 +1,4 @@
-"""US5 (T069): settings are confirmed by read-back, related keys go together, unsupported ones
+"""US5: settings are confirmed by read-back, related keys go together, unsupported ones
 are refused before any robot contact. Runs against the fixture robots over the HTTP API."""
 
 import asyncio

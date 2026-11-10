@@ -5,7 +5,7 @@ applied once the robot reports the new value back.
 
 !!! note "Verified on hardware"
     Every setting each model supports (the "yes" cells below) is `verified`: reads and writes
-    passed `roomba-kit verify` on the owner's i5 and m6 in hardware session 1 (HW-1), and each
+    passed `roomba-kit verify` on the owner's i5 and m6 in hardware session 1, and each
     profile cites its run ([i5](verification/roomba_i5.md), [m6](verification/braava_m6.md)). The
     [support matrix](reference/support-matrix.md) is generated from the profiles and is the
     current word on each setting (see [How `verify` works](#how-verify-works)).
@@ -107,8 +107,7 @@ i5's schedule-triggered team routines is not yet verified on hardware.
 
 ## How `verify` works
 
-`verify` closes `unverified` capabilities by exercising them on the real robot (Constitution
-VIII). It checks only capabilities the model declares; naming another one is `not_supported`.
+`verify` closes `unverified` capabilities by exercising them on the real robot. It checks only capabilities the model declares; naming another one is `not_supported`.
 
 ```bash
 roomba-kit verify Vacuum setting.passes setting.edge_clean      # no motion

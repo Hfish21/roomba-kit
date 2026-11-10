@@ -2,7 +2,7 @@
 
 A model profile is a Python module that exports `PROFILE: ModelProfile`. It is registered under
 the entry-point group `roomba_kit.profiles`, so in-tree and third-party profiles load the same
-way. V1 ships `roomba_i5` and `braava_m6` (FR-025).
+way. V1 ships `roomba_i5` and `braava_m6`.
 
 ## A profile declares
 
@@ -17,7 +17,7 @@ way. V1 ships `roomba_i5` and `braava_m6` (FR-025).
 | `protocol_commands` | Kit command → firmware command where they differ (defaults: `clean`/`clean_rooms` → `start`, `reboot` → `reset`) |
 | `dock_needs_pause` | The firmware ignores `dock` while cleaning, so the kit pauses first (true for both V1 models) |
 | `error_texts`, `not_ready_texts` | Readable text for codes, overriding shared defaults |
-| `pairing_steps` | Optional. What to do at the robot during local password retrieval (FR-003): returned by `retrieve_password` and printed by `setup` and `robots password`. The first step is done before retrieval starts. Defaults to `DEFAULT_PAIRING_STEPS` in `profiles/base.py` (dock it, hold HOME ~2 s until it chimes, release), which unsupported models also get |
+| `pairing_steps` | Optional. What to do at the robot during local password retrieval: returned by `retrieve_password` and printed by `setup` and `robots password`. The first step is done before retrieval starts. Defaults to `DEFAULT_PAIRING_STEPS` in `profiles/base.py` (dock it, hold HOME ~2 s until it chimes, release), which unsupported models also get |
 
 A **SettingMapping** has these fields:
 
@@ -30,8 +30,7 @@ A **SettingMapping** has these fields:
 
 ## Rules
 
-1. Profiles contain **no surface code** and do not import surface modules (SC-011,
-   import-linter).
+1. Profiles contain **no surface code** and do not import surface modules (import-linter).
 2. Every declared capability starts as `unverified()` until a `roomba-kit verify` run passes on
    real hardware. The `run` reference points at `docs/verification/<profile>.md#<anchor>`.
 3. Capabilities not listed are `not_supported`. The kit never contacts the robot for them.
@@ -43,8 +42,7 @@ A **SettingMapping** has these fields:
 ## Adding a model (developer workflow; full guide in `docs/guides/adding-a-model.md`)
 
 1. Capture the robot's raw state with the developer script `scripts/capture_fixture.py`. This is
-   a dev tool, not a kit surface: raw payloads never appear on the API, MCP or CLI (Constitution
-   V). It requires the service to be stopped, connects directly, and writes a scrubbed
+   a dev tool, not a kit surface: raw payloads never appear on the API, MCP or CLI. It requires the service to be stopped, connects directly, and writes a scrubbed
    `state.json`.
 2. Copy the closest profile, then set `sku_patterns` and the capabilities, all `unverified()`.
 3. Add the fixture and run `pytest tests/profiles`.

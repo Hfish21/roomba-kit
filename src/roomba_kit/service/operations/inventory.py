@@ -1,4 +1,4 @@
-"""Robot inventory: the configured robots, their models and capabilities (FR-022, FR-024).
+"""Robot inventory: the configured robots, their models and capabilities.
 
 A robot whose model has no profile is still listed, with `supported=false` and no
 capabilities; every command on it fails with `unsupported_model` before contacting it.

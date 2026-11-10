@@ -272,7 +272,7 @@ def _unique_names(
 
 
 async def import_rooms(ctx: ServiceContext, session: RobotSession) -> tuple[int, MapRef]:
-    """Replace the robot's stored rooms with the cloud's current map (FR-008, FR-043).
+    """Replace the robot's stored rooms with the cloud's current map.
 
     Local names on that same map version are kept; rooms of other versions are dropped.
     """
@@ -361,7 +361,7 @@ async def clean_params(
     }
 
 
-# -- learned rooms (FR-032) ----------------------------------------------------------------------
+# -- learned rooms ----------------------------------------------------------------------
 
 
 async def record_learned(

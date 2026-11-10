@@ -1,4 +1,4 @@
-"""Settings operations: read every supported setting, and change one with read-back (US5)."""
+"""Settings operations: read every supported setting, and change one with read-back."""
 
 from pydantic import BaseModel, Field
 

@@ -1,4 +1,4 @@
-"""Derived events from normalized state (T050, contracts/events.md).
+"""Derived events from normalized state (contracts/events.md).
 
 A service component registers one state listener and publishes `activity.changed`,
 `mission.started`/`mission.finished`, `robot.docked`, `robot.stuck`, `bin.full`,
@@ -6,7 +6,7 @@ A service component registers one state listener and publishes `activity.changed
 in memory for `mission_wait` and history (`current_mission`). Missions aren't persisted here:
 `mission.started` and `mission.finished` each carry the whole `Mission`, enough to persist from.
 
-Mission rules (research R8, captures in tests/fixtures/captures):
+Mission rules (captures in tests/fixtures/captures):
 - A mission opens at cycle none→X but is only *started* once the robot is visibly running
   (cleaning, mapping, paused, returning or stuck). On hardware the first fragment of a new cycle
   still carries the previous mission's ID and the robot sits in a `charge` transient; the new ID

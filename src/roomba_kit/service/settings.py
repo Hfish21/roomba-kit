@@ -1,8 +1,8 @@
-"""Reading and writing robot settings, confirmed by read-back (FR-033–FR-035, research R9).
+"""Reading and writing robot settings, confirmed by read-back.
 
-A write publishes the setting's whole protocol `group` at once, inside the robot's FIFO queue
-(FR-030), then waits for the robot to report the requested value. Only a read-back counts as
-`applied` (FR-034): a robot that accepts a write and drops it reads back `not_applied`.
+A write publishes the setting's whole protocol `group` at once, inside the robot's FIFO
+queue, then waits for the robot to report the requested value. Only a read-back counts as
+`applied`: a robot that accepts a write and drops it reads back `not_applied`.
 """
 
 import asyncio
@@ -103,7 +103,7 @@ async def publish_confirmed(
 ) -> bool:
     """Publish protocol keys and wait for a fresh report where `holds(reported)`.
 
-    Runs inline: callers that need FIFO ordering (FR-030) call it inside `session.submit`.
+    Runs inline: callers that need FIFO ordering call it inside `session.submit`.
     A value the robot already held may never be echoed; it still reads back correctly.
     """
     session.require_link()
@@ -141,7 +141,7 @@ async def write_setting(
 async def change_setting(
     session: RobotSession, setting: str, value: Any, timeout_s: float | None = None
 ) -> SettingChange:
-    """Write one logical setting in the robot's FIFO queue, confirmed by read-back (FR-034)."""
+    """Write one logical setting in the robot's FIFO queue, confirmed by read-back."""
     mapping_for(session, setting)
     coerce(setting, value)  # validate before queueing: errors never wait behind commands
     return await session.submit(lambda: write_setting(session, setting, value, timeout_s))

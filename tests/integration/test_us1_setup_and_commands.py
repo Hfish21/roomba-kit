@@ -1,4 +1,4 @@
-"""US1 end to end over the real HTTP API, against fake robots and a fake cloud (T040).
+"""US1 end to end over the real HTTP API, against fake robots and a fake cloud.
 
 Covers: discovery (supported and unsupported models), adding by address, local password
 retrieval (stored, and cloud_only), inventory, every whole-home command confirmed, capability and

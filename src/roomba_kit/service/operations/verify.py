@@ -1,4 +1,4 @@
-"""The `verify` operation: scripted hardware checks that close unverified capabilities (R16)."""
+"""The `verify` operation: scripted hardware checks that close unverified capabilities."""
 
 from pydantic import BaseModel, Field
 

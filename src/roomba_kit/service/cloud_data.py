@@ -1,12 +1,12 @@
-"""Cloud extras (US6, FR-041–FR-043): the live mission timeline, floor plans, cloud history and
-per-mission coverage. All optional (Constitution I).
+"""Cloud extras: the live mission timeline, floor plans, cloud history and
+per-mission coverage. All optional.
 
 - **Timeline.** One watcher per robot whose profile declares `cloud.timeline` (verified or not),
-  over the account's one shared cloud MQTT session (research R12). Watchers run only while the
+  over the account's one shared cloud MQTT session. Watchers run only while the
   cloud is connected, restart when it reconnects or the login changes, and publish each new
   timeline entry once as a `cloud.timeline` event.
 - **Records.** Floor plans are fetched live and cached in `cloud_cache`; while the cloud is
-  down the cached copy is served with its original `retrieved_at` (FR-043). History is always
+  down the cached copy is served with its original `retrieved_at`. History is always
   live: FR-043 exempts only rooms and floor plans, so a down cloud is `cloud_unavailable`.
   Coverage for a finished mission never changes, so a cached copy is served without asking.
 
@@ -327,7 +327,7 @@ async def _live_or_cached[M: BaseModel](
     model: type[M],
     fetch: Callable[[CloudTransport], Awaitable[M]],
 ) -> M:
-    """Fetch and cache; while the cloud is down, the cached copy (FR-043)."""
+    """Fetch and cache; while the cloud is down, the cached copy."""
     try:
         value = await _call(ctx, robot_id, fetch)
     except KitError as err:
@@ -507,7 +507,7 @@ async def _fetch_history(robot_id: str, transport: CloudTransport) -> list[Cloud
 
 
 async def cloud_history(ctx: ServiceContext, robot_id: str, limit: int) -> list[CloudMission]:
-    """Always live (FR-042): a recent-missions list served stale would hide new missions."""
+    """Always live: a recent-missions list served stale would hide new missions."""
     history = await _call(ctx, robot_id, lambda transport: _fetch_history(robot_id, transport))
     return history[:limit]
 

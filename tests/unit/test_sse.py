@@ -1,4 +1,4 @@
-"""SSE at `GET /v1/events` (T053) and `events watch` (T054). httpx's ASGI transport buffers
+"""SSE at `GET /v1/events` and `events watch`. httpx's ASGI transport buffers
 whole responses, so the server tests drive the ASGI app directly and read frames as sent."""
 
 import asyncio
@@ -185,7 +185,7 @@ async def test_unknown_robot_is_an_error_not_an_empty_stream(ctx):  # noqa: F811
         assert s.status == 404 and body["error"]["code"] == "robot_not_found"
 
 
-# -- `roomba-kit events watch` (T054) ------------------------------------------------------------
+# -- `roomba-kit events watch` ------------------------------------------------------------
 
 
 def _envelope(seq: int, type_: str, data: dict[str, Any]) -> dict[str, Any]:

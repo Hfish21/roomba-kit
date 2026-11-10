@@ -1,6 +1,6 @@
 """iRobot account operations: log in, log out, status, and password retrieval through the cloud.
 
-The account is optional (Constitution I). `cloud_login` takes a password, so it's on HTTP and
+The account is optional. `cloud_login` takes a password, so it's on HTTP and
 the CLI but not MCP (plan Complexity Tracking).
 """
 

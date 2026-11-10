@@ -1,4 +1,4 @@
-"""Building blocks for the cross-cutting proof tests (T107–T109).
+"""Building blocks for the cross-cutting proof tests.
 
 Also a pytest plugin: `pytest -p tests.integration.helpers` with `ROOMBA_KIT_TEST_CLOUD=fail|hang`
 runs any test with the iRobot cloud configured but blocked (T108 reruns the story suites so).
@@ -124,7 +124,7 @@ def blocked_cloud(mode: str) -> FakeCloud:
     return cloud
 
 
-# -- the cloud-blocked plugin (T108) ---------------------------------------------------------
+# -- the cloud-blocked plugin ---------------------------------------------------------
 
 CLOUD_MODE_ENV = "ROOMBA_KIT_TEST_CLOUD"
 REPORT_ENV = "ROOMBA_KIT_TEST_CLOUD_REPORT"
@@ -176,7 +176,7 @@ def cloud_unavailable_reason(response: httpx.Response) -> str:
     return str(error["details"]["reason"])
 
 
-# -- virtual time (T109, SC-006) -------------------------------------------------------------
+# -- virtual time -------------------------------------------------------------
 
 
 class _VirtualSelector:
@@ -221,7 +221,7 @@ def run_virtual[T](main: Callable[[], Awaitable[T]]) -> T:
         return runner.run(main())  # type: ignore[arg-type]
 
 
-# -- the CLI against the in-process app (T107) -----------------------------------------------
+# -- the CLI against the in-process app -----------------------------------------------
 
 
 class AsgiBridge(httpx.BaseTransport):

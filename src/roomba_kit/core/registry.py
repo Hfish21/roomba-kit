@@ -2,7 +2,7 @@
 
 Each capability is one async handler registered with `@operation(...)`. The HTTP API, the MCP
 server and the CLI are generated from these records, so all three expose the same names,
-parameters, results and error codes (Constitution III).
+parameters, results and error codes.
 """
 
 from collections.abc import Awaitable, Callable, Iterator, Mapping

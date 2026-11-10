@@ -1,4 +1,4 @@
-"""API bearer tokens (research R6). Only SHA-256 digests are stored, in `credentials.toml`.
+"""API bearer tokens. Only SHA-256 digests are stored, in `credentials.toml`.
 
 Revocation from another process takes effect on the next `verify`, because the credential
 store re-reads the file when it changes. `last_used_at` is kept in memory and persisted at most
@@ -113,7 +113,7 @@ class TokenStore:
         """The token's name if it's valid, else None.
 
         `ROOMBA_KIT_API_TOKEN` in the service's environment is also accepted, as `env`, so a
-        container can run from env alone (FR-010).
+        container can run from env alone.
         """
         env = os.environ.get(API_TOKEN_ENV, "")
         if len(env) >= ENV_TOKEN_MIN_LEN and hmac.compare_digest(token, env):

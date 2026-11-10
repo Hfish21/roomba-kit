@@ -89,7 +89,7 @@ def test_m6_capture_docked_with_tank_pad_lid():
         ("charge", "evac", 100, Activity.EMPTYING_BIN),
         ("run", "evac", 100, Activity.EMPTYING_BIN),  # observed on the i5 mid-evac
         ("stuck", "clean", 50, Activity.STUCK),
-        ("charge", "clean", 100, Activity.DOCKED),  # a mission waiting on the dock (HW-1)
+        ("charge", "clean", 100, Activity.DOCKED),  # a mission waiting on the dock
         ("charge", "clean", 80, Activity.CHARGING),
         ("wobble", "none", 100, Activity.UNKNOWN),
     ],

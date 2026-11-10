@@ -1,4 +1,4 @@
-"""US2 (quickstart V2): full state on demand and a live, resumable event stream (T048)."""
+"""US2: full state on demand and a live, resumable event stream."""
 
 import asyncio
 from collections.abc import AsyncIterator

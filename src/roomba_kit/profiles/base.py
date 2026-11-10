@@ -23,7 +23,7 @@ DEFAULT_PAIRING_STEPS: tuple[str, ...] = (
     "Press and hold HOME for about 2 seconds until it chimes",
     "Release — retrieving…",
 )
-"""What to do at the robot while the kit retrieves its local password (FR-003), unless the
+"""What to do at the robot while the kit retrieves its local password, unless the
 profile says otherwise. The first step is done before retrieval starts."""
 
 Reported = Mapping[str, Any]
@@ -81,7 +81,7 @@ class ModelProfile:
     command_windows: dict[str, float] = field(default_factory=dict)
     """Per-command confirmation windows (seconds), keeping the default predicate."""
     pairing_steps: list[str] = field(default_factory=lambda: list(DEFAULT_PAIRING_STEPS))
-    """At-the-robot steps for local password retrieval (FR-003)."""
+    """At-the-robot steps for local password retrieval."""
 
     def __post_init__(self) -> None:
         if not re.fullmatch(r"[a-z][a-z0-9_]*", self.id):

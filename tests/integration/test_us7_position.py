@@ -1,4 +1,4 @@
-"""US7: live position (FR-039, FR-040, research R13, quickstart V7)."""
+"""US7: live position."""
 
 import asyncio
 from collections.abc import AsyncIterator

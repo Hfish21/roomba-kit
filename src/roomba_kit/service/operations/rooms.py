@@ -1,4 +1,4 @@
-"""Rooms and room cleaning (US3: FR-008, FR-031, FR-032, FR-043).
+"""Rooms and room cleaning (US3: FR-008).
 
 The CLI shows `clean_rooms` as `roomba-kit clean ROBOT --room …` (cli/aliases.py); the
 generated command stays reachable at `roomba-kit rooms clean`.

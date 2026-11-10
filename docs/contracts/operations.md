@@ -1,8 +1,8 @@
 # Contract: Operation Registry (v1)
 
 This is the single source of truth. The HTTP routes, MCP tools and CLI commands are all
-generated from it (research R1). An operation's name is identical on every surface. Robot
-parameters accept a robot ID or an unambiguous display name (FR-020).
+generated from it. An operation's name is identical on every surface. Robot
+parameters accept a robot ID or an unambiguous display name.
 
 Legend: **Cap** = the required profile capability (`—` means none). **Surfaces**: H = HTTP,
 M = MCP, C = CLI. Every operation is HCM unless marked otherwise.
@@ -34,7 +34,7 @@ M = MCP, C = CLI. Every operation is HCM unless marked otherwise.
 | `get_state` | `robot` | `RobotState` | — |
 | `get_capabilities` | `robot` | `[CapabilityStatus{capability, verification}]` | — |
 
-## Commands (each returns `CommandResult`, research R9)
+## Commands (each returns `CommandResult`)
 
 | Operation | Params | Cap |
 |---|---|---|
@@ -116,4 +116,4 @@ UTC) is what a profile's `Verification.verified(run=...)` cites.
 `roomba-kit setup` is an interactive wizard. It calls only the operations above
 (`discover_robots`, `add_robot`, `retrieve_password`, `cloud_login`,
 `cloud_retrieve_password`, `import_rooms`) and adds prompts and explanations, with no
-behaviour of its own (Constitution III).
+behaviour of its own.

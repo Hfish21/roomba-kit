@@ -1,4 +1,4 @@
-"""CloudManager: the optional iRobot cloud subsystem (research R12, Constitution I).
+"""CloudManager: the optional iRobot cloud subsystem.
 
 One shared login for the account, made in the background. Its status is `not_configured`,
 `connected` or `unavailable(reason)`. Failures back off exponentially up to 15 minutes; rejected
@@ -176,7 +176,7 @@ class CloudManager:
         self._wake.set()
 
     async def configure(self, username: str, password: str, country: str) -> CloudStatus:
-        """Log in with new credentials and save them only if the login succeeds (FR-006).
+        """Log in with new credentials and save them only if the login succeeds.
 
         Raises `auth_failed` or `cloud_unavailable` without touching the saved credentials or
         the current login. On success the validated login is adopted, so it isn't repeated.

@@ -1,4 +1,4 @@
-"""Robot commands (FR-028–FR-030). Each one runs through the robot's FIFO queue and returns a
+"""Robot commands. Each one runs through the robot's FIFO queue and returns a
 `CommandResult` once the state change is confirmed, or `unconfirmed` when the window expires.
 """
 

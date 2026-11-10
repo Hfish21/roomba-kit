@@ -1014,7 +1014,7 @@
               }
             ],
             "default": null,
-            "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+            "description": "For a model without a profile, the guide to adding one; otherwise null.",
             "title": "Guide"
           },
           "id": {
@@ -1684,7 +1684,7 @@
         "type": "object"
       },
       "MissionDetail": {
-        "description": "One mission from local history, with its activity transitions (FR-045).",
+        "description": "One mission from local history, with its activity transitions.",
         "properties": {
           "cloud_mission_ref": {
             "anyOf": [
@@ -2125,7 +2125,7 @@
               }
             ],
             "default": null,
-            "description": "For a model without a profile, the guide to adding one (FR-024); otherwise null.",
+            "description": "For a model without a profile, the guide to adding one; otherwise null.",
             "title": "Guide"
           },
           "id": {
@@ -2882,7 +2882,7 @@
         "type": "object"
       },
       "Verification": {
-        "description": "Whether a capability has been exercised on real hardware (Constitution VIII).",
+        "description": "Whether a capability has been exercised on real hardware.",
         "properties": {
           "run": {
             "anyOf": [

@@ -1,7 +1,7 @@
 # Contract: Error Catalogue (v1)
 
-These are the only error codes any surface may return (FR-050). Messages never contain
-secrets (FR-012).
+These are the only error codes any surface may return. Messages never contain
+secrets.
 
 | Code | Meaning | HTTP | CLI exit |
 |---|---|---|---|

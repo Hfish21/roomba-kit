@@ -108,7 +108,7 @@ def build_mcp(executor: Executor, ops: Iterable[Operation] | None = None) -> Fas
     """`FastMCP("roomba-kit")` with one tool per operation (default: every `mcp` operation).
 
     The server version is the kit contract version, so a breaking tool change shows in
-    `serverInfo` (Constitution VII).
+    `serverInfo`.
     """
     server: FastMCP = FastMCP(SERVER_NAME, version=CONTRACT_VERSION)
     for op in registry.on("mcp") if ops is None else ops:

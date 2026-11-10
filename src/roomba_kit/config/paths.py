@@ -1,4 +1,4 @@
-"""Config and state locations (contracts/config.md, research R5) and atomic file writes."""
+"""Config and state locations (contracts/config.md) and atomic file writes."""
 
 import os
 import secrets
@@ -38,7 +38,7 @@ def state_db() -> Path:
 
 
 def cli_token_file() -> Path:
-    """`<config>/cli.token`, next to `credentials.toml`, so credentials live in one place (FR-009).
+    """`<config>/cli.token`, next to `credentials.toml`, so credentials live in one place.
 
     A token at the old location (`legacy_cli_token_file()`) is copied here, keeping its mode,
     the first time the path is looked up and no token exists here yet. The old file is left in

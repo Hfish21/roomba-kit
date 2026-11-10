@@ -1,4 +1,4 @@
-"""Live position polling (research R13, FR-039, FR-040).
+"""Live position polling.
 
 For robots whose profile declares `live_position`, a per-robot task asks for a fix every
 `POLL_INTERVAL_S` while the robot is `cleaning`, `mapping` or `returning`, and publishes each
@@ -10,7 +10,7 @@ again for the rest of that mission. Once it has answered, timeouts never stop po
 
 Requests go straight to the session, not through its FIFO command queue: a position request
 changes nothing on the robot, needs no ordering against commands, and putting a 2 s request
-in the queue would delay every command behind it (FR-040).
+in the queue would delay every command behind it.
 """
 
 import asyncio

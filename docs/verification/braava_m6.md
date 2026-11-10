@@ -24,7 +24,7 @@ the summary, oldest first; they contain no robot IDs, names or addresses.
 | `train` | ⚪ unverified | Not run: needs the owner's explicit OK |
 | `evac`, `state.bin`, `state.clean_base`, `setting.always_finish`, `setting.carpet_boost` | — not supported | No Clean Base or bin |
 
-Model behaviour the kit now handles (decisions #76, #77): `dock` while mopping is ignored
+Model behaviour the kit now handles: `dock` while mopping is ignored
 until paused; pause/stop/dock can land up to ~15 s after the echo (30 s windows); `dock`
 right after `stop` is ignored for 30–70 s (the kit re-sends it).
 
@@ -45,7 +45,7 @@ same way, so this is a robot-side tank-detection fault (inferred: sensor or cont
 first room clean attempt also correctly hit `map_changed`: the m6 saved a new map version
 (`261109T213701`) during the session, and rooms were re-imported.
 
-**Resolved (HW-2, 2026-11-10).** After the owner worked on the robot, not-ready 31 cleared at
+**Resolved (2026-11-10).** After the owner worked on the robot, not-ready 31 cleared at
 01:43:36 UTC (briefly replaced by not-ready 34, "no mop pad attached", while the pad was
 refitted). By 01:49:23 the m6 reported `tank.present=true, level 100`, pad `reusableWet`, lid
 closed and no not-ready, and the room clean below ran.

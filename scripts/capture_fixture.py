@@ -3,9 +3,9 @@
     uv run python scripts/capture_fixture.py ROBOT --profile <new_profile_id>
     uv run python scripts/capture_fixture.py ROBOT --out /tmp/state.json --seconds 60
 
-A developer tool, not a kit surface: raw payloads never reach the API, MCP or CLI
-(Constitution V). It connects to the robot directly, so the service must be stopped first
-(robots accept one local connection). ROBOT is a configured robot's ID or name; its address
+A developer tool, not a kit surface: raw payloads never reach the API, MCP or CLI. It
+connects to the robot directly, so the service must be stopped first (robots accept one local
+connection). ROBOT is a configured robot's ID or name; its address
 and password come from the kit's config and credentials. The default output is
 `tests/fixtures/profiles/<profile>/state.json`.
 """
@@ -131,7 +131,7 @@ def scrub(
 
 
 def refuse_if_service_running(pid_file: Path, url: str) -> None:
-    """Exit if the kit's service could be holding a robot connection (Constitution II)."""
+    """Exit if the kit's service could be holding a robot connection."""
     pid = daemon.read_pid(pid_file)
     if pid is not None and daemon.alive(pid):
         sys.exit(f"The service is running (pid {pid}). Stop the service first: "

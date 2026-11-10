@@ -1,4 +1,4 @@
-"""Room storage, naming, resolution and room-clean params (service/rooms.py, T058)."""
+"""Room storage, naming, resolution and room-clean params (service/rooms.py)."""
 
 from dataclasses import dataclass, field
 from datetime import UTC, datetime

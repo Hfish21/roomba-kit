@@ -1,4 +1,4 @@
-"""Log redaction (FR-012): mask every known secret value and secret-shaped patterns."""
+"""Log redaction: mask every known secret value and secret-shaped patterns."""
 
 import logging
 import re
