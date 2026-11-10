@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 import stat
@@ -75,6 +76,55 @@ def test_env_beats_file_beats_defaults(tmp_kit_home: Path, monkeypatch: pytest.M
     assert s.server.port == 9100
     assert s.alerts.dock_search_minutes == 5
     assert CANARY not in s.model_dump_json() and CLOUD_CANARY not in s.model_dump_json()
+
+
+def test_robots_from_env_merge_by_id_and_are_never_written(
+    tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """FR-010: a container can define its robots in `ROOMBA_KIT_ROBOTS` (JSON)."""
+    other = "00000000000000000000000000000002"
+    paths.config_file().write_text(
+        f'[[robots]]\nid = "{BLID}"\nname = "Kitchen"\naddress = "192.0.2.10"\n'
+    )
+    env = [
+        {"id": BLID, "address": "192.0.2.20"},
+        {"id": other, "name": "Mop", "address": "192.0.2.11", "profile": "braava_m6"},
+    ]
+    monkeypatch.setenv("ROOMBA_KIT_ROBOTS", json.dumps(env))
+    monkeypatch.setenv(f"ROOMBA_KIT_ROBOTS__{BLID}__PASSWORD", CANARY)  # still a credential
+    robots = {r.id: r for r in load_settings().robots}
+    assert (robots[BLID].name, robots[BLID].address) == ("Kitchen", "192.0.2.20")
+    assert (robots[other].name, robots[other].profile) == ("Mop", "braava_m6")
+    assert CredentialStore().robot_password(BLID) == CANARY
+    assert [r.id for r in load_config().robots] == [BLID]
+    upsert_robot(RobotEntry(id=BLID, name="Hall", address="192.0.2.10"))
+    written = tomllib.loads(paths.config_file().read_text())
+    assert [(r["id"], r["address"]) for r in written["robots"]] == [(BLID, "192.0.2.10")]
+
+    for bad in ("not json", '{"id": "x"}', '[{"name": "no id"}]'):
+        monkeypatch.setenv("ROOMBA_KIT_ROBOTS", bad)
+        with pytest.raises(KitError) as err:
+            load_settings()
+        assert (
+            err.value.code is ErrorCode.INVALID_REQUEST and "ROOMBA_KIT_ROBOTS" in err.value.message
+        )
+
+
+def test_service_accepts_the_env_api_token(
+    tmp_kit_home: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """FR-010: an env-only container runs with one token, `ROOMBA_KIT_API_TOKEN`."""
+    tokens = TokenStore(CredentialStore())
+    assert tokens.verify("rk_env-token-0123456789") is None
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "rk_env-token-0123456789")
+    assert tokens.verify("rk_env-token-0123456789") == "env"
+    assert tokens.verify("rk_env-token-012345678") is None
+    tokens.check()
+    monkeypatch.setenv("ROOMBA_KIT_API_TOKEN", "short")
+    assert tokens.verify("short") is None  # too short to accept
+    with pytest.raises(KitError) as err:
+        tokens.check()  # and the service refuses to start with it
+    assert "ROOMBA_KIT_API_TOKEN" in err.value.message
 
 
 def test_env_values_are_never_written_back(

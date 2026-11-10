@@ -23,6 +23,8 @@ from roomba_kit.core.errors import ErrorCode, KitError
 CLI_TOKEN_NAME = "cli"  # noqa: S105 - a token name, not a token
 TOKEN_PREFIX = "rk_"  # noqa: S105 - lets the redactor recognise kit tokens by shape
 API_TOKEN_ENV = "ROOMBA_KIT_API_TOKEN"  # noqa: S105 - an env var name
+ENV_TOKEN_NAME = "env"  # noqa: S105 - the name the service gives `ROOMBA_KIT_API_TOKEN`
+ENV_TOKEN_MIN_LEN = 16
 _NAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,63}")
 
 
@@ -102,7 +104,14 @@ class TokenStore:
         return token
 
     def verify(self, token: str) -> str | None:
-        """The token's name if it's valid, else None."""
+        """The token's name if it's valid, else None.
+
+        `ROOMBA_KIT_API_TOKEN` in the service's environment is also accepted, as `env`, so a
+        container can run from env alone (FR-010).
+        """
+        env = os.environ.get(API_TOKEN_ENV, "")
+        if len(env) >= ENV_TOKEN_MIN_LEN and hmac.compare_digest(token, env):
+            return ENV_TOKEN_NAME
         digest = _digest(token)
         name: str | None = None
         for record in self._credentials.token_records():
@@ -154,9 +163,17 @@ class TokenStore:
             self._cli_token_path.unlink(missing_ok=True)
         return found
 
-    def check_files(self) -> None:
-        """Raise unless `cli.token` (when present) is 0600. The service runs this at start."""
+    def check(self) -> None:
+        """Raise unless `cli.token` (when present) is 0600 and any `ROOMBA_KIT_API_TOKEN` is
+        long enough to accept. The service runs this at start."""
         _read_token_file(self._cli_token_path)
+        env = os.environ.get(API_TOKEN_ENV, "")
+        if env and len(env) < ENV_TOKEN_MIN_LEN:
+            raise KitError(
+                ErrorCode.INVALID_REQUEST,
+                f"{API_TOKEN_ENV} is too short for the service to accept: use at least "
+                f"{ENV_TOKEN_MIN_LEN} characters (`roomba-kit token create <name>` makes one).",
+            )
 
     def secrets(self) -> Iterator[str]:
         """Plaintexts this process knows: tokens it minted, plus the CLI and env tokens.

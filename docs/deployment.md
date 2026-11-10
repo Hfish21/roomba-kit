@@ -101,19 +101,33 @@ chmod 600 ./config/credentials.toml && sudo chown 1000:1000 ./config/credentials
 
 ## Configuration from the environment
 
-Every `config.toml` setting except the robot list can come from `ROOMBA_KIT_*` variables (`__`
-nests), and env wins over the files. Values from env are never written back to disk. The robot
-list lives in `<config>/config.toml` and is written by `robots add` / `setup` through the API, so
-the config dir must stay writable.
+Every `config.toml` setting can come from `ROOMBA_KIT_*` variables (`__` nests), and env wins
+over the files. Values from env are never written back to disk. The robot list can also come from
+`ROOMBA_KIT_ROBOTS`, a JSON list merged by `id` over the robots in `config.toml` (an entry
+overrides only the fields it sets; unknown ids are added):
+
+```bash
+ROOMBA_KIT_ROBOTS='[{"id": "<BLID>", "name": "Vacuum", "address": "192.0.2.10", "profile": "roomba_i5"}]'
+```
+
+`robots add` / `setup` still write `config.toml` through the API, so keep the config dir
+writable unless every robot comes from env. Removing an env-defined robot lasts only until the
+service restarts; take it out of `ROOMBA_KIT_ROBOTS` too.
+
+For a container that runs from env alone, set `ROOMBA_KIT_API_TOKEN` in the service's
+environment: the service accepts it as a bearer token (named `env`; at least 16 characters, or
+the service refuses to start), so one secret serves both the service and the CLI inside the
+container. Make one with `python3 -c "import secrets; print('rk_' + secrets.token_urlsafe(32))"`.
 
 | Variable | Sets |
 |---|---|
 | `ROOMBA_KIT_SERVER__HOST`, `ROOMBA_KIT_SERVER__PORT` | Bind address and port |
 | `ROOMBA_KIT_DISCOVERY__BROADCAST` | Rediscovery broadcast address (e.g. `192.0.2.255`) |
+| `ROOMBA_KIT_ROBOTS` | Robots as JSON `[{id, name, address, profile}]`, merged by `id` over `config.toml` |
 | `ROOMBA_KIT_ROBOTS__<BLID>__PASSWORD` | One robot's local password |
 | `ROOMBA_KIT_CLOUD__USERNAME`, `ROOMBA_KIT_CLOUD__PASSWORD` | iRobot account, for cloud extras |
 | `ROOMBA_KIT_CONFIG_DIR`, `ROOMBA_KIT_STATE_DIR` | Where the files live |
-| `ROOMBA_KIT_API_TOKEN` | Client side: the token the CLI and stdio MCP send |
+| `ROOMBA_KIT_API_TOKEN` | The token the CLI and stdio MCP send; the service also accepts it (as `env`) |
 
 For the container, put secrets in `deploy/roomba-kit.env`, one `NAME=value` per line. Compose
 reads it if it exists; `*.env` is gitignored and never copied into the image. Treat that file
