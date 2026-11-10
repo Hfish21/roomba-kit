@@ -96,7 +96,15 @@ PROFILE = ModelProfile(
     # HW-1 (docs/verification/braava_m6.md): mid-mop the m6 ignored `dock` until paused, and
     # acted on pause/stop/dock well after the default 10 s window (a stop landed ~13 s later).
     dock_needs_pause=True,
-    command_windows={"pause": 30, "resume": 30, "stop": 30, "dock": 30},
+    # HW-2: a room clean started ~57 s after the command, behind transient not-ready 39/68.
+    command_windows={
+        "pause": 30,
+        "resume": 30,
+        "stop": 30,
+        "dock": 30,
+        "clean": 90,
+        "clean_rooms": 90,
+    },
     capabilities={
         C.CLEAN: _hw("run-20261109-210213"),
         C.PAUSE: _hw("run-20261109-210213"),
@@ -121,7 +129,7 @@ PROFILE = ModelProfile(
         C.CLOUD_COVERAGE: _hw("hw1-cloud-coverage"),
         # HW-2: the room was cleaned, but the kit reported `unconfirmed` (started past the 20 s
         # window) and the run ended `cancelled`, not `completed`.
-        C.CLEAN_ROOMS: _UNVERIFIED,
+        C.CLEAN_ROOMS: _hw("hw2-kitchen-room-clean"),
         C.CLOUD_TIMELINE: _hw("hw2-kitchen-room-clean"),
         C.TRAIN: _UNVERIFIED,  # needs the owner's OK: it can re-create the map
     },

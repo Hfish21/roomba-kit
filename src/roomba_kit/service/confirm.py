@@ -56,6 +56,8 @@ def _fresh_echo(v: ConfirmView, names: frozenset[str]) -> bool:
     now = v.now.last_command
     if now is None or now.command not in names:
         return False
+    if v.echoed_since_send is not None:
+        return v.echoed_since_send  # a real echo message arrived after the send
     prior = v.before.last_command if v.before else None
     if prior is None or prior.command not in names:
         return True
@@ -121,6 +123,7 @@ async def await_confirmation(
     *,
     before: RobotState | None,
     sent_at: datetime,
+    echoes_before: int | None = None,
     clock: Callable[[], float] = time.monotonic,
 ) -> CommandResult:
     """Wait up to `spec.window_s` for `spec.predicate`, re-checking on every change.
@@ -137,6 +140,11 @@ async def await_confirmation(
             before=before,
             now=now,
             reconnected_since_send=source.reconnected_since(sent_at),
+            echoed_since_send=(
+                None
+                if echoes_before is None
+                else getattr(source, "echo_count", echoes_before) > echoes_before
+            ),
         )
         confirmed = spec.predicate(view)
         remaining = deadline - clock()

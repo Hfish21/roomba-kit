@@ -71,7 +71,7 @@ Type: `CommandResult`
 
 Clean only the given rooms, in order, by name or ID. Refused with `map_changed` when the names come from an older map version, and with `room_not_found` (listing the valid rooms) when a room isn't on the current map. Confirmed when the robot reports cleaning.
 Supported on: braava_m6, roomba_i5
-Verification: braava_m6: unverified, roomba_i5: verified
+Verification: braava_m6: verified, roomba_i5: verified
 ⚠ Moves the robot: it will physically start, stop or drive.
 
 | Surface | Usage |

@@ -168,3 +168,11 @@ docker run --rm -v roomba-kit_config:/config -v roomba-kit_state:/state -v "$PWD
 ```
 
 A backup contains secrets: store it like one, and restore `credentials.toml` as 0600.
+
+## Laptops sleep
+
+A Mac (or any laptop) running the service stops it while asleep: robot links freeze, missions in
+progress go unobserved, and commands queue until it wakes (HW-2 saw a 17-minute idle sleep mid
+mission). For an always-on setup use a host that doesn't sleep, or keep the Mac awake while the
+service runs, e.g. `caffeinate -s` under launchd or the Energy settings' "Prevent automatic
+sleeping when the display is off".

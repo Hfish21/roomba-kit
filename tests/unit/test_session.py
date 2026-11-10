@@ -486,4 +486,19 @@ def test_m6_uses_longer_confirmation_windows():
 
     m6, i5 = get_profile("braava_m6"), get_profile("roomba_i5")
     assert spec_for("stop", m6).window_s == 30 and spec_for("stop", i5).window_s == 10
-    assert spec_for("clean", m6).window_s == 20  # untouched commands keep the default
+    assert spec_for("find", m6).window_s == 5  # untouched commands keep the default
+    assert spec_for("clean_rooms", m6).window_s == 90
+
+
+async def test_same_command_twice_in_one_second_confirms_by_echo_message(bus, factory):
+    """Echo times are whole seconds, so a second `clean` in the same second as the first
+    can't be told apart by timestamp; the echo message itself proves it was received."""
+    s = _session(bus, factory)
+    await s.start()
+    try:
+        await _until(lambda: s.connection is ConnectionState.CONNECTED and s.has_state)
+        assert (await s.execute("clean")).outcome == "confirmed"
+        again = await asyncio.wait_for(s.execute("clean"), 5)
+        assert again.outcome == "confirmed" and again.waited_ms < 2000
+    finally:
+        await s.stop()
