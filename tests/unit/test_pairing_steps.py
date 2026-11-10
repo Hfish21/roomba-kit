@@ -64,6 +64,10 @@ async def test_unsupported_robot_gets_the_default_steps(ctx):
 
 
 def test_wizard_prints_the_profile_steps(tmp_kit_home, monkeypatch):
+    # The wizard probes the real port before anything else; never let it start a service.
+    from roomba_kit.lifecycle import daemon
+
+    monkeypatch.setattr(daemon, "health", lambda url, timeout=1.0: {"status": "ok"})
     m6 = dataclasses.replace(load_profiles()["braava_m6"], pairing_steps=MOP_STEPS)
     monkeypatch.setitem(load_profiles(), "braava_m6", m6)
     service = Service(
