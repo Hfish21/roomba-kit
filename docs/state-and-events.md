@@ -23,7 +23,7 @@ pushed as a typed event you can stream, page through or wait on. Same names on e
 | `battery_pct`, `activity` | See [activity](#activity) below. |
 | `mission` | The robot's current mission: `id`, `started_at`, `initiator` (`kit`, `schedule`, `button`, `app`, `team`, `other`). `null` when idle. |
 | `last_command` | The last command the robot accepted from *any* client, with its rooms and map for a room clean. |
-| `error`, `not_ready` | `{code, text}`. The text comes from the robot's profile, then a shared table, else `Error <code>`. Not-ready 23 and 39 are transient lifecycle states that clear on their own; 68 means the robot is off its dock. |
+| `error`, `not_ready` | `{code, text}`. The text comes from the robot's profile, then a shared table, else `Error <code>`. Not-ready 23 and 39 are transient lifecycle states that clear on their own; 68 means "Not ready yet (transient around docking and bin emptying)". |
 | `signal`, `map`, `schedules`, `counters` | Wi-Fi RSSI/SNR, the stored map's ID and version, robot-stored schedules (read-only), lifetime counters. |
 | `bin`, `clean_base`, `pad`, `tank`, `lid_open` | Only for models that have them (`null` otherwise). |
 | `settings` | Current value of each setting the model supports. |

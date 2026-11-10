@@ -54,13 +54,13 @@ generators, so no surface is written by hand.
   | Area | Commands |
   |---|---|
   | Lifecycle (local; work without the service) | `serve`, `service start`, `service stop`, `service status`, `service install`, `service uninstall`, `service logs`, `mcp`, `config path`, `token create`, `token list`, `token revoke`, `version` |
-  | Setup | `setup` (wizard), `discover [--broadcast ADDR]`, `robots add ADDR`, `robots remove ROBOT`, `robots password ROBOT [--manual]`, `cloud login`, `cloud logout`, `cloud status` |
-  | Inventory | `robots list`, `robots show ROBOT`, `state ROBOT`, `capabilities ROBOT` |
+  | Setup | `setup` (wizard), `discover [--broadcast ADDR]`, `robots add ADDR`, `robots remove ROBOT`, `robots password ROBOT [--manual]`, `robots set-password ROBOT`, `cloud login`, `cloud logout`, `cloud status`, `cloud password ROBOT` |
+  | Inventory | `health`, `robots list`, `robots show ROBOT`, `state ROBOT`, `capabilities ROBOT` |
   | Commands | `clean ROBOT [--room NAME_OR_ID …] [--unordered]`, `pause ROBOT`, `resume ROBOT`, `stop ROBOT`, `dock ROBOT`, `find ROBOT`, `evac ROBOT`, `reboot ROBOT`, `train ROBOT` |
   | Settings | `settings show ROBOT`, `settings set ROBOT SETTING VALUE` |
-  | Rooms | `rooms list ROBOT`, `rooms import ROBOT`, `rooms name ROBOT ROOM_ID NAME`, `floor-plan ROBOT` |
+  | Rooms | `rooms list ROBOT`, `rooms import ROBOT`, `rooms name ROBOT ROOM_ID NAME`, `rooms clean ROBOT --rooms NAME_OR_ID …`, `floor-plan ROBOT` |
   | Position | `position ROBOT [--watch]` |
-  | Events & history | `events list`, `events watch [--robot] [--type …]`, `missions list`, `missions show ID`, `missions wait ROBOT`, `cloud history ROBOT`, `coverage ROBOT MISSION` |
+  | Events & history | `events list`, `events watch [--robot] [--type …]`, `events wait --since SEQ [--robot] [--types …]`, `missions list`, `missions show ID`, `missions wait ROBOT`, `cloud history ROBOT`, `coverage ROBOT MISSION` |
   | Config & verification | `config show`, `verify ROBOT [CAPABILITY …] [--allow-motion]` |
 
 - `clean ROBOT` with no `--room` maps to `clean`; with rooms it maps to `clean_rooms`. This is

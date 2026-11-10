@@ -78,7 +78,7 @@ and an event rate of a few per second at peak.
 | IX. Docs part of done | The reference is generated from the registry, with a CI staleness check (R15). The quickstart scenarios map to the docs. | ✅ |
 | Tech constraints | Python 3.13+, uv, Click, FastAPI, FastMCP, async; the API has auth; one-command start/stop; container deploy. | ✅ |
 
-Post-design re-check (after Phase 1): unchanged, all ✅. The only exceptions are the two
+Post-design re-check (after Phase 1): unchanged, all ✅. The only exceptions are the ones
 recorded under Complexity Tracking.
 
 ## Project Structure
@@ -204,6 +204,7 @@ import-linter:
 |---|---|---|
 | III: `token_create`, `token_list` and `token_revoke` are CLI-only, as local file operations | Creating a token must show the secret once. VI forbids secrets in HTTP/MCP responses. | Exposing them on HTTP/MCP would put a live credential in an API or LLM response |
 | III: `cloud_login` and `set_robot_password` are on HTTP and CLI but not MCP | They take secrets as input. Routing account passwords through an LLM context is a leak path VI exists to prevent. | Keeping them on MCP for strict parity trades a real secret-exposure risk for symmetry. The parity test asserts this exclusion list explicitly. |
+| III: `serve`, `service start\|stop\|status\|install\|uninstall\|logs`, `config path`, `version` and `mcp` are CLI-only and not registry operations | They manage the local kit process (start it, stop it, install it as an OS service, find its files, run the stdio MCP server). None is a robot or account capability, so FR-046's parity requirement, which covers capabilities, doesn't apply. Their HTTP-side counterparts (`health`, `service_status`, `config_show`) are operations. | Making them operations would expose "stop the service" or "install a launchd agent" over the very HTTP/MCP server they control, and a stopped service can't answer `service start` anyway |
 
 ## Open Risks Carried Into Tasks
 
