@@ -119,8 +119,10 @@ PROFILE = ModelProfile(
         C.CLOUD_ROOMS: _hw("run-20261109-141806"),
         C.CLOUD_HISTORY: _hw("run-20261109-141806"),
         C.CLOUD_COVERAGE: _hw("hw1-cloud-coverage"),
-        C.CLEAN_ROOMS: _UNVERIFIED,  # blocked in HW-1: the robot stopped detecting its water tank
-        C.CLOUD_TIMELINE: _UNVERIFIED,  # needs a mission; blocked with clean_rooms
+        # HW-2: the room was cleaned, but the kit reported `unconfirmed` (started past the 20 s
+        # window) and the run ended `cancelled`, not `completed`.
+        C.CLEAN_ROOMS: _UNVERIFIED,
+        C.CLOUD_TIMELINE: _hw("hw2-kitchen-room-clean"),
         C.TRAIN: _UNVERIFIED,  # needs the owner's OK: it can re-create the map
     },
     settings={
