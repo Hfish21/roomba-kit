@@ -16,7 +16,7 @@ roomba-kit missions wait Vacuum
 | Model | `clean_rooms` | `cloud.rooms` (import) |
 |---|---|---|
 | Roomba i5/i5+ | ✅ verified: went straight to the Laundry Room and cleaned it | ✅ verified |
-| Braava jet m6 | ⚪ **unverified**: no room clean has been tried on the m6 | ✅ verified |
+| Braava jet m6 | ⚪ **unverified**: tried in HW-1, where the first attempt correctly hit `map_changed` (the m6 had saved a new map version, so rooms were re-imported); the retry was then blocked by a robot-side water-tank fault. See [the m6 verification report](verification/braava_m6.md#hw1-tank-fault) | ✅ verified |
 
 Room IDs on the owner's robots, for orientation: the i5 has 1 Living Room, 3 Den, 4 Office,
 5 Primary Bathroom, 6 Primary Bedroom, 7 Laundry Room and 8 Guest Bathroom (there is no room 2).

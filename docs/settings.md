@@ -3,10 +3,12 @@
 Roomba Kit reads and changes the settings each robot stores, and only reports a change as
 applied once the robot reports the new value back.
 
-!!! warning "Unverified"
-    Every setting write is `unverified` on both models until a `roomba-kit verify` run passes on
-    real hardware (see [How `verify` works](#how-verify-works)). Reads are taken from the state
-    the robots publish, which was captured on hardware.
+!!! note "Verified on hardware"
+    Every setting each model supports (the "yes" cells below) is `verified`: reads and writes
+    passed `roomba-kit verify` on the owner's i5 and m6 in hardware session 1 (HW-1), and each
+    profile cites its run ([i5](verification/roomba_i5.md), [m6](verification/braava_m6.md)). The
+    [support matrix](reference/support-matrix.md) is generated from the profiles and is the
+    current word on each setting (see [How `verify` works](#how-verify-works)).
 
 ## Settings per model
 
